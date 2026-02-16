@@ -1,0 +1,101 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "011-create-awareness-table",
+        "author": "goodmood",
+         "validCheckSum": "ANY",
+        "comment": "Create awareness table",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "awareness",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "bigint",
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "awareness_name",
+                    "type": "varchar(255)",
+                    "constraints": {        
+                        "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "image",
+                    "type": "varchar(255)",
+                    "constraints": {        
+                        "nullable": true
+                    }
+                  }
+                },
+                 {
+                  "column": {
+                    "name": "description",
+                    "type": "longtext",
+                     "constraints": {        
+                        "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "color_code",
+                    "type": "varchar(255)",
+                     "constraints": {        
+                        "nullable": true
+                    }
+                  }
+                },
+                 {
+                  "column": {
+                    "name": "subsidebar_id",
+                    "type": "bigint"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "type": "int",
+                    "defaultValueNumeric": 1
+                  }
+                },
+                {
+                  "column": {
+                    "name": "created_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "updated_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

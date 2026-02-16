@@ -1,0 +1,139 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "015-create-posts-table",
+        "author": "goodmood",
+        "comment": "Create posts table with foreign keys and slug index",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "posts",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "bigint",
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "bigint",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "category_id",
+                    "type": "bigint",
+                    "constraints": {
+                      "nullable": false
+                     
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "title",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "slug",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "unique": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "summary",
+                    "type": "varchar(500)"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "content",
+                    "type": "clob",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "image",
+                    "type": "varchar(500)",
+                    "constraints": {
+                      "nullable": true
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "type": "varchar(20)",
+                    "defaultValue": "DRAFT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "published_at",
+                    "type": "datetime"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "created_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "updated_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_post_slug",
+              "tableName": "posts",
+              "columns": [
+                {
+                  "column": {
+                    "name": "slug"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

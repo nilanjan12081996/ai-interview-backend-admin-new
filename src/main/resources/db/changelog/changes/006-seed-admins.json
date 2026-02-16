@@ -1,0 +1,28 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "006-seed-admins",
+        "author": "goodmood",
+        "validCheckSum": "ANY",
+        "comment": "Seed admins table",
+        "changes": [
+          {
+            "insert": {
+              "tableName": "admins",
+              "columns": [
+                { "column": { "name": "f_name", "value": "John" } },
+                { "column": { "name": "l_name", "value": "Doe" } },
+                { "column": { "name": "username", "value": "admin_john" } },
+                { "column": { "name": "email", "value": "john@yopmail.com" } },
+                { "column": { "name": "password", "value": "$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVwdFEXn5RizQIq9raofgcMT" } },
+                { "column": { "name": "role_id", "valueNumeric": 1 } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

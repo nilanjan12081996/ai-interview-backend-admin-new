@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  mysql-replica:
+    image: mysql:latest
+    container_name: mysql-replica
+    ports:
+      - "3307:3306"  # Maps PC port 3307 to Container port 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - mysql_replica_data:/var/lib/mysql # Saves data permanently here
+    restart: always
+
+volumes:
+  mysql_replica_data:

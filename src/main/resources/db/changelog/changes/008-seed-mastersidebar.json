@@ -1,0 +1,134 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "008-seed-mastersidebar",
+        "author": "goodmood",
+         "validCheckSum": "ANY",
+        "comment": "Seed specific mastersidebar roles",
+        "changes": [
+          {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "AWARENESS" } },
+                { "column": { "name": "sidebar_short_name", "value": "AWARENESS" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "SUPPORT" }},
+                { "column": { "name": "sidebar_short_name", "value": "SUPPORT" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "VERIFICATION & APPROVAL" } },
+                { "column": { "name": "sidebar_short_name", "value": "VERIFICATION&APPROVAL" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "ADVICE / PRESCRIPTION" } },
+                { "column": { "name": "sidebar_short_name", "value": "ADVICE/PRESCRIPTION" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "RATE & COMMISSION" } },
+                { "column": { "name": "sidebar_short_name", "value": "RATE&COMMISSION" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "PAYMENTS" } },
+                { "column": { "name": "sidebar_short_name", "value": "PAYMENTS" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+           {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "ANALYTICS & REPORTS" } },
+                { "column": { "name": "sidebar_short_name", "value": "ANALYTICS&REPORTS" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+           {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "NOTIFICATIONS" } },
+                { "column": { "name": "sidebar_short_name", "value": "NOTIFICATIONS" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+           {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "SUPPORT & HELPDESK" } },
+                { "column": { "name": "sidebar_short_name", "value": "SUPPORT&HELPDESK" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "RBAC" } },
+                { "column": { "name": "sidebar_short_name", "value": "RBAC" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "COMPLIANCE & AUDIT (CONTENT/CLINICAL)" } },
+                { "column": { "name": "sidebar_short_name", "value": "COMPLIANCE&AUDIT(CONTENT/CLINICAL)" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "master_sidebars",
+              "columns": [
+                { "column": { "name": "sidebar_name", "value": "SYSTEM SETTINGS" } },
+                { "column": { "name": "sidebar_short_name", "value": "SYSTEMSETTINGS" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

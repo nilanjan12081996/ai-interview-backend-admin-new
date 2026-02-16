@@ -1,0 +1,28 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "019-add-culmn-to-moodequalizer-table",
+        "author": "goodmood",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "moodequalizers",
+              "columns": [
+                {
+                  "column": {
+                    "name": "name",
+                     "type": "varchar(500)",
+                    "constraints": {
+                      "nullable": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

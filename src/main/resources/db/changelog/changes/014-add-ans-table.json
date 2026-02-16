@@ -1,0 +1,26 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "014-add-point-column-to-answers",
+        "author": "goodmood",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "answers",
+              "columns": [
+                {
+                  "column": {
+                    "name": "point",
+                    "type": "int",
+                    "defaultValueNumeric": 0
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

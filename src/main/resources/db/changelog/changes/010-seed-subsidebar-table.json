@@ -1,0 +1,92 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "004-seed-admin-roles-v2",
+        "author": "goodmood",
+         "validCheckSum": "ANY",
+        "comment": "Seed specific admin roles",
+        "changes": [
+          {
+            "insert": {
+              "tableName": "subsidebars",
+              "columns": [
+                { "column": { "name": "subsidebar_name", "value": "Mood Meters" } },
+                { "column": { "name": "subsidebar_short_name", "value": "MoodMeters" } },
+                { "column": { "name": "mastersidebar_id", "value": 1 } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "subsidebars",
+              "columns": [
+                { "column": { "name": "subsidebar_name", "value": "Moodz Matter" }},
+                { "column": { "name": "subsidebar_short_name", "value": "MoodzMatter" } },
+                { "column": { "name": "mastersidebar_id", "value": 1 } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "subsidebars",
+              "columns": [
+                { "column": { "name": "subsidebar_name", "value": "Mood Masters" } },
+                { "column": { "name": "subsidebar_short_name", "value": "MoodMasters" } },
+                { "column": { "name": "mastersidebar_id", "value": 1 } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "subsidebars",
+              "columns": [
+                { "column": { "name": "subsidebar_name", "value": "Psychiatric Insights" } },
+                { "column": { "name": "subsidebar_short_name", "value": "PsychiatricInsights" } },
+                { "column": { "name": "mastersidebar_id", "value": 1 } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "subsidebars",
+              "columns": [
+                { "column": { "name": "subsidebar_name", "value": "Mood Equalisers" } },
+                { "column": { "name": "subsidebar_short_name", "value": "MoodEqualisers" } },
+                { "column": { "name": "mastersidebar_id", "value": 1} },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+            {
+            "insert": {
+              "tableName": "subsidebars",
+              "columns": [
+                { "column": { "name": "subsidebar_name", "value": "Question Answer" } },
+                { "column": { "name": "subsidebar_short_name", "value": "QuestionAnswer" } },
+                { "column": { "name": "mastersidebar_id", "value": 1} },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "subsidebars",
+              "columns": [
+                { "column": { "name": "subsidebar_name", "value": "Sidebar Name" } },
+                { "column": { "name": "subsidebar_short_name", "value": "SidebarName" } },
+                { "column": { "name": "mastersidebar_id", "value": 12} },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          }
+        
+        ]
+      }
+    }
+  ]
+}

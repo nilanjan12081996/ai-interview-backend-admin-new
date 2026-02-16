@@ -1,0 +1,88 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "026-seed-support-master-category",
+        "author": "goodmood",
+        "validCheckSum": "ANY",
+        "comment": "Seed support master categories: Mental Health Expert and Therapies",
+        "changes": [
+          {
+            "insert": {
+              "tableName": "supportcategories",
+              "columns": [
+                {
+                  "column": {
+                    "name": "name",
+                    "value": "Mental Health Expert"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "description",
+                    "value": "Consult with a mental health expert"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "image",
+                    "value": "mental-health-expert.png"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "parent_id",
+                    "valueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "valueNumeric": 1
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "supportcategories",
+              "columns": [
+                {
+                  "column": {
+                    "name": "name",
+                    "value": "Therapies"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "description",
+                    "value": "Browse available therapies"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "image",
+                    "value": "therapies.png"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "parent_id",
+                    "valueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "valueNumeric": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

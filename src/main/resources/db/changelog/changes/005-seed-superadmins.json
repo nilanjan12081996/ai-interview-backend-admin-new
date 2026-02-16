@@ -1,0 +1,27 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "005-seed-superadmins",
+        "author": "goodmood",
+          "validCheckSum": "ANY",
+        "comment": "Seed superadmins table",
+        "changes": [
+          {
+            "insert": {
+              "tableName": "superadmins",
+              "columns": [
+                { "column": { "name": "f_name", "value": "System" } },
+                { "column": { "name": "l_name", "value": "SuperAdmin" } },
+                { "column": { "name": "username", "value": "superadmin" } },
+                { "column": { "name": "email", "value": "superadmin@yopmail.com" } },
+                { "column": { "name": "password", "value": "$2a$10$yT.EpOrXkBiMBWBTHtj4LefycfZnMY4nl5fi0UUUM8JrPIpgKQvqy" } }, 
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

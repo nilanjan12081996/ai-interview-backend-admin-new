@@ -1,0 +1,74 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "004-seed-admin-roles-v2",
+        "author": "goodmood",
+         "validCheckSum": "ANY",
+        "comment": "Seed specific admin roles",
+        "changes": [
+          {
+            "insert": {
+              "tableName": "admin_roles",
+              "columns": [
+                { "column": { "name": "role_name", "value": "Admin" } },
+                { "column": { "name": "role_short_name", "value": "ADMIN" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "admin_roles",
+              "columns": [
+                { "column": { "name": "role_name", "value": "Editor" }},
+                { "column": { "name": "role_short_name", "value": "EDITOR" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "admin_roles",
+              "columns": [
+                { "column": { "name": "role_name", "value": "Compliance" } },
+                { "column": { "name": "role_short_name", "value": "COMPLIANCE" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "admin_roles",
+              "columns": [
+                { "column": { "name": "role_name", "value": "Finance" } },
+                { "column": { "name": "role_short_name", "value": "FINANCE" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "admin_roles",
+              "columns": [
+                { "column": { "name": "role_name", "value": "Support" } },
+                { "column": { "name": "role_short_name", "value": "SUPPORT" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          },
+          {
+            "insert": {
+              "tableName": "admin_roles",
+              "columns": [
+                { "column": { "name": "role_name", "value": "Expert" } },
+                { "column": { "name": "role_short_name", "value": "EXPERT" } },
+                { "column": { "name": "status", "valueNumeric": 1 } }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
