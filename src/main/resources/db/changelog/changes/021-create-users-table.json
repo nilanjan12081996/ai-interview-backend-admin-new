@@ -69,6 +69,16 @@
                     }
                   }
                 },
+                 {
+                  "column": {
+                    "name": "admin_password_count",
+                    "type": "int",
+                    "defaultValueNumeric": 0,
+                    "constraints": {
+                      "nullable": true
+                    }
+                  }
+                },
                 {
                   "column": {
                     "name": "mobile",
