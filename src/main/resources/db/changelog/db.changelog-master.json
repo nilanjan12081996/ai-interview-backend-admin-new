@@ -29,6 +29,16 @@
       "include": {
         "file": "db/changelog/changes/021-create-users-table.json"
       }
+    },
+      {
+      "include": {
+        "file": "db/changelog/changes/022-create-client-table.json"
+      }
+    },
+     {
+      "include": {
+        "file": "db/changelog/changes/023-create-job-table.json"
+      }
     }
     
   ]

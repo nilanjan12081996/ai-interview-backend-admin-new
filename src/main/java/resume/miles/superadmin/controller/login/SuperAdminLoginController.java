@@ -32,44 +32,64 @@ public class SuperAdminLoginController {
 
     @Autowired
     private JwtUtil jwtUtil;
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@Validated @RequestBody SuperAdminLoginDTO LoginDTO,BindingResult bindingResult) {
-        try{
-            if(bindingResult.hasErrors()){
+ 
+   
+   @PostMapping("/login")
+    public ResponseEntity<?> login(
+            @Validated @RequestBody SuperAdminLoginDTO loginDTO,
+            BindingResult bindingResult) {
+
+        try {
+
+            if (bindingResult.hasErrors()) {
                 Map<String, String> errors = new HashMap<>();
                 bindingResult.getFieldErrors().forEach(error -> {
                     errors.put(error.getField(), error.getDefaultMessage());
                 });
-            
+
                 return ResponseEntity.status(422).body(Map.of(
-                    "message", "Validation failed",
-                    "status", false,
-                    "statusCode", 422,
-                    "errors", errors
+                        "message", "Validation failed",
+                        "status", false,
+                        "statusCode", 422,
+                        "errors", errors
                 ));
             }
-            SuperAdminOtp superadminData = superAdminLoginServiceImpl.loginservice(LoginDTO);
-            return ResponseEntity.status(200).body(Map.of(
-                "message", "Login successfully",
-                "status", true,
-                "statusCode", 200,
-                "data",superadminData
+
+            String token = superAdminLoginServiceImpl.loginservice(loginDTO);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Login successful",
+                    "status", true,
+                    "statusCode", 200,
+                    "token", token
             ));
-        }catch(RuntimeException e){
-                return ResponseEntity.status(422).body(Map.of(
+
+        } catch (RuntimeException e) {
+
+            return ResponseEntity.status(422).body(Map.of(
                     "message", e.getMessage(),
                     "status", false,
                     "statusCode", 422
-                ));
-        }catch(Exception e){
-                return ResponseEntity.status(400).body(Map.of(
+            ));
+
+        } catch (Exception e) {
+
+            return ResponseEntity.status(400).body(Map.of(
                     "message", e.getMessage(),
                     "status", false,
-                    "statusCode", 400,
-                    "errors", e.getStackTrace()
-                ));
+                    "statusCode", 400
+            ));
         }
     }
+
+   
+   
+   
+   
+   
+   
+   
+   
     @PostMapping("/verify-otp")
     public ResponseEntity<?> otpVerified(@Validated @RequestBody OtpDTO  otp,BindingResult bindingResult) {
        if(bindingResult.hasErrors()){

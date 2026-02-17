@@ -10,5 +10,5 @@ import resume.miles.superadmin.dto.SuperAdminOtp;
 
 public interface SuperAdminLoginService {
 
-      SuperAdminOtp loginservice(SuperAdminLoginDTO suparAdminLoginDTO);   
+      String  loginservice(SuperAdminLoginDTO suparAdminLoginDTO);   
 } 
