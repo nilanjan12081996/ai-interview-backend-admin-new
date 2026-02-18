@@ -1,0 +1,149 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "024-create-candidate-job-schedule",
+        "author": "goodmood",
+         "validCheckSum": "ANY",
+        "comment": "Create candidate job schedule",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "candidate_job_schedule",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "bigint",
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                 {
+                  "column": {
+                    "name": "job_id",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "nullable": false,
+                      "unique":true
+                    }
+                  }
+                },
+                  {
+                  "column": {
+                    "name": "candidate_name",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "nullable": false
+                     
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "email",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+
+                  {
+                  "column": {
+                    "name": "phone_number",
+                    "type": "LONGTEXT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                    {
+                  "column": {
+                    "name": "resume_link",
+                    "type": "LONGTEXT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                   {
+                  "column": {
+                    "name": "is_coding",
+                    "type": "Boolean",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+
+                      {
+                  "column": {
+                    "name": "start_time",
+                    "type": "time",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "end_time",
+                    "type": "time",
+                    "constraints": {
+                      "nullable": true
+                    }
+                  }
+                },
+                  {
+                  "column": {
+                    "name": "interview_date",
+                    "type": "date",
+                    "constraints": {
+                      "nullable": true
+                    }
+                  }
+                },
+
+                {
+                  "column": {
+                    "name": "status",
+                    "type": "int",
+                    "defaultValueNumeric": 1,
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+               
+                {
+                  "column": {
+                    "name": "created_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "updated_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

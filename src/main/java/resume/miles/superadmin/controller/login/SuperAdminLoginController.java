@@ -84,13 +84,6 @@ public class SuperAdminLoginController {
     }
 
    
-   
-   
-   
-   
-   
-   
-   
     @PostMapping("/verify-otp")
     public ResponseEntity<?> otpVerified(@Validated @RequestBody OtpDTO  otp,BindingResult bindingResult) {
        if(bindingResult.hasErrors()){

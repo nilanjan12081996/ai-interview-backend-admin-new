@@ -39,6 +39,11 @@
       "include": {
         "file": "db/changelog/changes/023-create-job-table.json"
       }
+    },
+     {
+      "include": {
+        "file": "db/changelog/changes/024-create-candidate-job-schedule.json"
+      }
     }
     
   ]
