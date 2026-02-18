@@ -18,6 +18,7 @@ public class UserMapper {
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
+                 .status(dto.getStatus() != null ? dto.getStatus() : 1)
                 .build();
     }
 
@@ -29,10 +30,12 @@ public class UserMapper {
         }
 
         return UserDto.builder()
+                .id(entity.getId())
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
                 .username(entity.getUsername())
                 .email(entity.getEmail())
+                 .status(entity.getStatus())
                 .build(); 
     }
 }

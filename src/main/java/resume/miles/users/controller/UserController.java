@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import resume.miles.users.dto.LoginRequestDto;
 import resume.miles.users.dto.UserDto;
 import resume.miles.users.service.UserService;
 
@@ -101,4 +102,48 @@ public class UserController {
         }
        
     }
+
+
+    @GetMapping("/toggle-status/{id}")
+public ResponseEntity<?> toggleUserStatus(@PathVariable Long id) {
+
+    try {
+
+        userService.toggleUserStatus(id);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "User status toggled successfully",
+                "status", true,
+                "status_code", 200
+        ));
+
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", e.getMessage(),
+                "status", false,
+                "status_code", 400
+        ));
+    }
+}
+
+@PostMapping("/login")
+public ResponseEntity<?> loginUser(@RequestBody LoginRequestDto loginRequest) {
+    try {
+        Map<String, Object> data = userService.loginUser(loginRequest);
+        return ResponseEntity.ok(Map.of(
+            "message", "Login successful",
+            "data", data,
+            "status", true,
+            "status_code", 200,
+            "role","USER"
+        ));
+    } catch (Exception e) {
+        return ResponseEntity.status(401).body(Map.of(
+            "message", e.getMessage(),
+            "status", false,
+            "status_code", 401
+        ));
+    }
+}
+
 }

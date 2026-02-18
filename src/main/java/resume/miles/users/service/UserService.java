@@ -1,12 +1,16 @@
 package resume.miles.users.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import resume.miles.config.JwtUtil;
+import resume.miles.users.dto.LoginRequestDto;
 import resume.miles.users.dto.UserDto;
 import resume.miles.users.entity.UserEntity;
 import resume.miles.users.mapper.UserMapper;
@@ -17,6 +21,7 @@ import resume.miles.users.repository.UserRepository;
 public class UserService {
  private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
      public UserDto createUser(UserDto userDto) {
 
@@ -79,5 +84,38 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+
+ public void toggleUserStatus(Long id) {
+
+    UserEntity user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    user.setStatus(user.getStatus() == 1 ? 0 : 1);
+
+    userRepository.save(user);
+}
+
+
+  public Map<String, Object> loginUser(LoginRequestDto loginRequest) {
+        UserEntity user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        if (user.getIsDeleted() == 1) throw new RuntimeException("Account not found");
+        if (user.getStatus() == 0) throw new RuntimeException("Account is disabled");
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        String token = jwtUtil.generateUserToken(user);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("token", token);
+        result.put("user", UserMapper.toDto(user));
+        return result;
+    }
+
+
     
 }

@@ -24,4 +24,5 @@ public class SuperAdminResponseDTO {
     private String tokenType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
 }

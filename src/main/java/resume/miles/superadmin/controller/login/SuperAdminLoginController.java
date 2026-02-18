@@ -61,7 +61,8 @@ public class SuperAdminLoginController {
                     "message", "Login successful",
                     "status", true,
                     "statusCode", 200,
-                    "token", token
+                    "token", token,
+                    "role","SUPER_ADMIN"
             ));
 
         } catch (RuntimeException e) {

@@ -14,6 +14,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import resume.miles.superadmin.dto.SuperAdminResponseDTO;
+import resume.miles.users.entity.UserEntity;
 
 @Component
 public class JwtUtil {
@@ -52,6 +53,16 @@ public class JwtUtil {
         claims.put("status",superAdminResponseDTO.getStatus());
         return createToken(claims, superAdminResponseDTO.getUsername());
     }
+
+    public String generateUserToken(UserEntity user) {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("id", user.getId());
+    claims.put("role", "USER");
+    claims.put("email", user.getEmail());
+    claims.put("firstname", user.getFirstName());
+    claims.put("lastname", user.getLastName());
+    return createToken(claims, user.getUsername());
+}
 
     // 2. Helper method to build the token
     private String createToken(Map<String, Object> claims, String subject) {

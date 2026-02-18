@@ -50,7 +50,8 @@ public class SecurityConfig {
                             "/uploads/**",                
                             "/public/uploads/**" ,
                             "/api/resume/parse",
-                            "/actuator/**"
+                            "/actuator/**",
+                            "/api/goodmood/hr/**"
                             
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
