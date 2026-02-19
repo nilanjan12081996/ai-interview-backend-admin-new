@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import resume.miles.client.entity.ClientEntity;
 import resume.miles.client.repository.ClientRepository;
-import resume.miles.jobs.Repository.JobRepository;
 import resume.miles.jobs.dto.JobDto;
 import resume.miles.jobs.entity.JobEntity;
 import resume.miles.jobs.mapper.JobMapper;
+import resume.miles.jobs.repository.JobRepository;
 
 @Service
 @RequiredArgsConstructor

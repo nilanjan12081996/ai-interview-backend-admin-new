@@ -20,7 +20,7 @@ import resume.miles.config.baseclass.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InterviewEntity extends BaseEntity {
-        @Column(name = "job_id", nullable = false, unique = true, length = 255)
+        @Column(name = "job_id", nullable = false, length = 255)
     private String jobId;
 
     @Column(name = "candidate_name", nullable = false, length = 255)

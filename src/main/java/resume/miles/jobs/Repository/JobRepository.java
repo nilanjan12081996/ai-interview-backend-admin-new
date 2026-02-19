@@ -1,4 +1,4 @@
-package resume.miles.jobs.Repository;
+package resume.miles.jobs.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,5 +14,6 @@ public interface JobRepository extends JpaRepository<JobEntity,Long>{
     Optional<JobEntity> findByJobId(String jobId);
     @EntityGraph(attributePaths = {"client"})
     List<JobEntity> findAll();
+    
 
 }
