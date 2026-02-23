@@ -49,6 +49,11 @@
       "include": {
         "file": "db/changelog/changes/025-create-interview-link-table.json"
       }
+    },
+     {
+      "include": {
+        "file": "db/changelog/changes/026-create-questions-table.json"
+      }
     }
     
   ]

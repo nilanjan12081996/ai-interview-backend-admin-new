@@ -1,0 +1,73 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "026-create-questions-table",
+        "author": "goodmood",
+        "validCheckSum": "ANY",
+        "comment": "Create Questions table ",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "questions",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "bigint",
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "candidate_job_schedule_id",
+                    "type": "bigint",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                     
+                  "column": {
+                    "name": "questions",
+                    "type": "LongText",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                
+                },
+                
+                {
+                  "column": {
+                    "name": "created_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "updated_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

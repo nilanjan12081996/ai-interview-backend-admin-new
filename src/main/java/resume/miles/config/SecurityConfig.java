@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                            "/api/goodmood/question/**",
                             "/api/auth/register",
                             "/api/auth/login",
                             "/api/goodmood/superadmin/**",

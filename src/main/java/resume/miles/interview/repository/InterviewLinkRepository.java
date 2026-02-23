@@ -10,4 +10,6 @@ public interface InterviewLinkRepository extends JpaRepository<InterviewLinkEnti
     Optional<InterviewLinkEntity> findByToken(String token);
 
      List<InterviewLinkEntity> findAll();
+
+     Optional<InterviewLinkEntity> findByTokenAndIsActiveTrue(String token);
 }
