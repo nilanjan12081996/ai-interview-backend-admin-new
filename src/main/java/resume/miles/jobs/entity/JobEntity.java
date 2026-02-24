@@ -33,6 +33,8 @@ public class JobEntity extends BaseEntity{
     @Column(name = "role", nullable = false)
     private String role;
 
+    @Column(name="status",nullable = false)
+    private Integer status;
     // 🔥 LONGTEXT mapping
     @Lob
     @Column(name = "jd", nullable = false, columnDefinition = "LONGTEXT")

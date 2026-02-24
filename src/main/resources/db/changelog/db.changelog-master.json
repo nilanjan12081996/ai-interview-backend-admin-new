@@ -54,6 +54,11 @@
       "include": {
         "file": "db/changelog/changes/026-create-questions-table.json"
       }
+    },
+     {
+      "include": {
+        "file": "db/changelog/changes/027-create-video-record-table.json"
+      }
     }
     
   ]

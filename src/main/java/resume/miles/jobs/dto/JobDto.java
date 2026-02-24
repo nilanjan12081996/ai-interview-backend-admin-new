@@ -24,6 +24,7 @@ public class JobDto {
     private String role;
 
     private String jd;
+    private Integer status;
 
     private LocalDateTime createdAt;
 

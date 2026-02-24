@@ -20,6 +20,7 @@ public class InterviewMapper {
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .interviewDate(dto.getInterviewDate())
+                
                 .status(dto.getStatus() != null ? dto.getStatus() : 1)
                 .build();
     }

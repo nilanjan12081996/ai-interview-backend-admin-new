@@ -23,4 +23,5 @@ public class InterviewScheduleResponseDto {
     private LocalTime endTime;
 
     private String interviewLink;
+    private String videoLink;
 }

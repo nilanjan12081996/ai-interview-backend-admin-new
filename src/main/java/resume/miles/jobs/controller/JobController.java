@@ -91,4 +91,106 @@ public class JobController {
             ));
         }
     }
+
+
+@PatchMapping("/status/{id}")
+public ResponseEntity<?> toggleStatus(@PathVariable Long id) {
+
+    try {
+
+        JobDto updatedJob = jobService.toggleJobStatus(id);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Status toggled successfully",
+                "status", true,
+                "statusCode", 200,
+                "data", updatedJob
+        ));
+
+    } catch (Exception e) {
+
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", e.getMessage(),
+                "status", false,
+                "statusCode", 400
+        ));
+    }
+}
+
+@GetMapping("/{id}")
+public ResponseEntity<?> getJobById(@PathVariable Long id) {
+
+    try {
+
+        JobDto job = jobService.getJobById(id);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Job fetched successfully",
+                "status", true,
+                "statusCode", 200,
+                "data", job
+        ));
+
+    } catch (Exception e) {
+
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", e.getMessage(),
+                "status", false,
+                "statusCode", 400
+        ));
+    }
+}
+
+
+@PutMapping("/update-job/{id}")
+public ResponseEntity<?> updateJob(
+        @PathVariable Long id,
+        @RequestBody JobDto dto) {
+
+    try {
+
+        JobDto updatedJob = jobService.updateJob(id, dto);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Job updated successfully",
+                "status", true,
+                "statusCode", 200,
+                "data", updatedJob
+        ));
+
+    } catch (Exception e) {
+
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", e.getMessage(),
+                "status", false,
+                "statusCode", 400
+        ));
+    }
+}
+
+
+@DeleteMapping("/delete-job/{id}")
+public ResponseEntity<?> deleteJob(@PathVariable Long id) {
+
+    try {
+
+        jobService.deleteJob(id);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Job deleted successfully",
+                "status", true,
+                "statusCode", 200
+        ));
+
+    } catch (Exception e) {
+
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", e.getMessage(),
+                "status", false,
+                "statusCode", 400
+        ));
+    }
+}
+
+
 }

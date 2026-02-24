@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                            
                             "/api/goodmood/question/**",
                             "/api/auth/register",
                             "/api/auth/login",
@@ -52,7 +53,8 @@ public class SecurityConfig {
                             "/public/uploads/**" ,
                             "/api/resume/parse",
                             "/actuator/**",
-                            "/api/goodmood/hr/**"
+                            "/api/goodmood/hr/**",
+                            "/api/goodmood/recording/**"
                             
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

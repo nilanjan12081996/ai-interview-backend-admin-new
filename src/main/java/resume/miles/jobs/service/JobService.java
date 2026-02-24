@@ -2,6 +2,8 @@ package resume.miles.jobs.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import resume.miles.client.entity.ClientEntity;
 import resume.miles.client.repository.ClientRepository;
@@ -70,4 +72,82 @@ public class JobService {
 
         return jobId;
     }
+
+
+@Transactional
+public JobDto getJobById(Long id) {
+
+    JobEntity job = jobRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Job not found"));
+
+    return jobMapper.toDto(job);
 }
+@Transactional
+public JobDto toggleJobStatus(Long jobId) {
+
+    JobEntity job = jobRepository.findById(jobId)
+            .orElseThrow(() -> new RuntimeException("Job not found"));
+
+    // 🔥 Toggle logic
+    if (job.getStatus() == null || job.getStatus() == 0) {
+        job.setStatus(1);
+    } else {
+        job.setStatus(0);
+    }
+
+    JobEntity updated = jobRepository.save(job);
+
+    return jobMapper.toDto(updated);
+}
+
+@Transactional
+public JobDto updateJob(Long id, JobDto dto) {
+
+    // 1️⃣ Find existing job
+    JobEntity job = jobRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Job not found"));
+
+    // 2️⃣ Update Client if changed
+    if (dto.getClientName() != null) {
+
+        ClientEntity client = clientRepository
+                .findByClientName(dto.getClientName())
+                .orElseGet(() -> {
+                    ClientEntity newClient = ClientEntity.builder()
+                            .clientName(dto.getClientName())
+                            .status(1)
+                            .build();
+                    return clientRepository.save(newClient);
+                });
+
+        job.setClient(client);
+    }
+
+    // 3️⃣ Update other fields
+    if (dto.getRole() != null) {
+        job.setRole(dto.getRole());
+    }
+
+    if (dto.getJd() != null) {
+        job.setJd(dto.getJd());
+    }
+
+    // 4️⃣ Save updated job
+    JobEntity updated = jobRepository.save(job);
+
+    return jobMapper.toDto(updated);
+}
+
+
+@Transactional
+public void deleteJob(Long id) {
+
+    JobEntity job = jobRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Job not found"));
+
+    jobRepository.delete(job);
+}
+
+}
+
+

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import resume.miles.interview.dto.InterviewDto;
 import resume.miles.interview.dto.InterviewScheduleResponseDto;
 import resume.miles.interview.service.InterviewService;
 
@@ -121,6 +122,33 @@ public class InterviewController {
                     ));
         }
     }
+
+
+//     @GetMapping("/job/primary/{jobId}")
+// public ResponseEntity<?> getCandidatesByJobPrimaryId(
+//         @PathVariable Long jobId) {
+
+//     try {
+
+//         List<InterviewDto> candidates =
+//                 interviewService.getCandidatesByJobPrimaryId(jobId);
+
+//         return ResponseEntity.ok(Map.of(
+//                 "message", "Candidates fetched successfully",
+//                 "status", true,
+//                 "statusCode", 200,
+//                 "data", candidates
+//         ));
+
+//     } catch (Exception e) {
+
+//         return ResponseEntity.badRequest().body(Map.of(
+//                 "message", e.getMessage(),
+//                 "status", false,
+//                 "statusCode", 400
+//         ));
+//     }
+// }
 
 
 

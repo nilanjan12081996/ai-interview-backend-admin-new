@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.http.*;
@@ -19,15 +20,19 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import resume.miles.interview.dto.InterviewDto;
 import resume.miles.interview.dto.InterviewScheduleResponseDto;
 import resume.miles.interview.entity.InterviewEntity;
 import resume.miles.interview.entity.InterviewLinkEntity;
+import resume.miles.interview.mapper.InterviewMapper;
 import resume.miles.interview.repository.InterviewLinkRepository;
 import resume.miles.interview.repository.InterviewRepository;
 import resume.miles.jobs.entity.JobEntity;
 import resume.miles.jobs.repository.JobRepository;
 import resume.miles.question.entity.QuestionEntity;
 import resume.miles.question.respository.QuestionRepository;
+import resume.miles.recording.entity.VideoRecordingEntity;
+import resume.miles.recording.repository.VideoRecodingRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +43,7 @@ public class InterviewService {
     private final JobRepository jobRepository;
     private final RestTemplate restTemplate;
     private final QuestionRepository questionRepository;
+    private final VideoRecodingRepository videoRecodingRepository;
 
 
     private static final String AI_API_URL =
@@ -205,12 +211,21 @@ public class InterviewService {
 
     List<InterviewLinkEntity> interviewLinks =
             interviewLinkRepository.findAll();
+            
 
     return interviewLinks.stream()
             .map(link -> {
 
                 InterviewEntity interview = link.getInterview();
-                 JobEntity job = null;
+                
+
+                    Optional<VideoRecordingEntity> video =
+                        videoRecodingRepository.findByInterviewLinkId(link.getId());
+
+                String videoLink = video.map(VideoRecordingEntity::getVideoLink)
+                        .orElse(null);
+
+                JobEntity job = null;
 
                 
                 try {
@@ -242,13 +257,33 @@ public class InterviewService {
                         .startTime(interview.getStartTime())
                         .endTime(interview.getEndTime())
                         .interviewLink(link.getInterviewLink())
+                        .videoLink(videoLink)
                         .build();
             })
             .toList();
 }
 
 
+// @Transactional(readOnly = true)
+// public List<InterviewDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
 
+//     // 1️⃣ Check job exists
+//     JobEntity job = jobRepository.findById(jobPrimaryId)
+//             .orElseThrow(() -> new RuntimeException("Job not found"));
+
+//     // 2️⃣ Fetch candidates using jobId stored in InterviewEntity
+//     List<InterviewEntity> interviews =
+//     interviewRepository.findByJob_Id(jobPrimaryId);
+//             // interviewRepository.findByJob_Id(String.valueOf(jobPrimaryId));
+
+//     if (interviews.isEmpty()) {
+//         throw new RuntimeException("No candidates found for this job");
+//     }
+
+//     return interviews.stream()
+//             .map(InterviewMapper::toDTO)
+//             .toList();
+// }
 
 
 

@@ -25,6 +25,7 @@ public class JobMapper {
                 )
                 .role(entity.getRole())
                 .jd(entity.getJd())
+                .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -42,6 +43,7 @@ public class JobMapper {
                 .jobId(dto.getJobId())
                 .client(client)
                 .role(dto.getRole())
+                .status(dto.getStatus())
                 .jd(dto.getJd())
                 .build();
     }
