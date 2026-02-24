@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.RequiredArgsConstructor;
@@ -52,81 +54,66 @@ public ResponseEntity<?> getQuestion(@PathVariable String token)
 }
 
 @PostMapping("/openai/session")
-// public ResponseEntity<?> createRealtimeSession() {
+public ResponseEntity<?> createSession() {
 
-//     HttpHeaders headers = new HttpHeaders();
-//     headers.setContentType(MediaType.APPLICATION_JSON);
-//     headers.setBearerAuth(openApi); // sk- key
+    RestTemplate restTemplate = new RestTemplate();
 
-//     Map<String, Object> body = new HashMap<>();
-//     body.put("model", "gpt-4o-realtime-preview");
-//     body.put("voice", "sage");
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(openApi);
+    headers.setContentType(MediaType.APPLICATION_JSON);
 
-//     // 🔥 Force English only responses
-//     body.put("instructions",
-//             "You are a professional AI interviewer. " +
-//             "You must speak ONLY English at all times. " +
-//             "Never switch languages. " +
-//             "If the user speaks another language, politely ask them to speak English."
-//     );
+    Map<String, Object> body = new HashMap<>();
+    body.put("model", "gpt-4o-realtime-preview-2024-12-17");
 
-//     // 🔥 Required: transcription model + language
-//     Map<String, Object> audioInput = new HashMap<>();
-//     audioInput.put("model", "whisper-1");   // REQUIRED
-//     audioInput.put("language", "en");
+    // Text modality only — browser handles all TTS via SpeechSynthesis API.
+    // OpenAI Realtime is used ONLY for VAD (detecting when user stops speaking)
+    // and Whisper transcription. No AI voice output needed.
+    body.put("modalities", new String[]{"text"});
 
-//     body.put("input_audio_transcription", audioInput);
+    // Lock the AI: do not generate conversational responses
+    body.put("instructions",
+        "You are a silent transcription service. " +
+        "Do NOT generate any responses. Do NOT speak. Do NOT answer questions. " +
+        "Your only job is to transcribe what the user says. Stay completely silent."
+    );
 
-//     HttpEntity<Map<String, Object>> request =
-//             new HttpEntity<>(body, headers);
+    // Enable Whisper transcription so transcription.completed events fire
+    Map<String, Object> transcription = new HashMap<>();
+    transcription.put("model", "whisper-1");
+    body.put("input_audio_transcription", transcription);
 
-//     ResponseEntity<Map> response = restTemplate.postForEntity(
-//             "https://api.openai.com/v1/realtime/sessions",
-//             request,
-//             Map.class
-//     );
+    // Server VAD: detects when user stops speaking
+    Map<String, Object> turnDetection = new HashMap<>();
+    turnDetection.put("type", "server_vad");
+    turnDetection.put("threshold", 0.5);
+    turnDetection.put("prefix_padding_ms", 300);
+    turnDetection.put("silence_duration_ms", 1000);
+    body.put("turn_detection", turnDetection);
 
-//     Map<String, Object> responseBody = response.getBody();
-//     Map<String, Object> clientSecret =
-//             (Map<String, Object>) responseBody.get("client_secret");
+    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
-//     return ResponseEntity.ok(Map.of(
-//             "client_secret", clientSecret.get("value"),
-//             "statusCode", 200
-//     ));
-// }
-
-
- public ResponseEntity<?> createSession() {
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(openApi);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("model", "gpt-4o-realtime-preview");
-
-        // 🔒 STRICT MODE — NO FREE CONVERSATION
-        body.put("instructions",
-                "You are a strict AI interviewer. " +
-                "You are NOT allowed to create your own questions. " +
-                "You must ONLY read the exact question text provided in response.create. " +
-                "You must not add anything extra. " +
-                "If no question is provided, remain silent."
-        );
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-
+    try {
         ResponseEntity<String> response = restTemplate.exchange(
                 "https://api.openai.com/v1/realtime/sessions",
                 HttpMethod.POST,
                 entity,
                 String.class
         );
-
-         return ResponseEntity.ok(response.getBody());
+        return ResponseEntity.ok(response.getBody());
+    } catch (HttpClientErrorException e) {
+        return ResponseEntity
+                .status(e.getStatusCode())
+                .body(Map.of("error", e.getResponseBodyAsString()));
+    } catch (Exception e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", e.getMessage()));
     }
+}
+
+
+
+
+
 
 }
