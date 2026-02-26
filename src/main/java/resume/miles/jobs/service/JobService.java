@@ -11,6 +11,8 @@ import resume.miles.jobs.dto.JobDto;
 import resume.miles.jobs.entity.JobEntity;
 import resume.miles.jobs.mapper.JobMapper;
 import resume.miles.jobs.repository.JobRepository;
+import resume.miles.mandatoryskill.entity.MandatorySkillEntity;
+import resume.miles.musthaveskill.entity.MustHaveSkillEntity;
 
 @Service
 @RequiredArgsConstructor
@@ -21,39 +23,119 @@ public class JobService {
     private final JobMapper jobMapper;
 
     // 🔥 CREATE JOB
-    public JobDto createJob(JobDto dto) {
+    // public JobDto createJob(JobDto dto) {
 
-        // 1️⃣ Find or create client
-        ClientEntity client = clientRepository
-                .findByClientName(dto.getClientName())
-                .orElseGet(() -> {
-                    ClientEntity newClient = ClientEntity.builder()
-                            .clientName(dto.getClientName())
-                            .status(1)
-                            .build();
-                    return clientRepository.save(newClient);
-                });
+    //     // 1️⃣ Find or create client
+    //     ClientEntity client = clientRepository
+    //             .findByClientName(dto.getClientName())
+    //             .orElseGet(() -> {
+    //                 ClientEntity newClient = ClientEntity.builder()
+    //                         .clientName(dto.getClientName())
+    //                         .status(1)
+    //                         .build();
+    //                 return clientRepository.save(newClient);
+    //             });
 
-        // 2️⃣ Generate unique jobId
-        String generatedJobId = generateUniqueJobId();
+    //     // 2️⃣ Generate unique jobId
+    //     String generatedJobId = generateUniqueJobId();
 
-        // 3️⃣ Convert DTO → Entity
-        JobEntity jobEntity = JobEntity.builder()
-                .jobId(generatedJobId)
-                .client(client)
-                .role(dto.getRole())
-                .jd(dto.getJd())
-                .build();
+    //     // 3️⃣ Convert DTO → Entity
+    //     JobEntity jobEntity = JobEntity.builder()
+    //             .jobId(generatedJobId)
+    //             .client(client)
+    //             .role(dto.getRole())
+    //             .jd(dto.getJd())
+    //             .status(1)
+    //             .experience(dto.getExperience())
+    //             .build();
 
-        // 4️⃣ Save
-        JobEntity saved = jobRepository.save(jobEntity);
+    //     // 4️⃣ Save
+    //     JobEntity saved = jobRepository.save(jobEntity);
 
-        return jobMapper.toDto(saved);
+    //     return jobMapper.toDto(saved);
+    // }
+
+    @Transactional
+public JobDto createJob(JobDto dto) {
+
+    ClientEntity client = clientRepository
+            .findByClientName(dto.getClientName())
+            .orElseGet(() -> {
+                ClientEntity newClient = ClientEntity.builder()
+                        .clientName(dto.getClientName())
+                        .status(1)
+                        .build();
+                return clientRepository.save(newClient);
+            });
+
+    String generatedJobId = generateUniqueJobId();
+
+    JobEntity jobEntity = JobEntity.builder()
+            .jobId(generatedJobId)
+            .client(client)
+            .role(dto.getRole())
+            .jd(dto.getJd())
+            .status(1)
+            .experience(dto.getExperience())
+            .build();
+
+    // 🔥 Set mandatory skills
+    if (dto.getMandatorySkills() != null) {
+
+        List<MandatorySkillEntity> skillEntities =
+                dto.getMandatorySkills()
+                        .stream()
+                        .map(skillDto -> MandatorySkillEntity.builder()
+                                .job(skillDto.getJobId())   // VERY IMPORTANT
+                                .skillName(skillDto.getSkillName())
+                                .status(1)
+                                .build())
+                        .toList();
+
+        // jobEntity.setMandatorySkills(skillEntities);
+    }
+      if (dto.getMustHaveSkills() != null) {
+
+        List<MustHaveSkillEntity> skillEntities =
+                dto.getMustHaveSkills()
+                        .stream()
+                        .map(skillDto -> MustHaveSkillEntity.builder()
+                                .job(skillDto.getJobId())   // 🔥 VERY IMPORTANT
+                                .skillName(skillDto.getSkillName())
+                                .status(1)
+                                .build())
+                        .toList();
+
+        // jobEntity.setMustHaveSkills(skillEntities);
     }
 
+    JobEntity saved = jobRepository.save(jobEntity);
+
+    return jobMapper.toDto(saved);
+}
+
+
+
+
+
+
+
+
+
+
+
+
     // 🔥 LIST ALL JOBS
+    // public List<JobDto> listJobs() {
+    //     return jobRepository.findAll()
+    //             .stream()
+    //             .map(jobMapper::toDto)
+    //             .toList();
+    // }
+
+
     public List<JobDto> listJobs() {
-        return jobRepository.findAll()
+        return jobRepository.findAllBy()
                 .stream()
                 .map(jobMapper::toDto)
                 .toList();

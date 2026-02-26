@@ -1,12 +1,17 @@
 package resume.miles.jobs.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import resume.miles.mandatoryskill.dto.MandatorySkillDto;
+import resume.miles.mandatoryskill.entity.MandatorySkillEntity;
+import resume.miles.musthaveskill.dto.MustHaveSkillDto;
+import resume.miles.musthaveskill.entity.MustHaveSkillEntity;
 
 
 @Getter
@@ -29,4 +34,8 @@ public class JobDto {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+    private String experience;
+ 
+    private List<MustHaveSkillDto> mustHaveSkills;
+    private List<MandatorySkillDto> mandatorySkills;
 }

@@ -14,6 +14,13 @@ public interface JobRepository extends JpaRepository<JobEntity,Long>{
     Optional<JobEntity> findByJobId(String jobId);
     @EntityGraph(attributePaths = {"client"})
     List<JobEntity> findAll();
+
+    @EntityGraph(attributePaths = {
+        "client",
+        "mustHaveSkills",
+        "mandatorySkills"
+})
+List<JobEntity> findAllBy();
     
 
 }

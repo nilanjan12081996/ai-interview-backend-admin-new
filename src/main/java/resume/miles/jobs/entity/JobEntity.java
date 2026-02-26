@@ -1,11 +1,20 @@
 package resume.miles.jobs.entity;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.hibernate.annotations.BatchSize;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +23,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import resume.miles.client.entity.ClientEntity;
 import resume.miles.config.baseclass.BaseEntity;
+import resume.miles.mandatoryskill.entity.MandatorySkillEntity;
+import resume.miles.musthaveskill.entity.MustHaveSkillEntity;
 
 @Entity
 @Table(name = "job")
@@ -39,4 +50,21 @@ public class JobEntity extends BaseEntity{
     @Lob
     @Column(name = "jd", nullable = false, columnDefinition = "LONGTEXT")
     private String jd;
+    @Column(name = "experience", length = 50)
+    private String experience;
+
+    @OneToMany(mappedBy = "jobDetails",
+           cascade = CascadeType.ALL,
+           orphanRemoval = true)
+    @OrderBy("id ASC")
+    @BatchSize(size =50)
+private Set<MandatorySkillEntity> mandatorySkills;
+
+@OneToMany(mappedBy = "job",
+           cascade = CascadeType.ALL,
+           orphanRemoval = true)
+            @OrderBy("id ASC")
+    @BatchSize(size =50)
+private Set<MustHaveSkillEntity> mustHaveSkills;
 }
+

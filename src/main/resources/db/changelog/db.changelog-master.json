@@ -59,7 +59,23 @@
       "include": {
         "file": "db/changelog/changes/027-create-video-record-table.json"
       }
+    },
+     {
+      "include": {
+        "file": "db/changelog/changes/028-create-mandatory-skill-table.json"
+      }
+    },
+    {
+      "include": {
+        "file": "db/changelog/changes/029-must-have-skills-table.json" 
+      }
+    },
+    {
+      "include": {
+        "file": "db/changelog/changes/030-transcription-table.json" 
+      }
     }
+
     
   ]
 }

@@ -124,32 +124,31 @@ public class InterviewController {
     }
 
 
-//     @GetMapping("/job/primary/{jobId}")
-// public ResponseEntity<?> getCandidatesByJobPrimaryId(
-//         @PathVariable Long jobId) {
+@GetMapping("/job/candidates/{jobId}")
+public ResponseEntity<?> getCandidatesByJobId(
+        @PathVariable Long jobId) {
 
-//     try {
+    try {
 
-//         List<InterviewDto> candidates =
-//                 interviewService.getCandidatesByJobPrimaryId(jobId);
+        List<InterviewDto> candidates =
+                interviewService.getCandidatesByJobPrimaryId(jobId);
 
-//         return ResponseEntity.ok(Map.of(
-//                 "message", "Candidates fetched successfully",
-//                 "status", true,
-//                 "statusCode", 200,
-//                 "data", candidates
-//         ));
+        return ResponseEntity.ok(Map.of(
+                "message", "Candidates fetched successfully",
+                "status", true,
+                "statusCode",200,
+                "data", candidates
+                
+        ));
 
-//     } catch (Exception e) {
+    } catch (Exception e) {
 
-//         return ResponseEntity.badRequest().body(Map.of(
-//                 "message", e.getMessage(),
-//                 "status", false,
-//                 "statusCode", 400
-//         ));
-//     }
-// }
-
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", e.getMessage(),
+                "status", false
+        ));
+    }
+}
 
 
 

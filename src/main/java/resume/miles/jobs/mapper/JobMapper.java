@@ -1,9 +1,13 @@
 package resume.miles.jobs.mapper;
 
+import java.util.Collections;
+
 import org.springframework.stereotype.Component;
 import resume.miles.client.entity.ClientEntity;
 import resume.miles.jobs.dto.JobDto;
 import resume.miles.jobs.entity.JobEntity;
+import resume.miles.mandatoryskill.mapper.MandatorySkillMapper;
+import resume.miles.musthaveskill.mapper.MustHaveSkillMapper;
 
 @Component
 public class JobMapper {
@@ -24,10 +28,12 @@ public class JobMapper {
                                 : null
                 )
                 .role(entity.getRole())
-                .jd(entity.getJd())
+                .mandatorySkills(entity.getMandatorySkills()!=null?entity.getMandatorySkills().stream().map(MandatorySkillMapper::toDTO).toList():Collections.emptyList())
+                .mustHaveSkills(entity.getMustHaveSkills() != null ?entity.getMustHaveSkills().stream().map(MustHaveSkillMapper::toDTO).toList():Collections.emptyList())
                 .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .experience(entity.getExperience())
                 .build();
     }
 
@@ -45,6 +51,9 @@ public class JobMapper {
                 .role(dto.getRole())
                 .status(dto.getStatus())
                 .jd(dto.getJd())
+                .experience(dto.getExperience())
                 .build();
     }
+
+
 }

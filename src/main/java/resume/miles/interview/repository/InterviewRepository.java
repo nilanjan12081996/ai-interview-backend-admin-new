@@ -8,4 +8,5 @@ import resume.miles.interview.entity.InterviewEntity;
 
 public interface InterviewRepository extends JpaRepository<InterviewEntity,Long>{
     // List<InterviewEntity> findByJob_Id(Long jobId);
+     List<InterviewEntity> findByJobId(String jobId);
 }

@@ -264,26 +264,28 @@ public class InterviewService {
 }
 
 
-// @Transactional(readOnly = true)
-// public List<InterviewDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
+@Transactional(readOnly = true)
+public List<InterviewDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
 
-//     // 1️⃣ Check job exists
-//     JobEntity job = jobRepository.findById(jobPrimaryId)
-//             .orElseThrow(() -> new RuntimeException("Job not found"));
+    // 1️⃣ Check job exists
+    jobRepository.findById(jobPrimaryId)
+            .orElseThrow(() -> new RuntimeException("Job not found"));
 
-//     // 2️⃣ Fetch candidates using jobId stored in InterviewEntity
-//     List<InterviewEntity> interviews =
-//     interviewRepository.findByJob_Id(jobPrimaryId);
-//             // interviewRepository.findByJob_Id(String.valueOf(jobPrimaryId));
+    // 2️⃣ Convert Long to String (VERY IMPORTANT)
+    String jobIdString = String.valueOf(jobPrimaryId);
 
-//     if (interviews.isEmpty()) {
-//         throw new RuntimeException("No candidates found for this job");
-//     }
+    // 3️⃣ Fetch candidates
+    List<InterviewEntity> interviews =
+            interviewRepository.findByJobId(jobIdString);
 
-//     return interviews.stream()
-//             .map(InterviewMapper::toDTO)
-//             .toList();
-// }
+    if (interviews.isEmpty()) {
+        throw new RuntimeException("No candidates assigned to this job");
+    }
+
+    return interviews.stream()
+            .map(InterviewMapper::toDTO)
+            .toList();
+}
 
 
 

@@ -2,14 +2,14 @@
   "databaseChangeLog": [
     {
       "changeSet": {
-        "id": "021-create-users-table",
+        "id": "028-create-mandatory-skill-table",
         "author": "goodmood",
-         "validCheckSum": "ANY",
-        "comment": "Create users table",
+        "validCheckSum": "ANY",
+        "comment": "Create Mandatory Skill table ",
         "changes": [
           {
             "createTable": {
-              "tableName": "job",
+              "tableName": "mandatory_skill",
               "columns": [
                 {
                   "column": {
@@ -22,57 +22,38 @@
                     }
                   }
                 },
-                 {
+                {
                   "column": {
                     "name": "job_id",
-                    "type": "varchar(255)",
-                    "constraints": {
-                      "nullable": false,
-                      "unique":true
-                    }
-                  }
-                },
-                  {
-                  "column": {
-                    "name": "client_id",
                     "type": "bigint",
                     "constraints": {
                       "nullable": false
+                    }
+                  }
+                },
+                {
                      
-                    }
-                  }
-                },
-                {
                   "column": {
-                    "name": "role",
-                    "type": "varchar(255)",
+                    "name": "skill_name",
+                    "type": "LongText",
                     "constraints": {
                       "nullable": false
                     }
                   }
+                
                 },
-
-                  {
-                  "column": {
-                    "name": "jd",
-                    "type": "LONGTEXT",
-                    "constraints": {
-                      "nullable": false
-                    }
-                  }
-                },
-
                 {
+                     
                   "column": {
                     "name": "status",
                     "type": "int",
-                    "defaultValueNumeric": 1,
                     "constraints": {
                       "nullable": false
                     }
                   }
+                
                 },
-               
+                
                 {
                   "column": {
                     "name": "created_at",
@@ -92,17 +73,8 @@
                       "nullable": false
                     }
                   }
-                },
-                 {
-                  "column": {
-                    "name": "experience",
-                    "type": "varchar(50)",
-                    "constraints": {
-                      "nullable": false
-                    }
-                  }
                 }
-
+                  
               ]
             }
           }
