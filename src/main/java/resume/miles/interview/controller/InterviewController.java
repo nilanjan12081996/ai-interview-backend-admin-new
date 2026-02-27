@@ -91,7 +91,8 @@ public class InterviewController {
             return ResponseEntity
                     .status(400)
                     .body(Map.of(
-                        "message","Something went wrong while schedule interview",
+                        "message",e.getMessage(),
+                        "error",e.getStackTrace(),
                         "status",false,
                         "statusCode",400
                     ));
