@@ -93,6 +93,30 @@ public class JobController {
     }
 
 
+     @GetMapping("/filter-with-token")
+    public ResponseEntity<?> listJobsToken() {
+
+        try {
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Job list fetched successfully",
+                    "status", true,
+                    "statusCode", 200,
+                    "data", jobService.listJobsToken()
+            ));
+
+        } catch (Exception e) {
+
+            return ResponseEntity.status(400).body(Map.of(
+                    "message", e.getMessage(),
+                    "status", false,
+                    "statusCode", 400
+            ));
+        }
+    }
+
+
+
 @PatchMapping("/status/{id}")
 public ResponseEntity<?> toggleStatus(@PathVariable Long id) {
 

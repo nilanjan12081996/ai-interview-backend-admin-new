@@ -34,6 +34,7 @@ public class JobMapper {
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .experience(entity.getExperience())
+                .jd(entity.getJd())
                 .build();
     }
 

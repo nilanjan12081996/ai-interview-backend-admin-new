@@ -144,7 +144,8 @@ public class InterviewService {
         // 6️⃣ GENERATE TOKEN + LINK
         // =========================
         String token = UUID.randomUUID().toString();
-        String link = "http://localhost:5173/interview/" + token;
+        // String link = "http://localhost:5173/interview/" + token;
+        String link = "https://aiinterviewpython.bestworks.cloud/" + token;
 
         LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
 

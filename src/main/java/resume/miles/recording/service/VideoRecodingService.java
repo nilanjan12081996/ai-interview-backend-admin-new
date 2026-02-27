@@ -51,7 +51,8 @@ public class VideoRecodingService {
         Path filePath = uploadDir.resolve(fileName);
         Files.write(filePath, file.getBytes());
 
-        String videoUrl = "http://localhost:8085/uploads/" + fileName;
+        // String videoUrl = "http://localhost:8085/uploads/" + fileName;
+          String videoUrl = "/uploads/" + fileName;
 
         // 5️⃣ Save into video_record table
         VideoRecordingEntity record = new VideoRecordingEntity();

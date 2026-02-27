@@ -74,6 +74,11 @@
       "include": {
         "file": "db/changelog/changes/030-transcription-table.json" 
       }
+    },
+     {
+      "include": {
+        "file": "db/changelog/changes/031-analysis-table.json" 
+      }
     }
 
     

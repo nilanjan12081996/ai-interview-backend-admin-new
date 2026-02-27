@@ -1,0 +1,85 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "031-analysis-table",
+        "author": "goodmood",
+        "validCheckSum": "ANY",
+        "comment": "Create analysis table ",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "analysis",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "bigint",
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "interview_link_id",
+                    "type": "bigint",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                     
+                  "column": {
+                    "name": "analysis",
+                    "type": "LongText",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                
+                },
+                {
+                     
+                  "column": {
+                    "name": "status",
+                    "type": "int",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                
+                },
+                
+                {
+                  "column": {
+                    "name": "created_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "updated_at",
+                    "type": "datetime",
+                    "defaultValueComputed": "CURRENT_TIMESTAMP",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+                  
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
