@@ -38,6 +38,32 @@ public class JobMapper {
                 .build();
     }
 
+
+    public static JobDto toDtoData(JobEntity entity) {
+
+        if (entity == null) {
+            return null;
+        }
+
+        return JobDto.builder()
+                .id(entity.getId())
+                .jobId(entity.getJobId())
+                .clientName(
+                        entity.getClient() != null
+                                ? entity.getClient().getClientName()
+                                : null
+                )
+                .role(entity.getRole())
+                .mandatorySkills(entity.getMandatorySkills()!=null?entity.getMandatorySkills().stream().map(MandatorySkillMapper::toDTO).toList():Collections.emptyList())
+                .mustHaveSkills(entity.getMustHaveSkills() != null ?entity.getMustHaveSkills().stream().map(MustHaveSkillMapper::toDTO).toList():Collections.emptyList())
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .experience(entity.getExperience())
+                .jd(entity.getJd())
+                .build();
+    }
+
     // 🔥 DTO → Entity
     // ClientEntity must be passed from service
     public JobEntity toEntity(JobDto dto, ClientEntity client) {

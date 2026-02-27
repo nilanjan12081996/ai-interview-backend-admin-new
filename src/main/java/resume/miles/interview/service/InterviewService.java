@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import resume.miles.interview.dto.InterviewDto;
+import resume.miles.interview.dto.InterviewLinkDto;
 import resume.miles.interview.dto.InterviewScheduleResponseDto;
 import resume.miles.interview.entity.InterviewEntity;
 import resume.miles.interview.entity.InterviewLinkEntity;
@@ -264,6 +265,22 @@ public class InterviewService {
             .toList();
 }
 
+
+
+@Transactional(readOnly = true)
+public InterviewLinkDto getAllList(String token){
+
+    Optional<InterviewLinkEntity> entity = interviewLinkRepository.findByTokenAndIsActiveTrue(token);
+    if(entity.isEmpty()){
+        throw new RuntimeException("invalid token" + token);
+    }
+     InterviewLinkDto interviewLinkDto = InterviewLinkDto.builder()
+                                        .id(entity.get().getId())
+                                        .interviewDto(InterviewMapper.toDTONew(entity.get().getInterview()))
+                                        .build();
+    return interviewLinkDto;
+
+}
 
 @Transactional(readOnly = true)
 public List<InterviewDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {

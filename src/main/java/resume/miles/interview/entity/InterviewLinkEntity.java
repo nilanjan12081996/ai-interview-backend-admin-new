@@ -46,10 +46,12 @@ public class InterviewLinkEntity extends BaseEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-   @OneToMany(mappedBy = "interviewDetails",
+    @OneToMany(mappedBy = "interviewDetails",
            cascade = CascadeType.ALL,
            orphanRemoval = true)
             @OrderBy("id ASC")
-   @BatchSize(size =50)
+    @BatchSize(size =50)
     private Set<TranscriptionEntity> transcriptions;
+
+
 }

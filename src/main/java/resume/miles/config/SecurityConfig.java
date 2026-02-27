@@ -55,7 +55,8 @@ public class SecurityConfig {
                             "/api/resume/parse",
                             "/actuator/**",
                             "/api/goodmood/hr/**",
-                            "/api/goodmood/recording/**"
+                            "/api/goodmood/recording/**",
+                            "/api/goodmood/interview/list-data-exp"
                             
                             
                         ).permitAll()

@@ -23,6 +23,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import resume.miles.client.entity.ClientEntity;
 import resume.miles.config.baseclass.BaseEntity;
+import resume.miles.interview.entity.InterviewEntity;
+import resume.miles.interview.entity.InterviewLinkEntity;
 import resume.miles.mandatoryskill.entity.MandatorySkillEntity;
 import resume.miles.musthaveskill.entity.MustHaveSkillEntity;
 
@@ -66,5 +68,12 @@ private Set<MandatorySkillEntity> mandatorySkills;
             @OrderBy("id ASC")
     @BatchSize(size =50)
 private Set<MustHaveSkillEntity> mustHaveSkills;
+
+   @OneToMany(mappedBy = "jobEntity",
+           cascade = CascadeType.ALL,
+           orphanRemoval = true)
+            @OrderBy("id ASC")
+    @BatchSize(size =50)
+    private Set<InterviewEntity> interviewEntity;
 }
 

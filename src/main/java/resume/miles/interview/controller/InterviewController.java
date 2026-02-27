@@ -11,7 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import resume.miles.interview.dto.InterviewDto;
+import resume.miles.interview.dto.InterviewLinkDto;
 import resume.miles.interview.dto.InterviewScheduleResponseDto;
+import resume.miles.interview.entity.InterviewLinkEntity;
 import resume.miles.interview.service.InterviewService;
 
 @RestController
@@ -123,6 +125,33 @@ public class InterviewController {
         }
     }
 
+
+     @GetMapping("/list-data-exp")
+    public ResponseEntity<?> getExpAndAllSkill(@RequestParam(required = true) String token) {
+
+        try {
+
+             
+            InterviewLinkDto interviewLinkDto = interviewService.getAllList(token);
+            return ResponseEntity.status(200).body(Map.of(
+                "message","List fetch successfully",
+                "status",true,
+                "statusCode",200,
+                "data",interviewLinkDto
+              
+            ));
+
+        } catch (Exception e) {
+
+            return ResponseEntity
+                    .status(400)
+                    .body(Map.of(
+                        "message",e.getMessage(),
+                        "status",false,
+                        "statusCode",400
+                    ));
+        }
+    }
 
 @GetMapping("/job/candidates/{jobId}")
 public ResponseEntity<?> getCandidatesByJobId(
