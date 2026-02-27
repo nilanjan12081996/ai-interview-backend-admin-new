@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +31,10 @@ import resume.miles.interview.repository.InterviewLinkRepository;
 import resume.miles.interview.repository.InterviewRepository;
 import resume.miles.jobs.entity.JobEntity;
 import resume.miles.jobs.repository.JobRepository;
+import resume.miles.mandatoryskill.entity.MandatorySkillEntity;
+import resume.miles.mandatoryskill.repository.MandatorySkillRepository;
+import resume.miles.musthaveskill.entity.MustHaveSkillEntity;
+import resume.miles.musthaveskill.repository.MustHaveSkillRepository;
 import resume.miles.question.entity.QuestionEntity;
 import resume.miles.question.respository.QuestionRepository;
 import resume.miles.recording.entity.VideoRecordingEntity;
@@ -42,6 +47,8 @@ public class InterviewService {
     private final InterviewRepository interviewRepository;
     private final InterviewLinkRepository interviewLinkRepository;
     private final JobRepository jobRepository;
+    private final MustHaveSkillRepository mustHaveSkillRepository;
+    private final MandatorySkillRepository mandatorySkillRepository;
     private final RestTemplate restTemplate;
     private final QuestionRepository questionRepository;
     private final VideoRecodingRepository videoRecodingRepository;
@@ -101,8 +108,32 @@ public class InterviewService {
         // =========================
         JobEntity job = jobRepository.findById(Long.parseLong(jobId))
                 .orElseThrow(() -> new RuntimeException("Job not found"));
+        List<MustHaveSkillEntity> musthaveSkill= mustHaveSkillRepository.findByJob(Long.parseLong(jobId));
+        List<MandatorySkillEntity> mandatorySkill = mandatorySkillRepository.findByJob(Long.parseLong(jobId));
+        List<String> musthaveSkillData = new ArrayList<>();
+        List<String> mandatorySkillData = new ArrayList<>();
+        
+        for(MustHaveSkillEntity skill : musthaveSkill){
+            musthaveSkillData.add(skill.getSkillName());
+        }
+
+        for(MandatorySkillEntity skill : mandatorySkill){
+            mandatorySkillData.add(skill.getSkillName());
+        }
+
+        String finalSkillsMusthaveSkill = String.join(", ", musthaveSkillData);
+        String finalSkillsMandatorySkill = String.join(", ", mandatorySkillData);
+
+        System.out.println("musthaveSkill"+finalSkillsMusthaveSkill);
+         System.out.println("mandatorySkill"+finalSkillsMandatorySkill);
+
+
+// Output: "Java, Spring Boot, SQL"
 
         String jd = job.getJd();
+        String experience=job.getExperience();
+         String musthaveSkillfinal=finalSkillsMusthaveSkill;
+         String mandatorySkillfinal=finalSkillsMandatorySkill;
 
         // =========================
         // 4️⃣ CALL AI PROCESS PDF API
@@ -127,7 +158,7 @@ public class InterviewService {
 
         InterviewEntity savedInterview = interviewRepository.save(interview);
 
-        List<String> aiQuestions = callAiPdfProcessor(destinationFile, jd);
+        List<String> aiQuestions = callAiPdfProcessor(destinationFile, jd,experience,musthaveSkillfinal,mandatorySkillfinal);
 
         for (String question : aiQuestions) {
 
@@ -178,8 +209,8 @@ public class InterviewService {
     }
 
 
-    private List<String> callAiPdfProcessor(File file, String jd) {
-
+    private List<String> callAiPdfProcessor(File file, String jd,String experience,String musthaveSkillfinal,String mandatorySkillfinal) {
+        
     try {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -187,6 +218,9 @@ public class InterviewService {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("pdf_file", new FileSystemResource(file));
         body.add("jd_text", jd);
+        body.add("Experience", experience);
+        body.add("Nice_to_have_skills", musthaveSkillfinal);
+        body.add("Mandatory_skills", mandatorySkillfinal);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity =
                 new HttpEntity<>(body, headers);
@@ -199,6 +233,7 @@ public class InterviewService {
                 );
 
         Map<String, Object> responseBody = response.getBody();
+        System.out.println("response.getBody()"+response.getBody());
 
         return (List<String>) responseBody.get("response");
 
