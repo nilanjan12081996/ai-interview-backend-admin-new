@@ -192,43 +192,149 @@ public JobDto toggleJobStatus(Long jobId) {
     return jobMapper.toDto(updated);
 }
 
+// @Transactional
+// public JobDto updateJob(Long id, JobDto dto) {
+
+//     // 1️⃣ Find existing job
+//     JobEntity job = jobRepository.findById(id)
+//             .orElseThrow(() -> new RuntimeException("Job not found"));
+
+//     // 2️⃣ Update Client if changed
+//     if (dto.getClientName() != null) {
+
+//         ClientEntity client = clientRepository
+//                 .findByClientName(dto.getClientName())
+//                 .orElseGet(() -> {
+//                     ClientEntity newClient = ClientEntity.builder()
+//                             .clientName(dto.getClientName())
+//                             .status(1)
+//                             .build();
+//                     return clientRepository.save(newClient);
+//                 });
+
+//         job.setClient(client);
+//     }
+
+//     // 3️⃣ Update other fields
+//     if (dto.getRole() != null) {
+//         job.setRole(dto.getRole());
+//     }
+
+//     if (dto.getJd() != null) {
+//         job.setJd(dto.getJd());
+//     }
+
+//     // 4️⃣ Save updated job
+//     JobEntity updated = jobRepository.save(job);
+
+//     return jobMapper.toDto(updated);
+// }
+
+
+
 @Transactional
 public JobDto updateJob(Long id, JobDto dto) {
 
-    // 1️⃣ Find existing job
+    // 1️⃣ Get existing job
     JobEntity job = jobRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Job not found"));
 
-    // 2️⃣ Update Client if changed
+    // 2️⃣ Update client
     if (dto.getClientName() != null) {
-
         ClientEntity client = clientRepository
                 .findByClientName(dto.getClientName())
-                .orElseGet(() -> {
-                    ClientEntity newClient = ClientEntity.builder()
-                            .clientName(dto.getClientName())
-                            .status(1)
-                            .build();
-                    return clientRepository.save(newClient);
-                });
+                .orElseGet(() -> clientRepository.save(
+                        ClientEntity.builder()
+                                .clientName(dto.getClientName())
+                                .status(1)
+                                .build()
+                ));
 
         job.setClient(client);
     }
 
-    // 3️⃣ Update other fields
-    if (dto.getRole() != null) {
-        job.setRole(dto.getRole());
+    // 3️⃣ Update basic fields
+    if (dto.getRole() != null) job.setRole(dto.getRole());
+    if (dto.getJd() != null) job.setJd(dto.getJd());
+    if (dto.getExperience() != null) job.setExperience(dto.getExperience());
+
+    JobEntity updatedJob = jobRepository.save(job);
+    Long jobId = updatedJob.getId();
+
+    // =========================================
+    // 🔥 IMPORTANT: DELETE OLD SKILLS FIRST
+    // =========================================
+
+    mandatorySkillRepository.deleteByJob(jobId);
+    mustHaveSkillRepository.deleteByJob(jobId);
+
+    // 🔥 FORCE FLUSH (VERY IMPORTANT)
+    mandatorySkillRepository.flush();
+    mustHaveSkillRepository.flush();
+
+    // =========================================
+    // INSERT NEW MANDATORY SKILLS
+    // =========================================
+
+    if (dto.getMandatorySkills() != null) {
+
+        List<MandatorySkillEntity> mandatoryList =
+                dto.getMandatorySkills()
+                        .stream()
+                        .filter(skill -> skill.getSkillName() != null &&
+                                !skill.getSkillName().trim().isEmpty())
+                        .map(skill -> MandatorySkillEntity.builder()
+                                .job(jobId)   // must match column job_id
+                                .skillName(skill.getSkillName())
+                                .status(1)
+                                .build())
+                        .toList();
+
+        if (!mandatoryList.isEmpty()) {
+            mandatorySkillRepository.saveAll(mandatoryList);
+        }
     }
 
-    if (dto.getJd() != null) {
-        job.setJd(dto.getJd());
+    // =========================================
+    // INSERT NEW MUST HAVE SKILLS
+    // =========================================
+
+    if (dto.getMustHaveSkills() != null) {
+
+        List<MustHaveSkillEntity> mustHaveList =
+                dto.getMustHaveSkills()
+                        .stream()
+                        .filter(skill -> skill.getSkillName() != null &&
+                                !skill.getSkillName().trim().isEmpty())
+                        .map(skill -> MustHaveSkillEntity.builder()
+                                .job(jobId)
+                                .skillName(skill.getSkillName())
+                                .status(1)
+                                .build())
+                        .toList();
+
+        if (!mustHaveList.isEmpty()) {
+            mustHaveSkillRepository.saveAll(mustHaveList);
+        }
     }
 
-    // 4️⃣ Save updated job
-    JobEntity updated = jobRepository.save(job);
-
-    return jobMapper.toDto(updated);
+    return jobMapper.toDto(updatedJob);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @Transactional

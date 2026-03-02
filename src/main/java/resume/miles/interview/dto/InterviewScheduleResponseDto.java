@@ -24,4 +24,8 @@ public class InterviewScheduleResponseDto {
 
     private String interviewLink;
     private String videoLink;
+
+    private String transcription;
+
+    private String analysis;
 }

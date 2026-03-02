@@ -1,0 +1,52 @@
+INTERVIEW TRANSCRIPT
+Generated On: 02-03-2026 16:56
+--------------------------------------------------
+
+
+🟢 INTERVIEWER:
+Hello, welcome! How are you doing today? I'm glad to have the chance to speak with you about the position.
+
+🟢 INTERVIEWER:
+I'm doing well, thank you for asking. Now, tell me about yourself and your professional background.
+
+🔵 CANDIDATE:
+My name is Jayanta Roy. I have 1.2 years of experience in the AIML industry. I have done 25 plus projects.
+
+🟢 INTERVIEWER:
+Thank you for sharing that. It sounds like you've had a busy and diverse career. Let's continue. I see in your professional summary that you have 3+ years of experience in project management and marketing. Can you tell me how you've collaborated with technical teams on projects?
+
+🔵 CANDIDATE:
+Actually, I don't know. Skip the next question.
+
+🟢 INTERVIEWER:
+That's okay, let's move on. You mentioned that you led the re-architecture of a SaaS platform which reduced client deployment time by two months. Can you elaborate on your role in this project and the technologies you worked with?
+
+🔵 CANDIDATE:
+Please skip the next question.
+
+🟢 INTERVIEWER:
+Alright, we can skip that. Tell me about a challenging technical problem you solved recently. What was your approach?
+
+🔵 CANDIDATE:
+skip the next question
+
+🟢 INTERVIEWER:
+Understood, let's move forward. How do you handle disagreements with team members about technical decisions?
+
+🟢 INTERVIEWER:
+No problem, let's continue. Describe your experience with agile development methodologies.
+
+🔵 CANDIDATE:
+Actually, I don't know. Skip that. Skip that question.
+
+🔵 CANDIDATE:
+Skip that question.
+
+🟢 INTERVIEWER:
+Alright, we'll move on. Do you have any questions for us?
+
+🔵 CANDIDATE:
+No, thank you.
+
+🟢 INTERVIEWER:
+Thank you for your time today. The interview is complete, and someone will follow up with you soon. Have a great day! INTERVIEW_COMPLETE

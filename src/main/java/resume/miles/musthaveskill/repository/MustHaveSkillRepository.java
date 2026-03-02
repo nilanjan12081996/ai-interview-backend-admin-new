@@ -10,4 +10,5 @@ import resume.miles.musthaveskill.entity.MustHaveSkillEntity;
 @Repository
 public interface MustHaveSkillRepository extends JpaRepository<MustHaveSkillEntity,Long> {
      List<MustHaveSkillEntity> findByJob(Long id);
+     void deleteByJob(Long jobId);
 }

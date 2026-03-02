@@ -39,6 +39,9 @@ import resume.miles.question.entity.QuestionEntity;
 import resume.miles.question.respository.QuestionRepository;
 import resume.miles.recording.entity.VideoRecordingEntity;
 import resume.miles.recording.repository.VideoRecodingRepository;
+import resume.miles.transcription.entity.TranscriptionEntity;
+import resume.miles.transcription.repository.TransciptionRepository;
+import resume.miles.transcription.service.TranscriptionService;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +55,8 @@ public class InterviewService {
     private final RestTemplate restTemplate;
     private final QuestionRepository questionRepository;
     private final VideoRecodingRepository videoRecodingRepository;
+    private final TransciptionRepository transciptionRepository;
+    private final TranscriptionService transcriptFileService;
 
 
     private static final String AI_API_URL =
@@ -261,7 +266,23 @@ public class InterviewService {
 
                 String videoLink = video.map(VideoRecordingEntity::getVideoLink)
                         .orElse(null);
+                
+                
 
+                        Optional<TranscriptionEntity> transcription =
+                        transciptionRepository
+                                .findTopByInterviewLinkIdOrderByCreatedAtDesc(link.getId());
+
+                        String transcriptFileLink = null;
+
+                    if (transcription.isPresent()) {
+
+                    transcriptFileLink = transcriptFileService
+                            .generateTranscriptFile(
+                                    link.getId(),
+                                    transcription.get().getTranscript()
+                            );
+                }
                 JobEntity job = null;
 
                 
@@ -294,7 +315,9 @@ public class InterviewService {
                         .startTime(interview.getStartTime())
                         .endTime(interview.getEndTime())
                         .interviewLink(link.getInterviewLink())
+                        .transcription(transcriptFileLink)
                         .videoLink(videoLink)
+                       
                         .build();
             })
             .toList();

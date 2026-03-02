@@ -10,4 +10,5 @@ import resume.miles.mandatoryskill.entity.MandatorySkillEntity;
 @Repository
 public interface MandatorySkillRepository extends JpaRepository<MandatorySkillEntity,Long>{
     List<MandatorySkillEntity> findByJob(Long jobId);
+    void deleteByJob(Long jobId);
 }
