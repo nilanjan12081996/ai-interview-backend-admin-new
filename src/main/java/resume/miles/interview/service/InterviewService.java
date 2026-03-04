@@ -21,6 +21,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import resume.miles.analysis.entity.AnalysisEntity;
+import resume.miles.analysis.repository.AnalysisRepository;
 import resume.miles.interview.dto.InterviewDto;
 import resume.miles.interview.dto.InterviewLinkDto;
 import resume.miles.interview.dto.InterviewScheduleResponseDto;
@@ -42,6 +44,7 @@ import resume.miles.recording.repository.VideoRecodingRepository;
 import resume.miles.transcription.entity.TranscriptionEntity;
 import resume.miles.transcription.repository.TransciptionRepository;
 import resume.miles.transcription.service.TranscriptionService;
+import resume.miles.analysis.service.AnalysisService;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +60,8 @@ public class InterviewService {
     private final VideoRecodingRepository videoRecodingRepository;
     private final TransciptionRepository transciptionRepository;
     private final TranscriptionService transcriptFileService;
+    private final AnalysisRepository analysisRepository;
+    private final AnalysisService analysisService;
 
 
     private static final String AI_API_URL =
@@ -283,6 +288,26 @@ public class InterviewService {
                                     transcription.get().getTranscript()
                             );
                 }
+
+                Optional<AnalysisEntity> analysis =
+                            analysisRepository
+                                    .findTopByInterviewLinkIdOrderByCreatedAtDesc(link.getId());
+
+                    String analysisFileLink = null;
+
+                    if (analysis.isPresent()) {
+
+                       analysisFileLink = analysisService
+            .generateAnalysisPdf(
+                    link.getId(),
+                    analysis.get().getAnalysis(),
+                    interview.getCandidateName(),   // name
+                    interview.getEmail(),           // email
+                    interview.getPhoneNumber(),     // phone
+                    link.getInterviewLink(),        // interview URL
+                    interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null
+            );
+                    }
                 JobEntity job = null;
 
                 
@@ -316,6 +341,7 @@ public class InterviewService {
                         .endTime(interview.getEndTime())
                         .interviewLink(link.getInterviewLink())
                         .transcription(transcriptFileLink)
+                         .analysis(analysisFileLink)
                         .videoLink(videoLink)
                        
                         .build();
@@ -340,27 +366,130 @@ public InterviewLinkDto getAllList(String token){
 
 }
 
+// @Transactional(readOnly = true)
+// public List<InterviewDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
+
+//     // 1️⃣ Check job exists
+//     jobRepository.findById(jobPrimaryId)
+//             .orElseThrow(() -> new RuntimeException("Job not found"));
+
+//     // 2️⃣ Convert Long to String (VERY IMPORTANT)
+//     String jobIdString = String.valueOf(jobPrimaryId);
+
+//     // 3️⃣ Fetch candidates
+//     List<InterviewEntity> interviews =
+//             interviewRepository.findByJobId(jobIdString);
+
+//     if (interviews.isEmpty()) {
+//         throw new RuntimeException("No candidates assigned to this job");
+//     }
+
+//     return interviews.stream()
+//             .map(InterviewMapper::toDTO)
+//             .toList();
+// }
+
+
+
+
+
+
+
+
+
+
 @Transactional(readOnly = true)
-public List<InterviewDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
+public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
 
     // 1️⃣ Check job exists
-    jobRepository.findById(jobPrimaryId)
+    JobEntity job = jobRepository.findById(jobPrimaryId)
             .orElseThrow(() -> new RuntimeException("Job not found"));
 
-    // 2️⃣ Convert Long to String (VERY IMPORTANT)
     String jobIdString = String.valueOf(jobPrimaryId);
 
-    // 3️⃣ Fetch candidates
+    // 2️⃣ Fetch interviews
     List<InterviewEntity> interviews =
             interviewRepository.findByJobId(jobIdString);
 
-    if (interviews.isEmpty()) {
-        throw new RuntimeException("No candidates assigned to this job");
-    }
+    // if (interviews.isEmpty()) {
+    //     throw new RuntimeException("No candidates assigned to this job");
+    // }
 
-    return interviews.stream()
-            .map(InterviewMapper::toDTO)
-            .toList();
+    return interviews.stream().map(interview -> {
+
+        // 🔹 Fetch Interview Link
+        InterviewLinkEntity link =
+                interviewLinkRepository.findByInterview(interview)
+                        .orElse(null);
+
+        String videoLink = null;
+        String transcriptFileLink = null;
+        String analysisFileLink = null;
+        String interviewUrl = null;
+
+        if (link != null) {
+
+            interviewUrl = link.getInterviewLink();
+
+            // 🔹 Video
+            videoLink = videoRecodingRepository
+                    .findByInterviewLinkId(link.getId())
+                    .map(VideoRecordingEntity::getVideoLink)
+                    .orElse(null);
+
+            // 🔹 Transcription
+            Optional<TranscriptionEntity> transcription =
+                    transciptionRepository
+                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(link.getId());
+
+            if (transcription.isPresent()) {
+                transcriptFileLink = transcriptFileService
+                        .generateTranscriptFile(
+                                link.getId(),
+                                transcription.get().getTranscript()
+                        );
+            }
+
+            // 🔹 Analysis
+            Optional<AnalysisEntity> analysis =
+                    analysisRepository
+                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(link.getId());
+
+            if (analysis.isPresent()) {
+                analysisFileLink = analysisService
+                        .generateAnalysisPdf(
+                                link.getId(),
+                                analysis.get().getAnalysis(),
+                                interview.getCandidateName(),
+                                interview.getEmail(),
+                                interview.getPhoneNumber(),
+                                interviewUrl,
+                                interview.getInterviewDate() != null
+                                        ? interview.getInterviewDate().toString()
+                                        : null
+                        );
+            }
+        }
+
+        return InterviewScheduleResponseDto.builder()
+                .candidateName(interview.getCandidateName())
+                .candidateEmail(interview.getEmail())
+                .candidatePhone(interview.getPhoneNumber())
+                .resumeLink(interview.getResumeLink())
+                .jobDescription(job.getJd())
+                .jobName(job.getClient() != null
+                        ? job.getClient().getClientName()
+                        : null)
+                .interviewDate(interview.getInterviewDate())
+                .startTime(interview.getStartTime())
+                .endTime(interview.getEndTime())
+                .interviewLink(interviewUrl)
+                .transcription(transcriptFileLink)
+                .analysis(analysisFileLink)
+                .videoLink(videoLink)
+                .build();
+
+    }).toList();
 }
 
 

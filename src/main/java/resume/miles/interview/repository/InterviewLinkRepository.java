@@ -3,6 +3,8 @@ package resume.miles.interview.repository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import resume.miles.interview.entity.InterviewEntity;
 import resume.miles.interview.entity.InterviewLinkEntity;
 
 public interface InterviewLinkRepository extends JpaRepository<InterviewLinkEntity, Long> {
@@ -12,4 +14,5 @@ public interface InterviewLinkRepository extends JpaRepository<InterviewLinkEnti
      List<InterviewLinkEntity> findAll();
 
      Optional<InterviewLinkEntity> findByTokenAndIsActiveTrue(String token);
+     Optional<InterviewLinkEntity> findByInterview(InterviewEntity interview);
 }

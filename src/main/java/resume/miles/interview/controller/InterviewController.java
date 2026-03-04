@@ -160,8 +160,11 @@ public ResponseEntity<?> getCandidatesByJobId(
 
     try {
 
-        List<InterviewDto> candidates =
-                interviewService.getCandidatesByJobPrimaryId(jobId);
+        // List<InterviewDto> candidates =
+        //         interviewService.getCandidatesByJobPrimaryId(jobId);
+
+        List<InterviewScheduleResponseDto> candidates =
+        interviewService.getCandidatesByJobPrimaryId(jobId);
 
         return ResponseEntity.ok(Map.of(
                 "message", "Candidates fetched successfully",
