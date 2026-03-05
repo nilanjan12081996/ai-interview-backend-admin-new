@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
@@ -108,6 +109,24 @@ public ResponseEntity<?> createSession() {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", e.getMessage()));
+    }
+}
+
+@PutMapping("/complete/{token}")
+public ResponseEntity<?> completeInterview(@PathVariable String token){
+    try {
+        String reponse=questionService.markInterviewComplete(token);
+        return ResponseEntity.status(200).body(Map.of(
+            "message",reponse,
+            "statusCode",200,
+            "status",true
+        ));
+    } catch (Exception e) {
+        return ResponseEntity.status(422).body(Map.of(
+            "message",e.getMessage(),
+            "statusCode",422,
+            "status",false
+        ));
     }
 }
 

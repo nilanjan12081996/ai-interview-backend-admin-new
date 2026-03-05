@@ -88,7 +88,17 @@
                       "nullable": false
                     }
                   }
+                },
+               {
+                "column": {
+                  "name": "is_complete",
+                  "type": "int",
+                  "defaultValueNumeric": 0,
+                  "constraints": {
+                    "nullable": false
+                  }
                 }
+              }
               ]
             }
           }

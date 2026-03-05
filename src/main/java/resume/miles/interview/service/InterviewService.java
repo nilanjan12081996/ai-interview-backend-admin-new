@@ -210,6 +210,7 @@ public class InterviewService {
                 .token(token)
                 .interviewLink(link)
                 .expiryTime(expiryDateTime)
+                .is_complete(0)
                 .isActive(true)
                 .build();
 

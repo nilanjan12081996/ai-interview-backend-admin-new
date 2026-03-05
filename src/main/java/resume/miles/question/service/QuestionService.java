@@ -27,6 +27,9 @@ public class QuestionService {
     if (link.getExpiryTime().isBefore(LocalDateTime.now())) {
         throw new RuntimeException("Token expired");
     }
+    if(link.getIs_complete()==1){
+        throw new RuntimeException("Interview already completed");
+    }
 
     Long interviewId = link.getInterview().getId();
 
@@ -36,6 +39,19 @@ public class QuestionService {
     return questionEntities.stream()
             .map(QuestionMapper::toDTO)
             .toList();
+}
+
+public String markInterviewComplete(String token){
+
+        InterviewLinkEntity interviewLink=interviewLinkRepository.findByTokenAndIsActiveTrue(token)
+         .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
+           if (interviewLink.getIs_complete()==1) {
+        return "Interview already completed";
+    }
+    interviewLink.setIs_complete(1);
+    interviewLink.setUpdatedAt(LocalDateTime.now());
+    interviewLinkRepository.save(interviewLink);
+    return "Interview marked as completed successfully";
 }
     
 }

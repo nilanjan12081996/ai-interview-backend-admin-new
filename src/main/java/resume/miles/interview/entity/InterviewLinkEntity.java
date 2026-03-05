@@ -45,6 +45,8 @@ public class InterviewLinkEntity extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
+    @Column(name="is_complete",nullable = false)
+    private Integer is_complete;
 
     @OneToMany(mappedBy = "interviewDetails",
            cascade = CascadeType.ALL,
