@@ -32,7 +32,7 @@
         <tr>
             <td class="content">
                 <h1>Ready for your interview?</h1>
-                <p>Hello <strong>${candidateName}</strong>,</p>
+                <p>Hello <strong>[[${candidateName}]]</strong>,</p>
                 <p>You have been invited to an AI-powered interview session. This platform uses real-time AI to conduct a conversational assessment of your skills and experience.</p>
 
                 <div class="info-box">
@@ -41,8 +41,20 @@
                     </div>
                 </div>
 
-                <div class="button-container">
-                    <a href="${interviewLink}" class="btn">Join Interview now</a>
+                <div style="text-align: center; margin: 35px 0;">
+                    <a href="${interviewLink}"
+                       style="background-color: #1a73e8;
+                          color: #ffffff;
+                          padding: 14px 36px;
+                          text-decoration: none;
+                          border-radius: 24px;
+                          font-weight: 600;
+                          font-size: 16px;
+                          display: inline-block;
+                          font-family: 'Roboto', 'Google Sans', Arial, sans-serif;
+                          border: 1px solid #1a73e8;">
+                        Join Interview Now
+                    </a>
                 </div>
 
                 <div class="warning">
