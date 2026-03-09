@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Roboto', Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
+        .wrapper { width: 100%; table-layout: fixed; background-color: #f8f9fa; padding-bottom: 40px; }
+        .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-spacing: 0; color: #3c4043; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; margin-top: 40px; }
+        .header { background-color: #202124; padding: 20px; text-align: center; }
+        .header img { width: 40px; height: 40px; }
+        .content { padding: 40px 30px; text-align: left; line-height: 1.6; }
+        .content h1 { font-size: 24px; color: #202124; font-weight: 400; margin-top: 0; }
+        .content p { font-size: 16px; color: #5f6368; }
+        .info-box { background-color: #f1f3f4; border-radius: 8px; padding: 20px; margin: 25px 0; }
+        .info-item { margin-bottom: 10px; font-size: 14px; }
+        .info-label { font-weight: 700; color: #202124; width: 100px; display: inline-block; }
+        .button-container { text-align: center; margin-top: 30px; }
+        .btn { background-color: #1a73e8; color: #ffffff !important; padding: 12px 32px; text-decoration: none; border-radius: 4px; font-weight: 500; display: inline-block; font-size: 16px; }
+        .footer { padding: 20px; text-align: center; font-size: 12px; color: #70757a; }
+        .warning { font-size: 13px; color: #d93025; margin-top: 20px; padding: 10px; border-left: 3px solid #d93025; background: #fdf2f2; }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <table class="main">
+        <tr>
+            <td class="header">
+                <span style="color: white; font-size: 20px; font-weight: 500;">AI Interview Portal</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="content">
+                <h1>Ready for your interview?</h1>
+                <p>Hello <strong>${candidateName}</strong>,</p>
+                <p>You have been invited to an AI-powered interview session. This platform uses real-time AI to conduct a conversational assessment of your skills and experience.</p>
+
+                <div class="info-box">
+                    <div class="info-item">
+                        <span class="info-label">Format:</span> Voice & Screen Share
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <a href="${interviewLink}" class="btn">Join Interview now</a>
+                </div>
+
+                <div class="warning">
+                    <strong>Security Reminder:</strong> You will be required to share your entire screen and enable your microphone to proceed. Please ensure you are in a quiet environment.
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="footer">
+                This is an automated invitation. Please do not reply to this email.<br>
+                &copy; 2026 AI Interview Agent. Powered by OpenAI Realtime.
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
