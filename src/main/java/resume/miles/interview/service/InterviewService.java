@@ -11,8 +11,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.http.*;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -21,6 +25,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import resume.miles.analysis.entity.AnalysisEntity;
 import resume.miles.analysis.repository.AnalysisRepository;
 import resume.miles.interview.dto.InterviewDto;
@@ -63,6 +69,8 @@ public class InterviewService {
     private final AnalysisRepository analysisRepository;
     private final AnalysisService analysisService;
 
+    private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
 
     private static final String AI_API_URL =
             "https://interviewaiapi.bestworks.cloud/api/v1/process-pdf";
@@ -215,7 +223,32 @@ public class InterviewService {
                 .build();
 
         interviewLinkRepository.save(linkEntity);
+        try {
+            Context context = new Context();
+            context.setVariable("candidateName", candidateName);
+            context.setVariable("interviewLink", link);
+            context.setVariable("jobTitle", job.getRole()); // Ensure job title is passed to the template
 
+            String process = templateEngine.process("interviewLinkSend", context);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom("iksen.testmail@gmail.com");
+            // Ensure you use the 'email' variable passed to the method, not 'toEmail'
+            helper.setTo(email);
+            helper.setSubject("Invitation: AI Interview");
+            helper.setText(process, true); // Set true for HTML
+
+            mailSender.send(message);
+            System.out.println("Email successfully sent to: " + email);
+
+        } catch (jakarta.mail.MessagingException e) {
+            // You can choose to throw a RuntimeException or log the error.
+            // Throwing a RuntimeException will rollback the transaction if the email fails.
+            System.err.println("Failed to send email: " + e.getMessage());
+            throw new RuntimeException("Failed to send interview invitation email", e);
+        }
         return link;
     }
 
