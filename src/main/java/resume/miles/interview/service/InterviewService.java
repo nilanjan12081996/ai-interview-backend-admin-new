@@ -234,7 +234,7 @@ public class InterviewService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("Ai Interview");
+            helper.setFrom("iksen.testmail@gmail.com");
             // Ensure you use the 'email' variable passed to the method, not 'toEmail'
             helper.setTo(email);
             helper.setSubject("Invitation: AI Interview");
