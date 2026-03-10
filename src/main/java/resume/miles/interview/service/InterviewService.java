@@ -227,6 +227,7 @@ public class InterviewService {
             Context context = new Context();
             context.setVariable("candidateName", candidateName);
             context.setVariable("interviewLink", link);
+            System.out.println("interviewLink"+link);
             context.setVariable("jobTitle", job.getRole()); // Ensure job title is passed to the template
 
             String process = templateEngine.process("interviewLinkSend", context);
