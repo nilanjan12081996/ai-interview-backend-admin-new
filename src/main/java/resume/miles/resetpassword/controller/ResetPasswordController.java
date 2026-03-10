@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/reset")
+@RequestMapping("/api/goodmood/reset")
 @RequiredArgsConstructor
 public class ResetPasswordController {
 
