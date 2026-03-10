@@ -1,15 +1,18 @@
 package resume.miles.resetpassword.controller;
 
 
+import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import resume.miles.config.JwtUserDetails;
 import resume.miles.resetpassword.dto.PasswordResetDto;
 import resume.miles.resetpassword.service.ResetPasswordService;
 
@@ -25,7 +28,7 @@ public class ResetPasswordController {
     private final ResetPasswordService resetPasswordService;
 
     @PostMapping("/password")
-    public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetDto dto, BindingResult bindingResult   ) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetDto dto, BindingResult bindingResult , @AuthenticationPrincipal JwtUserDetails jwt) {
         Map<String,Object> response = new HashMap<>();
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
@@ -39,10 +42,17 @@ public class ResetPasswordController {
             return  ResponseEntity.status(422).body(response);
         }
         try{
+            Long id = jwt.getId();
+            String data = resetPasswordService.ResetPassword(dto,id);
             response.put("status",true);
             response.put("message","Reset Password Successfully");
             response.put("statusCode",200);
             return  ResponseEntity.status(200).body(response);
+        }catch(RuntimeException e){
+            response.put("status",false);
+            response.put("message",e.getMessage());
+            response.put("statusCode",422);
+            return  ResponseEntity.status(422).body(response);
         }catch (Exception e){
             response.put("status",false);
             response.put("message",e.getMessage());
