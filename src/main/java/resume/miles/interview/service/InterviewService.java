@@ -370,6 +370,7 @@ public class InterviewService {
                 }
 
                 return InterviewScheduleResponseDto.builder()
+                        .id(interview.getId())
                         .candidateName(interview.getCandidateName())
                         .candidateEmail(interview.getEmail())
                         .candidatePhone(interview.getPhoneNumber())
@@ -384,7 +385,8 @@ public class InterviewService {
                         .transcription(transcriptFileLink)
                          .analysis(analysisFileLink)
                         .videoLink(videoLink)
-                       
+                        .is_complete(link.getIs_complete())
+                        
                         .build();
             })
             .toList();
@@ -406,37 +408,6 @@ public InterviewLinkDto getAllList(String token){
     return interviewLinkDto;
 
 }
-
-// @Transactional(readOnly = true)
-// public List<InterviewDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
-
-//     // 1️⃣ Check job exists
-//     jobRepository.findById(jobPrimaryId)
-//             .orElseThrow(() -> new RuntimeException("Job not found"));
-
-//     // 2️⃣ Convert Long to String (VERY IMPORTANT)
-//     String jobIdString = String.valueOf(jobPrimaryId);
-
-//     // 3️⃣ Fetch candidates
-//     List<InterviewEntity> interviews =
-//             interviewRepository.findByJobId(jobIdString);
-
-//     if (interviews.isEmpty()) {
-//         throw new RuntimeException("No candidates assigned to this job");
-//     }
-
-//     return interviews.stream()
-//             .map(InterviewMapper::toDTO)
-//             .toList();
-// }
-
-
-
-
-
-
-
-
 
 
 @Transactional(readOnly = true)
@@ -517,6 +488,7 @@ public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPr
         }
 
         return InterviewScheduleResponseDto.builder()
+                .id(interview.getId())
                 .candidateName(interview.getCandidateName())
                 .candidateEmail(interview.getEmail())
                 .candidatePhone(interview.getPhoneNumber())
@@ -532,6 +504,7 @@ public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPr
                 .transcription(transcriptFileLink)
                 .analysis(analysisFileLink)
                 .videoLink(videoLink)
+                .is_complete(link.getIs_complete())
                 .build();
 
     }).toList();
@@ -539,6 +512,72 @@ public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPr
 
 
 
+
+
+@Transactional
+public String resendInterviewLink(Long interviewId) {
+    // 1. Fetch the existing interview
+    InterviewEntity interview = interviewRepository.findById(interviewId)
+            .orElseThrow(() -> new RuntimeException("Interview not found with ID: " + interviewId));
+
+    // 2. Optional: Deactivate old links if any
+    List<InterviewLinkEntity> oldLinks = interviewLinkRepository.findAllByInterview(interview);
+    for (InterviewLinkEntity oldLink : oldLinks) {
+        oldLink.setIsActive(false);
+    }
+    interviewLinkRepository.saveAll(oldLinks);
+
+    // 3. Generate New Token and Link
+    String newToken = UUID.randomUUID().toString();
+    String newLink = "https://aiinterviewpython.bestworks.cloud/" + newToken;
+
+    // 4. Calculate Expiry (using your existing logic: 1 hour after start if end not present)
+    LocalDateTime expiryDateTime;
+    if (interview.getEndTime() != null) {
+        expiryDateTime = LocalDateTime.of(interview.getInterviewDate(), interview.getEndTime());
+    } else {
+        expiryDateTime = LocalDateTime.of(interview.getInterviewDate(), interview.getStartTime().plusHours(1));
+    }
+
+    // 5. Save New Link Entity
+    InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
+            .interview(interview)
+            .token(newToken)
+            .interviewLink(newLink)
+            .expiryTime(expiryDateTime)
+            .is_complete(0)
+            .isActive(true)
+            .build();
+
+    interviewLinkRepository.save(linkEntity);
+
+    // 6. Send Email (Reusing your logic)
+    try {
+        JobEntity job = jobRepository.findById(Long.parseLong(interview.getJobId()))
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        Context context = new Context();
+        context.setVariable("candidateName", interview.getCandidateName());
+        context.setVariable("interviewLink", newLink);
+        context.setVariable("jobTitle", job.getRole());
+
+        String emailContent = templateEngine.process("interviewLinkSend", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setFrom("iksen.testmail@gmail.com");
+        helper.setTo(interview.getEmail());
+        helper.setSubject("Resent Invitation: AI Interview");
+        helper.setText(emailContent, true);
+
+        mailSender.send(message);
+        
+        return newLink;
+    } catch (Exception e) {
+        throw new RuntimeException("Failed to resend interview invitation email", e);
+    }
+}
 }
 
 

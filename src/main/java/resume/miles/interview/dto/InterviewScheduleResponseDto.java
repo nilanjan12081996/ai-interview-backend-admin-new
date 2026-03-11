@@ -10,6 +10,7 @@ import lombok.Getter;
 @Builder
 public class InterviewScheduleResponseDto {
 
+    private Long id;
     private String candidateName;
     private String candidateEmail;
     private String candidatePhone;
@@ -28,4 +29,5 @@ public class InterviewScheduleResponseDto {
     private String transcription;
 
     private String analysis;
+    private Integer is_complete;
 }
