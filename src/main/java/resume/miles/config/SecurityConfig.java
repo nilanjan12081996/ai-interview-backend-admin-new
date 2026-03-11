@@ -39,24 +39,25 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                             "/analysis/ai/**",
-                            "/transcript/ai/**",
-                            "/api/goodmood/question/**",
-                            "/api/auth/register",
-                            "/api/auth/login",
-                            "/api/goodmood/superadmin/**",
-                            "/api/auth/test",
-                            "/api/health-check",
-                            "/error",
-                            "/api/admin/login",
-                            "/public/**",                   
-                            "/static/**",   
-                            "/uploads/**",                
-                            "/public/uploads/**" ,
-                            "/api/resume/parse",
-                            "/actuator/**",
-                            "/api/goodmood/hr/**",
-                            "/api/goodmood/recording/**",
-                            "/api/goodmood/interview/list-data-exp"
+                                "/transcript/ai/**",
+                                "/api/goodmood/question/**",
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/goodmood/superadmin/**",
+                                "/api/auth/test",
+                                "/api/health-check",
+                                "/error",
+                                "/api/admin/login",
+                                "/public/**",
+                                "/static/**",
+                                "/uploads/**",
+                                "/public/uploads/**" ,
+                                "/api/resume/parse",
+                                "/actuator/**",
+                                "/api/goodmood/hr/**",
+                                "/api/goodmood/recording/**",
+                                "/api/goodmood/interview/list-data-exp",
+                                "/api/goodmood/terminate/**"
                             
                             
                         ).permitAll()
