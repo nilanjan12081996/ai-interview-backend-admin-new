@@ -1,0 +1,29 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "033-add-duration-to-analysis",
+        "author": "goodmood",
+        "comment": "Add duration column to analysis table",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "analysis",
+              "columns": [
+                {
+                  "column": {
+                    "name": "duration",
+                    "type": "varchar(50)",
+                    "constraints": {
+                      "nullable": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

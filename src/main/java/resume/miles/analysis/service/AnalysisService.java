@@ -776,6 +776,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
@@ -793,6 +794,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 import lombok.RequiredArgsConstructor;
 import resume.miles.analysis.dto.AnalysisRequestDto;
+import resume.miles.analysis.dto.DurationRequestDto;
 import resume.miles.analysis.entity.AnalysisEntity;
 import resume.miles.analysis.repository.AnalysisRepository;
 import resume.miles.interview.entity.InterviewLinkEntity;
@@ -845,18 +847,74 @@ public class AnalysisService {
     // PUBLIC API
     // =========================================================================
 
-    public void saveAnalysis(AnalysisRequestDto request) {
-        InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+    // public void saveAnalysis(AnalysisRequestDto request) {
+    //     InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
+    //             .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-        AnalysisEntity analysis = AnalysisEntity.builder()
+    //     AnalysisEntity analysis = AnalysisEntity.builder()
+    //             .interviewLinkId(interviewLink.getId())
+    //             .analysis(request.getAnalysis())
+    //             .status(1)
+    //             .build();
+
+    //     analysisRepository.save(analysis);
+    // }
+
+
+    @Transactional
+public void saveAnalysis(AnalysisRequestDto request) {
+    InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
+            .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+    // Find if a record already exists (e.g., created by saveDuration)
+    AnalysisEntity existingAnalysis = analysisRepository
+            .findTopByInterviewLinkIdOrderByCreatedAtDesc(interviewLink.getId())
+            .orElse(null);
+
+    if (existingAnalysis != null) {
+        // Update the existing record with the actual AI analysis
+        existingAnalysis.setAnalysis(request.getAnalysis());
+        analysisRepository.save(existingAnalysis);
+    } else {
+        // Create a brand new record
+        AnalysisEntity newAnalysis = AnalysisEntity.builder()
                 .interviewLinkId(interviewLink.getId())
                 .analysis(request.getAnalysis())
                 .status(1)
                 .build();
-
-        analysisRepository.save(analysis);
+        analysisRepository.save(newAnalysis);
     }
+}
+
+
+    @Transactional
+public void saveDuration(DurationRequestDto request) {
+    // 1. Validate the token and find the Interview Link
+    InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
+            .orElseThrow(() -> new RuntimeException("Invalid token: " + request.getToken()));
+
+    // 2. Try to find an existing Analysis record for this attempt
+    AnalysisEntity analysis = analysisRepository
+            .findTopByInterviewLinkIdOrderByCreatedAtDesc(interviewLink.getId())
+            .orElse(null);
+
+    if (analysis != null) {
+        // UPDATE EXISTING: The analysis was already saved, just add duration
+        analysis.setDuration(request.getDuration());
+        analysisRepository.save(analysis);
+    } else {
+        // CREATE NEW: The duration is being saved before the AI analysis is done
+        AnalysisEntity newAnalysis = AnalysisEntity.builder()
+                .interviewLinkId(interviewLink.getId())
+                .analysis("") // Blank string because DB column is nullable: false
+                .status(1)
+                .duration(request.getDuration())
+                .build();
+        analysisRepository.save(newAnalysis);
+    }
+}
+
+ 
 
     /** Minimal overload — no candidate meta. */
     public String generateAnalysisPdf(Long interviewId, String analysisJson) {

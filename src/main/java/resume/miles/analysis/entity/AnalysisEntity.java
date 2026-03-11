@@ -20,6 +20,7 @@ import resume.miles.interview.entity.InterviewLinkEntity;
 @Data
 @Builder
 public class AnalysisEntity extends BaseEntity{
+     
       @Column(name = "interview_link_id", nullable = false)
     private Long interviewLinkId;
 
@@ -28,7 +29,8 @@ public class AnalysisEntity extends BaseEntity{
 
     @Column(name = "status", nullable = false)
     private Integer status;
-
+       @Column(name = "duration", length = 50)
+      private String duration;
      @ManyToOne(fetch = FetchType.LAZY)
       @JoinColumn(name = "interview_link_id", nullable = false,insertable = false,updatable = false)
       private InterviewLinkEntity interviewDetails;

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import resume.miles.analysis.dto.AnalysisRequestDto;
+import resume.miles.analysis.dto.DurationRequestDto;
 import resume.miles.analysis.service.AnalysisService;
 
 
@@ -35,4 +36,22 @@ public class AnalysisController {
             ));
         }
     }
+
+@PostMapping("/duration")
+public ResponseEntity<?> saveDuration(@RequestBody DurationRequestDto request) {
+    try {
+        analysisService.saveDuration(request);
+        return ResponseEntity.ok(Map.of(
+                "message", "Duration saved successfully",
+                "statusCode", 200,
+                "status", true
+        ));
+    } catch (Exception e) {
+        return ResponseEntity.status(400).body(Map.of(
+                "message", e.getMessage(),
+                "statusCode", 400,
+                "status", false
+        ));
+    }
+}
 }

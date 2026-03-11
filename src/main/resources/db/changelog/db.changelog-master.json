@@ -84,6 +84,11 @@
       "include": {
         "file": "db/changelog/changes/032-add-termination-columns.json"
       }
+    },
+     {
+      "include": {
+        "file": "db/changelog/changes/033-add-duration-to-analysis.json"
+      }
     }
 
     
