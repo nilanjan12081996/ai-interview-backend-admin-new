@@ -25,7 +25,8 @@ public class InterviewScheduleResponseDto {
 
     private String interviewLink;
     private String videoLink;
-
+    private String terminationCause;
+    private String userJustification;
     private String transcription;
 
     private String analysis;

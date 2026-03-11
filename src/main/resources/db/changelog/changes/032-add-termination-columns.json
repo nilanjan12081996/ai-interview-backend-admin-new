@@ -1,0 +1,34 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "027-add-termination-columns",
+        "author": "goodmood",
+        "comment": "Add columns for interview termination cause and user justification",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "interview_link",
+              "columns": [
+                {
+                  "column": {
+                    "name": "termination_cause",
+                    "type": "varchar(255)",
+                    "remarks": "System-logged reason for disconnect/termination (e.g., 'Screen share stopped', 'Network dropped')"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_justification",
+                    "type": "TEXT",
+                    "remarks": "Explanation provided by the candidate for the termination"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

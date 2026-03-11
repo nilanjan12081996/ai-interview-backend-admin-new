@@ -48,6 +48,12 @@ public class InterviewLinkEntity extends BaseEntity {
     @Column(name="is_complete",nullable = false)
     private Integer is_complete;
 
+    @Column(name = "termination_cause")
+    private String terminationCause;
+
+    @Column(name = "user_justification", columnDefinition = "TEXT")
+    private String userJustification;
+
     @OneToMany(mappedBy = "interviewDetails",
            cascade = CascadeType.ALL,
            orphanRemoval = true)

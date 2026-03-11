@@ -20,7 +20,8 @@ public class InterviewLinkDto {
     private String interviewLink;
 
     private LocalDateTime expiryTime;
-
+    private String terminationCause;
+    private String userJustification;
     private Boolean isActive;
 
     private InterviewDto interviewDto; 
