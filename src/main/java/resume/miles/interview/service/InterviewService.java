@@ -340,7 +340,13 @@ public class InterviewService {
                     interview.getEmail(),           // email
                     interview.getPhoneNumber(),     // phone
                     link.getInterviewLink(),        // interview URL
-                    interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null
+                    interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
+                    "30min",
+                    videoLink,
+                    transcriptFileLink
+                    
+
+                   
             );
                     }
                 JobEntity job = null;
@@ -501,7 +507,11 @@ public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPr
                                 interviewUrl,
                                 interview.getInterviewDate() != null
                                         ? interview.getInterviewDate().toString()
-                                        : null
+                                        : null,
+                                        "30min",
+                                        videoLink,
+                                        transcriptFileLink
+                                       
                         );
             }
         }
