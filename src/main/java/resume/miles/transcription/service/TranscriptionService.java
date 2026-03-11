@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import resume.miles.config.TranscriptionFormatter;
@@ -21,18 +22,46 @@ public class TranscriptionService {
     private final InterviewLinkRepository interviewLinkRepository;
     private final TransciptionRepository transciptionRepository;
 
-    public void saveTranscription(TranscriptionRequestDto request){
-        InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
+    // public void saveTranscription(TranscriptionRequestDto request){
+    //     InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
+    //         .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+    // TranscriptionEntity transcription = TranscriptionEntity.builder()
+    //         .interviewLinkId(interviewLink.getId())
+    //         .transcript(request.getTranscript())
+    //         .status(1)
+    //         .build();
+
+    // transciptionRepository.save(transcription);
+    // }
+
+
+    @Transactional
+public void saveTranscription(TranscriptionRequestDto request) {
+    // 1. Validate Token and get the Interview Link
+    InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
             .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-    TranscriptionEntity transcription = TranscriptionEntity.builder()
-            .interviewLinkId(interviewLink.getId())
-            .transcript(request.getTranscript())
-            .status(1)
-            .build();
+    // 2. Look for an existing transcription record for this interview attempt
+    TranscriptionEntity existingTranscription = transciptionRepository
+            .findTopByInterviewLinkIdOrderByCreatedAtDesc(interviewLink.getId())
+            .orElse(null);
 
-    transciptionRepository.save(transcription);
+    if (existingTranscription != null) {
+        // UPDATE: Replace the old transcript with the newly updated continuous string
+        existingTranscription.setTranscript(request.getTranscript());
+        existingTranscription.setStatus(1);
+        transciptionRepository.save(existingTranscription);
+    } else {
+        // INSERT: Create a brand new record (only happens on the very first API call)
+        TranscriptionEntity newTranscription = TranscriptionEntity.builder()
+                .interviewLinkId(interviewLink.getId())
+                .transcript(request.getTranscript())
+                .status(1)
+                .build();
+        transciptionRepository.save(newTranscription);
     }
+}
 
 
 
