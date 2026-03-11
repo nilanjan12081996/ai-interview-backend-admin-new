@@ -861,22 +861,78 @@ public class AnalysisService {
     // }
 
 
-    @Transactional
+//     @Transactional
+// public void saveAnalysis(AnalysisRequestDto request) {
+//     InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
+//             .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+//     // Find if a record already exists (e.g., created by saveDuration)
+//     AnalysisEntity existingAnalysis = analysisRepository
+//             .findTopByInterviewLinkIdOrderByCreatedAtDesc(interviewLink.getId())
+//             .orElse(null);
+
+//     if (existingAnalysis != null) {
+//         // Update the existing record with the actual AI analysis
+//         existingAnalysis.setAnalysis(request.getAnalysis());
+//         analysisRepository.save(existingAnalysis);
+//     } else {
+//         // Create a brand new record
+//         AnalysisEntity newAnalysis = AnalysisEntity.builder()
+//                 .interviewLinkId(interviewLink.getId())
+//                 .analysis(request.getAnalysis())
+//                 .status(1)
+//                 .build();
+//         analysisRepository.save(newAnalysis);
+//     }
+// }
+
+
+//     @Transactional
+// public void saveDuration(DurationRequestDto request) {
+//     // 1. Validate the token and find the Interview Link
+//     InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
+//             .orElseThrow(() -> new RuntimeException("Invalid token: " + request.getToken()));
+
+//     // 2. Try to find an existing Analysis record for this attempt
+//     AnalysisEntity analysis = analysisRepository
+//             .findTopByInterviewLinkIdOrderByCreatedAtDesc(interviewLink.getId())
+//             .orElse(null);
+
+//     if (analysis != null) {
+       
+//         analysis.setDuration(request.getDuration());
+//         analysisRepository.save(analysis);
+//     } else {
+        
+//         AnalysisEntity newAnalysis = AnalysisEntity.builder()
+//                 .interviewLinkId(interviewLink.getId())
+//                 .analysis("") 
+//                 .status(1)
+//                 .duration(request.getDuration())
+//                 .build();
+//         analysisRepository.save(newAnalysis);
+//     }
+// }
+
+
+@Transactional
 public void saveAnalysis(AnalysisRequestDto request) {
+    // 1. Validate Token
     InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
             .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-    // Find if a record already exists (e.g., created by saveDuration)
+    // 2. Find existing record (if saveDuration or a previous saveAnalysis ran first)
     AnalysisEntity existingAnalysis = analysisRepository
             .findTopByInterviewLinkIdOrderByCreatedAtDesc(interviewLink.getId())
             .orElse(null);
 
     if (existingAnalysis != null) {
-        // Update the existing record with the actual AI analysis
+        // UPDATE: Just overwrite the analysis text
         existingAnalysis.setAnalysis(request.getAnalysis());
+        existingAnalysis.setStatus(1);
         analysisRepository.save(existingAnalysis);
     } else {
-        // Create a brand new record
+        // INSERT: Create a brand new record
         AnalysisEntity newAnalysis = AnalysisEntity.builder()
                 .interviewLinkId(interviewLink.getId())
                 .analysis(request.getAnalysis())
@@ -886,29 +942,28 @@ public void saveAnalysis(AnalysisRequestDto request) {
     }
 }
 
-
-    @Transactional
+@Transactional
 public void saveDuration(DurationRequestDto request) {
-    // 1. Validate the token and find the Interview Link
+    // 1. Validate Token
     InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
-            .orElseThrow(() -> new RuntimeException("Invalid token: " + request.getToken()));
+            .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-    // 2. Try to find an existing Analysis record for this attempt
-    AnalysisEntity analysis = analysisRepository
+    // 2. Find existing record (if saveAnalysis ran first)
+    AnalysisEntity existingAnalysis = analysisRepository
             .findTopByInterviewLinkIdOrderByCreatedAtDesc(interviewLink.getId())
             .orElse(null);
 
-    if (analysis != null) {
-        // UPDATE EXISTING: The analysis was already saved, just add duration
-        analysis.setDuration(request.getDuration());
-        analysisRepository.save(analysis);
+    if (existingAnalysis != null) {
+        // UPDATE: Just add the duration
+        existingAnalysis.setDuration(request.getDuration());
+        analysisRepository.save(existingAnalysis);
     } else {
-        // CREATE NEW: The duration is being saved before the AI analysis is done
+        // INSERT: Create a stub record with empty JSON to satisfy the non-null constraint
         AnalysisEntity newAnalysis = AnalysisEntity.builder()
                 .interviewLinkId(interviewLink.getId())
-                .analysis("") // Blank string because DB column is nullable: false
-                .status(1)
+                .analysis("{}") // Empty JSON placeholder
                 .duration(request.getDuration())
+                .status(1)
                 .build();
         analysisRepository.save(newAnalysis);
     }
