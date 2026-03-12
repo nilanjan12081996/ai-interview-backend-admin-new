@@ -73,7 +73,7 @@ public class InterviewService {
     private final TemplateEngine templateEngine;
 
     private static final String AI_API_URL =
-            "https://interviewaiapi.bestworks.cloud/api/v1/process-pdf";
+            "https://aiinterviewpythonmain.bestworks.cloud/api/v1/process-pdf";
 
     @Transactional
 
@@ -195,7 +195,7 @@ public class InterviewService {
         // =========================
         String token = UUID.randomUUID().toString();
         // String link = "http://localhost:5173/interview/" + token;
-        String link = "https://aiinterviewpython.bestworks.cloud/" + token;
+        String link = "https://aiinterviewpythonfront.bestworks.cloud/" + token;
 
         LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
 
