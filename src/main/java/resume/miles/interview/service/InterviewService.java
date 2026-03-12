@@ -424,10 +424,21 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
         String videoLink = null;
         String transcriptFileLink = null;
         String analysisFileLink = null;
+        String terminationCause = null;
+        String userJustification = null;
 
         // 4️⃣ Loop through past links to find the most recent resources
         for (InterviewLinkEntity pastLink : allLinks) {
             Long linkId = pastLink.getId();
+
+            if (terminationCause == null && pastLink.getTerminationCause() != null) {
+                terminationCause = pastLink.getTerminationCause();
+            }
+
+            // 🔹 Find User Justification (if we haven't found one yet)
+            if (userJustification == null && pastLink.getUserJustification() != null) {
+                userJustification = pastLink.getUserJustification();
+            }
 
             // 🔹 Find Video
             if (videoLink == null) {
@@ -467,7 +478,8 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
             }
 
             // Stop searching if we've found all three files
-            if (videoLink != null && transcriptFileLink != null && analysisFileLink != null) {
+            if (videoLink != null && transcriptFileLink != null && analysisFileLink != null && 
+                terminationCause != null && userJustification != null) {
                 break;
             }
         }
@@ -503,6 +515,8 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
                 .transcription(transcriptFileLink)   // The historical transcription
                 .analysis(analysisFileLink)          // The historical analysis
                 .videoLink(videoLink)                // The historical video
+                .terminationCause(terminationCause)     // Added
+                .userJustification(userJustification)   // Added
                 .is_complete(isComplete)
                 .build();
 
@@ -650,10 +664,20 @@ Integer isComplete = allLinks.stream()
     String videoLink = null;
     String transcriptFileLink = null;
     String analysisFileLink = null;
+    String terminationCause = null;
+    String userJustification = null;
 
     // 3️⃣ Loop through all past and present links to find the resources
     for (InterviewLinkEntity pastLink : allLinks) {
         Long linkId = pastLink.getId();
+
+        // 🔹 Find Termination Cause (if we haven't found one yet)
+            if (terminationCause == null && pastLink.getTerminationCause() != null) {
+                terminationCause = pastLink.getTerminationCause();
+            }
+            if (userJustification == null && pastLink.getUserJustification() != null) {
+                userJustification = pastLink.getUserJustification();
+            }
 
         // 🔹 Find Video (if we haven't found one yet)
         if (videoLink == null) {
@@ -693,9 +717,10 @@ Integer isComplete = allLinks.stream()
         }
 
         // Stop searching if we've found all three files
-        if (videoLink != null && transcriptFileLink != null && analysisFileLink != null) {
-            break;
-        }
+        if (videoLink != null && transcriptFileLink != null && analysisFileLink != null && 
+                terminationCause != null && userJustification != null) {
+                break;
+            }
     }
 
     // 4️⃣ Return the combined Data Transfer Object
@@ -713,7 +738,9 @@ Integer isComplete = allLinks.stream()
             .interviewLink(interviewUrl)         // The fresh, new active link
             .transcription(transcriptFileLink)   // The historical transcription
             .analysis(analysisFileLink)          // The historical analysis
-            .videoLink(videoLink)                // The historical video
+            .videoLink(videoLink)
+            .terminationCause(terminationCause)     // Added
+            .userJustification(userJustification)                // The historical video
             .is_complete(isComplete)
             .build();
 
