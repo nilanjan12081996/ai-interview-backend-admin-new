@@ -19,7 +19,8 @@ import resume.miles.analysis.service.AnalysisService;
 @RequiredArgsConstructor
 public class AnalysisController {
     private final AnalysisService analysisService;
-     @PostMapping("/")
+
+    @PostMapping
     public ResponseEntity<?> saveAnalysis(@RequestBody AnalysisRequestDto request){
         try {
             analysisService.saveAnalysis(request);

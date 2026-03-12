@@ -18,7 +18,7 @@ import resume.miles.transcription.service.TranscriptionService;
 public class TranscriptionController {
     private final TranscriptionService transcriptionService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<?> saveTranscription(@RequestBody TranscriptionRequestDto request){
         try {
             transcriptionService.saveTranscription(request);
