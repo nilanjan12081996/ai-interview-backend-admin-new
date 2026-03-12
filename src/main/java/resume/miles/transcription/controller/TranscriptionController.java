@@ -21,7 +21,7 @@ public class TranscriptionController {
     @PostMapping
     public ResponseEntity<?> saveTranscription(@RequestBody TranscriptionRequestDto request){
         try {
-            transcriptionService.saveTranscription(request);
+             transcriptionService.saveTranscription(request);
             return ResponseEntity.status(201).body(Map.of(
                 "message","Transaction saved successfully",
                 "status",true,
