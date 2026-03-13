@@ -426,6 +426,7 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
         String analysisFileLink = null;
         String terminationCause = null;
         String userJustification = null;
+        String duration = null;
 
         // 4️⃣ Loop through past links to find the most recent resources
         for (InterviewLinkEntity pastLink : allLinks) {
@@ -462,6 +463,8 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
                 Optional<AnalysisEntity> analysis = analysisRepository
                         .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
                 if (analysis.isPresent()) {
+                    AnalysisEntity analysisDuration = analysis.get();
+                    duration = analysisDuration.getDuration();
                     analysisFileLink = analysisService.generateAnalysisPdf(
                             linkId,
                             analysis.get().getAnalysis(),
@@ -470,7 +473,7 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
                             interview.getPhoneNumber(),
                             pastLink.getInterviewLink(), 
                             interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-                            "30min",
+                            duration,
                             videoLink,
                             transcriptFileLink
                     );
@@ -554,89 +557,7 @@ public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPr
     List<InterviewEntity> interviews =
             interviewRepository.findByJobId(jobIdString);
 
-    // if (interviews.isEmpty()) {
-    //     throw new RuntimeException("No candidates assigned to this job");
-    // }
-
-//     return interviews.stream().map(interview -> {
-//         InterviewLinkEntity link =
-//         interviewLinkRepository.findFirstByInterviewAndIsActiveTrueOrderByIdDesc(interview)
-//                 .orElse(null);
-
-//         String videoLink = null;
-//         String transcriptFileLink = null;
-//         String analysisFileLink = null;
-//         String interviewUrl = null;
-
-//         if (link != null) {
-
-//             interviewUrl = link.getInterviewLink();
-
-         
-//             videoLink = videoRecodingRepository
-//                     .findByInterviewLinkId(link.getId())
-//                     .map(VideoRecordingEntity::getVideoLink)
-//                     .orElse(null);
-
-           
-//             Optional<TranscriptionEntity> transcription =
-//                     transciptionRepository
-//                             .findTopByInterviewLinkIdOrderByCreatedAtDesc(link.getId());
-
-//             if (transcription.isPresent()) {
-//                 transcriptFileLink = transcriptFileService
-//                         .generateTranscriptFile(
-//                                 link.getId(),
-//                                 transcription.get().getTranscript()
-//                         );
-//             }
-
-        
-//             Optional<AnalysisEntity> analysis =
-//                     analysisRepository
-//                             .findTopByInterviewLinkIdOrderByCreatedAtDesc(link.getId());
-
-//             if (analysis.isPresent()) {
-//                 analysisFileLink = analysisService
-//                         .generateAnalysisPdf(
-//                                 link.getId(),
-//                                 analysis.get().getAnalysis(),
-//                                 interview.getCandidateName(),
-//                                 interview.getEmail(),
-//                                 interview.getPhoneNumber(),
-//                                 interviewUrl,
-//                                 interview.getInterviewDate() != null
-//                                         ? interview.getInterviewDate().toString()
-//                                         : null,
-//                                         "30min",
-//                                         videoLink,
-//                                         transcriptFileLink
-                                       
-//                         );
-//             }
-//         }
-
-//         return InterviewScheduleResponseDto.builder()
-//                 .id(interview.getId())
-//                 .candidateName(interview.getCandidateName())
-//                 .candidateEmail(interview.getEmail())
-//                 .candidatePhone(interview.getPhoneNumber())
-//                 .resumeLink(interview.getResumeLink())
-//                 .jobDescription(job.getJd())
-//                 .jobName(job.getClient() != null
-//                         ? job.getClient().getClientName()
-//                         : null)
-//                 .interviewDate(interview.getInterviewDate())
-//                 .startTime(interview.getStartTime())
-//                 .endTime(interview.getEndTime())
-//                 .interviewLink(interviewUrl)
-//                 .transcription(transcriptFileLink)
-//                 .analysis(analysisFileLink)
-//                 .videoLink(videoLink)
-//                 .is_complete(link.getIs_complete())
-//                 .build();
-
-//     }).toList();
+  
 
 
 
@@ -666,6 +587,7 @@ Integer isComplete = allLinks.stream()
     String analysisFileLink = null;
     String terminationCause = null;
     String userJustification = null;
+    String duration = null;
 
     // 3️⃣ Loop through all past and present links to find the resources
     for (InterviewLinkEntity pastLink : allLinks) {
@@ -700,7 +622,10 @@ Integer isComplete = allLinks.stream()
         if (analysisFileLink == null) {
             Optional<AnalysisEntity> analysis = analysisRepository
                     .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+                  
             if (analysis.isPresent()) {
+                  AnalysisEntity analysisDuration = analysis.get();
+                  duration = analysisDuration.getDuration();
                 analysisFileLink = analysisService.generateAnalysisPdf(
                         linkId,
                         analysis.get().getAnalysis(),
@@ -709,7 +634,7 @@ Integer isComplete = allLinks.stream()
                         interview.getPhoneNumber(),
                         pastLink.getInterviewLink(), // Pass the link where the interview actually happened
                         interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-                        "30min",
+                        duration,
                         videoLink,
                         transcriptFileLink
                 );
