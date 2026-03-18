@@ -38,10 +38,11 @@ public class DashboardService {
         long activeJobs = jobRepository.countByStatus(1);
         long newJobsLastMonth = jobRepository.countByStatusAndCreatedAtAfter(1, thirtyDaysAgo);
 
+        List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAll();
+
         // 3. Interviews Today
+        // Pending = Scheduled for today but not yet completed
         List<InterviewEntity> todayInterviews = interviewRepository.findByInterviewDate(LocalDate.now());
-        int interviewsTodayCount = todayInterviews.size();
-        long completedToday = 0;
         long pendingToday = 0;
 
         for (InterviewEntity interview : todayInterviews) {
@@ -53,15 +54,24 @@ public class DashboardService {
                     break;
                 }
             }
-            if (isCompleted) {
-                completedToday++;
-            } else {
+            if (!isCompleted) {
                 pendingToday++;
             }
         }
 
+        // Completed = Any interview link actually completed today (based on updated_at/created_at)
+        long completedToday = allLinks.stream()
+                .filter(l -> l.getIs_complete() != null && l.getIs_complete() == 1)
+                .filter(l -> {
+                    LocalDateTime dt = l.getUpdatedAt() != null ? l.getUpdatedAt() : l.getCreatedAt();
+                    return dt != null && dt.toLocalDate().equals(LocalDate.now());
+                })
+                .count();
+
+        long interviewsTodayCount = pendingToday + completedToday;
+       
+
         // 4. Conversion Rate (Completed Interviews / Total Candidates)
-        List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAll();
         long totalCompleted = allLinks.stream()
                 .filter(l -> l.getIs_complete() != null && l.getIs_complete() == 1)
                 .map(l -> l.getInterview().getId())
@@ -168,6 +178,50 @@ public class DashboardService {
 
         // Return top 10
         return activities.size() > 10 ? activities.subList(0, 10) : activities;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getInterviewActivity() {
+        List<Map<String, Object>> activityData = new java.util.ArrayList<>();
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusDays(6); // Last 7 days including today
+
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("EEE");
+
+        // Pre-fetch all links to calculate completed sessions per day efficiently
+        List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAll();
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = startDate.plusDays(i);
+            String dayName = date.format(formatter);
+            
+            // Fetch scheduled interviews for this date
+            List<InterviewEntity> interviews = interviewRepository.findByInterviewDate(date);
+            int sessions = interviews != null ? interviews.size() : 0;
+            
+            // Calculate completed sessions ON this specific date directly from links
+            long completedSessions = allLinks.stream()
+                    .filter(l -> l.getIs_complete() != null && l.getIs_complete() == 1)
+                    .filter(l -> {
+                        LocalDateTime dt = l.getUpdatedAt() != null ? l.getUpdatedAt() : l.getCreatedAt();
+                        return dt != null && dt.toLocalDate().equals(date);
+                    })
+                    .count();
+            
+            Map<String, Object> dailyData = new HashMap<>();
+            // Capitalize to match "Mon", "Tue", etc. depending on locale, EEE usually handles it.
+            // Ensure first letter is capitalized just in case
+            dayName = dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
+            
+            dailyData.put("name", dayName);
+            dailyData.put("sessions", sessions); // Total scheduled sessions
+            dailyData.put("completed", completedSessions); // Completed sessions
+            dailyData.put("date", date.toString()); // useful for debugging or alternative display
+            
+            activityData.add(dailyData);
+        }
+        
+        return activityData;
     }
 
     private String calculateTimeAgo(LocalDateTime past, LocalDateTime now) {

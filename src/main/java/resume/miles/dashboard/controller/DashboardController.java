@@ -53,4 +53,22 @@ public class DashboardController {
             ));
         }
     }
+    @GetMapping("/interview-activity")
+    public ResponseEntity<?> getInterviewActivity() {
+        try {
+            java.util.List<Map<String, Object>> activity = dashboardService.getInterviewActivity();
+            return ResponseEntity.status(200).body(Map.of(
+                    "message", "Interview activity fetched successfully.",
+                    "status", true,
+                    "statusCode", 200,
+                    "data", activity
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "message", e.getMessage(),
+                    "status", false,
+                    "statusCode", 400
+            ));
+        }
+    }
 }
