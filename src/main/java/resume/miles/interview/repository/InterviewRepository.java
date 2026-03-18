@@ -17,4 +17,6 @@ public interface InterviewRepository extends JpaRepository<InterviewEntity,Long>
      long countByCreatedAtAfter(java.time.LocalDateTime date);
 
      long countByCreatedAtBefore(java.time.LocalDateTime date);
+
+     List<InterviewEntity> findTop10ByOrderByCreatedAtDesc();
 }

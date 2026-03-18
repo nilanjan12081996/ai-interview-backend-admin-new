@@ -7,6 +7,7 @@ import resume.miles.interview.entity.InterviewEntity;
 import resume.miles.interview.entity.InterviewLinkEntity;
 import resume.miles.interview.repository.InterviewLinkRepository;
 import resume.miles.interview.repository.InterviewRepository;
+import resume.miles.jobs.entity.JobEntity;
 import resume.miles.jobs.repository.JobRepository;
 
 import java.time.LocalDate;
@@ -104,5 +105,86 @@ public class DashboardService {
         ));
 
         return metrics;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getRecentActivity() {
+        List<Map<String, Object>> activities = new java.util.ArrayList<>();
+
+        // 1. New Candidate Applied
+        List<InterviewEntity> recentCandidates = interviewRepository.findTop10ByOrderByCreatedAtDesc();
+        for (InterviewEntity candidate : recentCandidates) {
+            Map<String, Object> activity = new HashMap<>();
+            activity.put("type", "CANDIDATE_APPLIED");
+            activity.put("title", "New Candidate Applied");
+            String roleName = candidate.getJobEntity() != null ? candidate.getJobEntity().getRole() : "Unknown Role";
+            activity.put("description", candidate.getCandidateName() + " applied for " + roleName);
+            activity.put("timestamp", candidate.getCreatedAt());
+            activities.add(activity);
+        }
+
+        // 2. Interview Completed
+        List<InterviewLinkEntity> completedInterviews = interviewLinkRepository.findRecentCompletedInterviews(org.springframework.data.domain.PageRequest.of(0, 10));
+        for (InterviewLinkEntity link : completedInterviews) {
+            Map<String, Object> activity = new HashMap<>();
+            activity.put("type", "INTERVIEW_COMPLETED");
+            activity.put("title", "Interview Completed");
+            String candidateName = link.getInterview() != null ? link.getInterview().getCandidateName() : "Unknown Candidate";
+            activity.put("description", candidateName + " completed the coding assessment");
+            // If updatedAt is not available, fallback to createdAt
+            LocalDateTime ts = link.getUpdatedAt() != null ? link.getUpdatedAt() : link.getCreatedAt();
+            activity.put("timestamp", ts);
+            activities.add(activity);
+        }
+
+        // 3. New Job Posted
+        List<JobEntity> recentJobs = jobRepository.findTop10ByOrderByCreatedAtDesc();
+        for (JobEntity job : recentJobs) {
+            Map<String, Object> activity = new HashMap<>();
+            activity.put("type", "JOB_POSTED");
+            activity.put("title", "New Job Posted");
+            String clientName = job.getClient() != null ? job.getClient().getClientName() : "Unknown Company";
+            activity.put("description", job.getRole() + " role at " + clientName);
+            activity.put("timestamp", job.getCreatedAt());
+            activities.add(activity);
+        }
+
+        // Sort dynamically by timestamp descending
+        activities.sort((a, b) -> {
+            LocalDateTime timeA = (LocalDateTime) a.get("timestamp");
+            LocalDateTime timeB = (LocalDateTime) b.get("timestamp");
+            if (timeA == null && timeB == null) return 0;
+            if (timeA == null) return 1;
+            if (timeB == null) return -1;
+            return timeB.compareTo(timeA);
+        });
+
+        // Calculate timeAgo
+        LocalDateTime now = LocalDateTime.now();
+        for (Map<String, Object> activity : activities) {
+            LocalDateTime timestamp = (LocalDateTime) activity.get("timestamp");
+            activity.put("timeAgo", calculateTimeAgo(timestamp, now));
+        }
+
+        // Return top 10
+        return activities.size() > 10 ? activities.subList(0, 10) : activities;
+    }
+
+    private String calculateTimeAgo(LocalDateTime past, LocalDateTime now) {
+        if (past == null) return "Unknown";
+        java.time.Duration duration = java.time.Duration.between(past, now);
+        long seconds = duration.getSeconds();
+        if (seconds < 60) {
+            return "Just now";
+        } else if (seconds < 3600) {
+            long minutes = seconds / 60;
+            return minutes + "m ago";
+        } else if (seconds < 86400) {
+            long hours = seconds / 3600;
+            return hours + "h ago";
+        } else {
+            long days = seconds / 86400;
+            return days + "d ago";
+        }
     }
 }

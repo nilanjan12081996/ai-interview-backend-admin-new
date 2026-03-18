@@ -34,4 +34,23 @@ public class DashboardController {
             ));
         }
     }
+
+    @GetMapping("/recent-activity")
+    public ResponseEntity<?> getRecentActivity() {
+        try {
+            java.util.List<Map<String, Object>> activity = dashboardService.getRecentActivity();
+            return ResponseEntity.status(200).body(Map.of(
+                    "message", "Recent activity fetched successfully.",
+                    "status", true,
+                    "statusCode", 200,
+                    "data", activity
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "message", e.getMessage(),
+                    "status", false,
+                    "statusCode", 400
+            ));
+        }
+    }
 }

@@ -26,5 +26,5 @@ public interface JobRepository extends JpaRepository<JobEntity,Long>{
 })
 List<JobEntity> findAllBy();
     
-
+    List<JobEntity> findTop10ByOrderByCreatedAtDesc();
 }
