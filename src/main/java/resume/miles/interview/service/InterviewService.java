@@ -288,111 +288,6 @@ public class InterviewService {
 }
 
 
-//     @Transactional(readOnly = true)
-//   public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
-
-//     List<InterviewLinkEntity> interviewLinks =
-//             interviewLinkRepository.findAll();
-            
-
-//     return interviewLinks.stream()
-//             .map(link -> {
-
-//                 InterviewEntity interview = link.getInterview();
-                
-
-//                     Optional<VideoRecordingEntity> video =
-//                         videoRecodingRepository.findByInterviewLinkId(link.getId());
-
-//                 String videoLink = video.map(VideoRecordingEntity::getVideoLink)
-//                         .orElse(null);
-                
-                
-
-//                         Optional<TranscriptionEntity> transcription =
-//                         transciptionRepository
-//                                 .findTopByInterviewLinkIdOrderByCreatedAtDesc(link.getId());
-
-//                         String transcriptFileLink = null;
-
-//                     if (transcription.isPresent()) {
-
-//                     transcriptFileLink = transcriptFileService
-//                             .generateTranscriptFile(
-//                                     link.getId(),
-//                                     transcription.get().getTranscript()
-//                             );
-//                 }
-
-//                 Optional<AnalysisEntity> analysis =
-//                             analysisRepository
-//                                     .findTopByInterviewLinkIdOrderByCreatedAtDesc(link.getId());
-
-//                     String analysisFileLink = null;
-
-//                     if (analysis.isPresent()) {
-
-//                        analysisFileLink = analysisService
-//             .generateAnalysisPdf(
-//                     link.getId(),
-//                     analysis.get().getAnalysis(),
-//                     interview.getCandidateName(),   // name
-//                     interview.getEmail(),           // email
-//                     interview.getPhoneNumber(),     // phone
-//                     link.getInterviewLink(),        // interview URL
-//                     interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-//                     "30min",
-//                     videoLink,
-//                     transcriptFileLink
-                    
-
-                   
-//             );
-//                     }
-//                 JobEntity job = null;
-
-                
-//                 try {
-//                     Long jobId = Long.parseLong(interview.getJobId());
-//                     job = jobRepository.findById(jobId).orElse(null);
-//                 } catch (Exception e) {
-//                     job = null;
-//                 }
-//                 String clientName = null;
-//                 String jobDescription = null;
-
-//                 if (job != null) {
-//                     jobDescription = job.getJd();
-
-//                     if (job.getClient() != null) {
-//                         clientName = job.getClient().getClientName();
-//                     }
-//                 }
-
-//                 return InterviewScheduleResponseDto.builder()
-//                         .id(interview.getId())
-//                         .candidateName(interview.getCandidateName())
-//                         .candidateEmail(interview.getEmail())
-//                         .candidatePhone(interview.getPhoneNumber())
-//                         .resumeLink(interview.getResumeLink())
-//                         // .jobName(job != null ? job.getRole() : null)
-//                         .jobDescription(jobDescription)
-//                         .jobName(clientName)
-//                         .interviewDate(interview.getInterviewDate())
-//                         .startTime(interview.getStartTime())
-//                         .endTime(interview.getEndTime())
-//                         .interviewLink(link.getInterviewLink())
-//                         .transcription(transcriptFileLink)
-//                          .analysis(analysisFileLink)
-//                         .videoLink(videoLink)
-//                         .is_complete(link.getIs_complete())
-                        
-//                         .build();
-//             })
-//             .toList();
-// }
-
-
 
 @Transactional(readOnly = true)
 public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
@@ -683,6 +578,21 @@ Integer isComplete = allLinks.stream()
 
 
 
+
+@Transactional(readOnly = true)
+public String getJobRoleByToken(String token) {
+    Optional<InterviewLinkEntity> entity = interviewLinkRepository.findByTokenAndIsActiveTrue(token);
+    if(entity.isEmpty()){
+        throw new RuntimeException("invalid token: " + token);
+    }
+    InterviewEntity interview = entity.get().getInterview();
+    if (interview.getJobId() != null) {
+        JobEntity job = jobRepository.findById(Long.parseLong(interview.getJobId()))
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        return job.getRole();
+    }
+    throw new RuntimeException("Job ID not associated with this interview");
+}
 
 @Transactional
 public String resendInterviewLink(Long interviewId) {

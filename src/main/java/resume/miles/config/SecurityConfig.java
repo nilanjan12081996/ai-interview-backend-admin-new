@@ -57,6 +57,7 @@ public class SecurityConfig {
                                 "/api/goodmood/hr/**",
                                 "/api/goodmood/recording/**",
                                 "/api/goodmood/interview/list-data-exp",
+                                "/api/goodmood/interview/job-role",
                                 "/api/goodmood/terminate/**"
                             
                             

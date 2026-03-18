@@ -12,6 +12,10 @@ import resume.miles.jobs.entity.JobEntity;
 @Repository
 public interface JobRepository extends JpaRepository<JobEntity,Long>{
     Optional<JobEntity> findByJobId(String jobId);
+    
+    long countByStatus(Integer status);
+    
+    long countByStatusAndCreatedAtAfter(Integer status, java.time.LocalDateTime date);
     @EntityGraph(attributePaths = {"client"})
     List<JobEntity> findAll();
 

@@ -121,7 +121,8 @@ public class InterviewController {
                     .body(Map.of(
                         "message",e.getMessage(),
                         "status",false,
-                        "statusCode",400
+                        "statusCode",400,
+                        "error",e.getStackTrace()
                     ));
         }
     }
@@ -151,6 +152,25 @@ public class InterviewController {
                         "status",false,
                         "statusCode",400
                     ));
+        }
+    }
+
+    @GetMapping("/job-role")
+    public ResponseEntity<?> getJobRoleByToken(@RequestParam(required = true) String token) {
+        try {
+            String jobRole = interviewService.getJobRoleByToken(token);
+            return ResponseEntity.status(200).body(Map.of(
+                "message", "Job role fetched successfully",
+                "status", true,
+                "statusCode", 200,
+                "data", Map.of("role", jobRole)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(Map.of(
+                "message", e.getMessage(),
+                "status", false,
+                "statusCode", 400
+            ));
         }
     }
 
