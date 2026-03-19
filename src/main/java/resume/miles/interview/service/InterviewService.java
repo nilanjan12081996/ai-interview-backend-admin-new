@@ -230,6 +230,13 @@ public class InterviewService {
             System.out.println("interviewLink"+link);
             context.setVariable("jobTitle", job.getRole()); // Ensure job title is passed to the template
 
+            String formattedTime = startTime != null ? startTime : "TBD";
+            if (endTime != null && !endTime.trim().isEmpty()) {
+                formattedTime += " - " + endTime;
+            }
+            context.setVariable("interviewDate", interviewDate != null ? interviewDate : "TBD");
+            context.setVariable("interviewTime", formattedTime);
+
             String process = templateEngine.process("interviewLinkSend", context);
 
             MimeMessage message = mailSender.createMimeMessage();
@@ -640,6 +647,16 @@ public String resendInterviewLink(Long interviewId) {
         context.setVariable("candidateName", interview.getCandidateName());
         context.setVariable("interviewLink", newLink);
         context.setVariable("jobTitle", job.getRole());
+
+        String formattedTime = "TBD";
+        if (interview.getStartTime() != null) {
+            formattedTime = interview.getStartTime().toString();
+            if (interview.getEndTime() != null) {
+                formattedTime += " - " + interview.getEndTime().toString();
+            }
+        }
+        context.setVariable("interviewDate", interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : "TBD");
+        context.setVariable("interviewTime", formattedTime);
 
         String emailContent = templateEngine.process("interviewLinkSend", context);
 
