@@ -11,10 +11,13 @@ public interface InterviewLinkRepository extends JpaRepository<InterviewLinkEnti
 
     Optional<InterviewLinkEntity> findByToken(String token);
 
-     List<InterviewLinkEntity> findAll();
+    List<InterviewLinkEntity> findAll();
 
-     Optional<InterviewLinkEntity> findByTokenAndIsActiveTrue(String token);
-     Optional<InterviewLinkEntity> findByInterview(InterviewEntity interview);
-     List<InterviewLinkEntity> findAllByInterview(InterviewEntity interview);
-     Optional<InterviewLinkEntity> findFirstByInterviewAndIsActiveTrueOrderByIdDesc(InterviewEntity interview);
+    Optional<InterviewLinkEntity> findByTokenAndIsActiveTrue(String token);
+    Optional<InterviewLinkEntity> findByInterview(InterviewEntity interview);
+    List<InterviewLinkEntity> findAllByInterview(InterviewEntity interview);
+    Optional<InterviewLinkEntity> findFirstByInterviewAndIsActiveTrueOrderByIdDesc(InterviewEntity interview);
+
+    @org.springframework.data.jpa.repository.Query("SELECT i FROM InterviewLinkEntity i WHERE i.is_complete = 1 ORDER BY i.updatedAt DESC")
+    List<InterviewLinkEntity> findRecentCompletedInterviews(org.springframework.data.domain.Pageable pageable);
 }

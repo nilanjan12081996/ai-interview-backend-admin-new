@@ -28,6 +28,7 @@ public class InterviewScheduleResponseDto {
     private String terminationCause;
     private String userJustification;
     private String transcription;
+    private String duration;
 
     private String analysis;
     private Integer is_complete;
