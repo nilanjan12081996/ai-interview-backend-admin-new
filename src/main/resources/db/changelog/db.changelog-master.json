@@ -89,9 +89,14 @@
       "include": {
         "file": "db/changelog/changes/033-add-duration-to-analysis.json"
       }
+    },
+    {
+      "include": {
+        "file": "db/changelog/changes/034-create-coding-questions-table.json"
+      }
     }
 
-    
+
   ]
 }
 
