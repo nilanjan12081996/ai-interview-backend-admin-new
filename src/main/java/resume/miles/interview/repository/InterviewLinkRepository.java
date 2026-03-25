@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import resume.miles.interview.entity.InterviewEntity;
 import resume.miles.interview.entity.InterviewLinkEntity;
 
-public interface InterviewLinkRepository extends JpaRepository<InterviewLinkEntity, Long> {
+public interface InterviewLinkRepository extends JpaRepository<InterviewLinkEntity, Long> , JpaSpecificationExecutor<InterviewLinkEntity> {
 
     Optional<InterviewLinkEntity> findByToken(String token);
 
