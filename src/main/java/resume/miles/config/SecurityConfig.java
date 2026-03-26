@@ -58,8 +58,10 @@ public class SecurityConfig {
                                 "/api/goodmood/recording/**",
                                 "/api/goodmood/interview/list-data-exp",
                                 "/api/goodmood/interview/job-role",
-                                "/api/goodmood/terminate/**"
-                            
+                                "/api/goodmood/terminate/**",
+                                "/api/coding/**",
+                                "/api/admin/rag/**"
+
                             
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
