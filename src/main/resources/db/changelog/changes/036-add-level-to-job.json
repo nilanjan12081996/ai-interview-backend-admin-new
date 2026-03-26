@@ -4,6 +4,7 @@
       "changeSet": {
         "id": "202603261430-1",
         "author": "Antigravity",
+        "validCheckSum": "ANY",
         "changes": [
           {
             "addColumn": {

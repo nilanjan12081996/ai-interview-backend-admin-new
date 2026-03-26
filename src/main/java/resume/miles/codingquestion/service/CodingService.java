@@ -110,133 +110,150 @@ public class CodingService {
 
 
     // Helper 1: Capitalizes the client name (e.g., "amazon" -> "Amazon", "tcs" -> "Tcs")
-        private String formatClientName(String name) {
-            if (name == null || name.trim().isEmpty()) return "";
-            name = name.trim();
-            return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+    private String formatClientName(String name) {
+        if (name == null || name.trim().isEmpty()) return "";
+        name = name.trim();
+        return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+    }
+
+    // Helper 2: Converts messy HR text into strict Pinecone experience buckets
+    private String normalizeExperienceBucket(String rawExperience) {
+        if (rawExperience == null || rawExperience.trim().isEmpty()) {
+            return "0-2"; // Default fallback
         }
 
-        // Helper 2: Converts messy HR text into strict Pinecone experience buckets
-        private String normalizeExperienceBucket(String rawExperience) {
-            if (rawExperience == null || rawExperience.trim().isEmpty()) {
-                return "0-2"; // Default fallback
-            }
-
-            // Extract the FIRST number found in the string using Regex
-            Matcher matcher = Pattern.compile("\\d+").matcher(rawExperience);
-            if (matcher.find()) {
-                int years = Integer.parseInt(matcher.group());
-
-                if (years < 2) return "0-2";
-                if (years >= 2 && years < 5) return "2-5";
-                if (years >= 5 && years < 10) return "5-10";
-                return "10+";
-            }
-
-            return "0-2"; // Fallback if no numbers were typed at all
+        Matcher matcher = Pattern.compile("\\d+").matcher(rawExperience);
+        if (matcher.find()) {
+            int years = Integer.parseInt(matcher.group());
+            if (years < 2) return "0-2";
+            if (years >= 2 && years < 5) return "2-5";
+            if (years >= 5 && years < 10) return "5-10";
+            return "10+";
         }
-        public String generateCode(String token) {
-            // 1. Fetch Interview Details
-            InterviewLinkEntity linkEntity = interviewLinkRepository.findOne(CodeGenerateFindSpecification.getFullInterviewDetailsByToken(token))
-                    .orElseThrow(() -> new RuntimeException("Invalid token: No interview link found."));
+        return "0-2";
+    }
 
-            // Extract & Normalize Job Data
-            String rawClientName = linkEntity.getInterview().getJobEntity().getClient().getClientName();
-            String clientName = formatClientName(rawClientName); // Capitalizes first letter perfectly
 
-            String role = linkEntity.getInterview().getJobEntity().getRole();
-            String description = linkEntity.getInterview().getJobEntity().getJd();
+// ======================================================================================
+// MAIN GENERATION METHOD
+// ======================================================================================
 
-            // Convert Enum to String (Assuming JobLevel enum is ADVANCE, HARD, MEDIUM, LOW)
-            JobLevel jobLevelEnum = linkEntity.getInterview().getJobEntity().getLevel();
-            String difficultyLevel = (jobLevelEnum != null) ? jobLevelEnum.name().toUpperCase() : "MEDIUM";
+    public String generateCode(String token) {
+        // 1. Fetch Interview Details
+        InterviewLinkEntity linkEntity = interviewLinkRepository.findOne(CodeGenerateFindSpecification.getFullInterviewDetailsByToken(token))
+                .orElseThrow(() -> new RuntimeException("Invalid token: No interview link found."));
 
-            // Normalize the experience text to match Pinecone buckets
-            String rawExperience = linkEntity.getInterview().getJobEntity().getExperience();
-            String experienceBucket = normalizeExperienceBucket(rawExperience);
+        // Extract & Normalize Job Data (Added .trim() to prevent hidden space bugs!)
+        String rawClientName = linkEntity.getInterview().getJobEntity().getClient().getClientName();
+        String clientName = formatClientName(rawClientName);
 
-            // 2. Fetch ONLY Mandatory Skills
-            String skills = linkEntity.getInterview().getJobEntity().getMandatorySkills()
-                    .stream()
-                    .map(skillEntity -> skillEntity.getSkillName())
-                    .collect(Collectors.joining(", "));
+        String role = linkEntity.getInterview().getJobEntity().getRole().trim();
+        String description = linkEntity.getInterview().getJobEntity().getJd().trim();
 
-            System.out.println("🤖 AI Engine -> Client: " + clientName + " | Role: " + role);
-            System.out.println("🎯 Profile -> Difficulty: " + difficultyLevel + " | Exp Bucket: " + experienceBucket);
-            System.out.println("🎯 Skills -> " + skills);
+        // Convert Enum to String
+        JobLevel jobLevelEnum = linkEntity.getInterview().getJobEntity().getLevel();
+        String difficultyLevel = (jobLevelEnum != null) ? jobLevelEnum.name().toUpperCase().trim() : "MEDIUM";
 
-            // --- 3. THE SMART PINECONE FILTER ---
-            // We force Pinecone to only return records that perfectly match the Difficulty and Experience.
-            // We let the semantic 'searchQuery' handle finding the right Skills/Topic.
-            Filter smartFilter = metadataKey("difficulty_level").isEqualTo(difficultyLevel)
-                    .and(metadataKey("experience_level").isEqualTo(experienceBucket));
+        // 🌟 CRITICAL FIX: If your DB Enum is 'ADVANCED' (with a D), force it to match Pinecone's 'ADVANCE'
+        if (difficultyLevel.equals("ADVANCED")) {
+            difficultyLevel = "ADVANCE";
+        }
 
-            EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
-                    .embeddingStore(embeddingStore)
-                    .embeddingModel(embeddingModel)
-                    .maxResults(4) // Fetch 4 strong context paragraphs
-                    .filter(smartFilter)
-                    .build();
+        // Normalize the experience text to match Pinecone buckets
+        String rawExperience = linkEntity.getInterview().getJobEntity().getExperience();
+        String experienceBucket = normalizeExperienceBucket(rawExperience);
 
-            // The semantic query asks the vector database to find the closest match to the Role and Skills
-            // within the strict filter bounds we set above.
-            String searchQuery = "Actual interview coding questions for " + role + " using " + skills + " at " + clientName;
-            List<Content> searchResults = retriever.retrieve(Query.from(searchQuery));
+        // 2. Fetch ONLY Mandatory Skills
+        String skills = linkEntity.getInterview().getJobEntity().getMandatorySkills()
+                .stream()
+                .map(skillEntity -> skillEntity.getSkillName().trim())
+                .collect(Collectors.joining(", "));
 
-            String companyContextText = searchResults.stream()
-                    .map(content -> content.textSegment().text())
-                    .collect(Collectors.joining("\n\n---\n\n"));
+        System.out.println("\n=============================================");
+        System.out.println("🤖 AI Engine -> Client: " + clientName + " | Role: " + role);
+        System.out.println("🎯 Profile -> Difficulty: '" + difficultyLevel + "' | Exp Bucket: '" + experienceBucket + "'");
+        System.out.println("🎯 Skills -> " + skills);
+        System.out.println("=============================================\n");
 
-            System.out.println("📚 Found " + searchResults.size() + " precise context paragraphs from Pinecone!");
+        // --- 3. THE SMART PINECONE FILTER WITH DEBUGGING ---
+        String searchQuery = "Actual interview coding questions for " + role + " using " + skills + " at " + clientName;
 
-            // 4. Generate the JSON using AI
-            // 4. Generate the JSON using AI
-            String generatedJson = aiAssistant.generateQuestion(
-                    clientName,
-                    role,
-                    rawExperience, // Pass the raw experience to the AI
-                    skills,
-                    difficultyLevel, // 🌟 ADDED THIS RIGHT HERE 🌟
-                    description,
-                    companyContextText
-            );
+        System.out.println("🔍 --- PINECONE SEARCH DEBUG INFO ---");
+        System.out.println("🔍 Raw Search Query: " + searchQuery);
+        System.out.println("🔍 Filter 1: difficulty_level MUST EQUAL '" + difficultyLevel + "'");
+        System.out.println("🔍 Filter 2: experience_level MUST EQUAL '" + experienceBucket + "'");
+        System.out.println("🔍 ----------------------------------\n");
 
-            System.out.println("✅ AI Generation Complete! Saving to databases...");
+        Filter smartFilter = metadataKey("difficulty_level").isEqualTo(difficultyLevel)
+                .and(metadataKey("experience_level").isEqualTo(experienceBucket));
 
-            // 5. Save to MySQL (Upsert Logic)
-            Optional<CodingEntity> existingRecord = codingRepository.findByToken(token);
-            boolean isNewRecord = existingRecord.isEmpty();
+        EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
+                .embeddingStore(embeddingStore)
+                .embeddingModel(embeddingModel)
+                .maxResults(4)
+                .filter(smartFilter) // 🛑 If it STILL returns 0, comment THIS line out, save, and test again!
+                .build();
 
-            CodingEntity codingEntity = existingRecord.orElseGet(() -> {
-                CodingEntity newEntity = new CodingEntity();
-                newEntity.setToken(token);
-                return newEntity;
-            });
+        List<Content> searchResults = retriever.retrieve(Query.from(searchQuery));
 
-            codingEntity.setQuestionData(generatedJson);
-            codingRepository.save(codingEntity);
-            System.out.println("💾 Saved/Updated successfully to MySQL table 'coding_questions'");
+        String companyContextText = searchResults.stream()
+                .map(content -> content.textSegment().text())
+                .collect(Collectors.joining("\n\n---\n\n"));
 
-            // 6. Save back to Pinecone (Memory Loop)
-            if (isNewRecord) {
-                Metadata newMetadata = new Metadata();
-                newMetadata.put("client_name", clientName);
-                newMetadata.put("role", role);
-                newMetadata.put("token", token);
-                newMetadata.put("source", "ai_generated_history");
+        System.out.println("📚 Found " + searchResults.size() + " precise context paragraphs from Pinecone!");
 
-                TextSegment newSegment = TextSegment.from(generatedJson, newMetadata);
+        // 4. Generate the JSON using AI
+        String generatedJson = aiAssistant.generateQuestion(
+                clientName,
+                role,
+                rawExperience,
+                skills,
+                difficultyLevel,
+                description,
+                companyContextText
+        );
+
+        System.out.println("✅ AI Generation Complete! Saving to databases...");
+
+        // 5. Save to MySQL (Upsert Logic)
+        Optional<CodingEntity> existingRecord = codingRepository.findByToken(token);
+        boolean isNewRecord = existingRecord.isEmpty();
+
+        CodingEntity codingEntity = existingRecord.orElseGet(() -> {
+            CodingEntity newEntity = new CodingEntity();
+            newEntity.setToken(token);
+            return newEntity;
+        });
+
+        codingEntity.setQuestionData(generatedJson);
+        codingRepository.save(codingEntity);
+        System.out.println("💾 Saved/Updated successfully to MySQL table 'coding_questions'");
+
+        // 6. Save back to Pinecone (Memory Loop)
+        if (isNewRecord) {
+            Metadata newMetadata = new Metadata();
+            newMetadata.put("client_name", clientName);
+            newMetadata.put("role", role);
+            newMetadata.put("token", token);
+            newMetadata.put("source", "ai_generated_history");
+            newMetadata.put("difficulty_level", difficultyLevel);
+            newMetadata.put("experience_level", experienceBucket);
+
+            TextSegment newSegment = TextSegment.from(generatedJson, newMetadata);
+
+            try {
                 Response<Embedding> embeddingResponse = embeddingModel.embed(newSegment);
-
                 embeddingStore.add(embeddingResponse.content(), newSegment);
                 System.out.println("🧠 Successfully saved history to Pinecone!");
-            } else {
-                System.out.println("⚠️ Token existed. Skipped Pinecone to prevent duplicate vectors.");
+            } catch (Exception e) {
+                System.err.println("⚠️ Could not save history to Pinecone: " + e.getMessage());
             }
-
-            return generatedJson;
+        } else {
+            System.out.println("⚠️ Token existed. Skipped Pinecone to prevent duplicate vectors.");
         }
 
+        return generatedJson;
+    }
     public String getQuestion(String token) {
         return codingRepository.findByToken(token)
                 .map(CodingEntity::getQuestionData)

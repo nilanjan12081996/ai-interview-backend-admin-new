@@ -4,6 +4,7 @@
       "changeSet": {
         "id": "033-add-duration-to-analysis",
         "author": "goodmood",
+        "validCheckSum": "ANY",
         "comment": "Add duration column to analysis table",
         "changes": [
           {

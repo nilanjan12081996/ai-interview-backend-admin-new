@@ -24,7 +24,7 @@
         "file": "db/changelog/changes/005-seed-superadmins.json"
       }
     },
-     
+
      {
       "include": {
         "file": "db/changelog/changes/021-create-users-table.json"
@@ -67,17 +67,17 @@
     },
     {
       "include": {
-        "file": "db/changelog/changes/029-must-have-skills-table.json" 
+        "file": "db/changelog/changes/029-must-have-skills-table.json"
       }
     },
     {
       "include": {
-        "file": "db/changelog/changes/030-transcription-table.json" 
+        "file": "db/changelog/changes/030-transcription-table.json"
       }
     },
      {
       "include": {
-        "file": "db/changelog/changes/031-analysis-table.json" 
+        "file": "db/changelog/changes/031-analysis-table.json"
       }
     },
     {

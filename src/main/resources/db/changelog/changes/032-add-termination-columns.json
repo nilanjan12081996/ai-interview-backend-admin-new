@@ -4,6 +4,7 @@
       "changeSet": {
         "id": "027-add-termination-columns",
         "author": "goodmood",
+        "validCheckSum": "ANY",
         "comment": "Add columns for interview termination cause and user justification",
         "changes": [
           {

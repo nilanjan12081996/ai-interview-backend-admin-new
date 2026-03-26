@@ -4,7 +4,7 @@
       "changeSet": {
         "id": "001-create-superadmins-table",
         "author": "goodmood",
-         "validCheckSum": "ANY",
+        "validCheckSum": "ANY",
         "comment": "Create admins table",
         "changes": [
           {

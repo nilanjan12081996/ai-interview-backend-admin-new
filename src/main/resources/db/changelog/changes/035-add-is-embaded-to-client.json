@@ -4,6 +4,7 @@
       "changeSet": {
         "id": "035-add-is-embaded-to-client",
         "author": "system",
+        "validCheckSum": "ANY",
         "comment": "Add is_embaded column to client table",
         "changes": [
           {
