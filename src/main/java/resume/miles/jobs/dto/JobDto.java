@@ -12,6 +12,7 @@ import resume.miles.mandatoryskill.dto.MandatorySkillDto;
 import resume.miles.mandatoryskill.entity.MandatorySkillEntity;
 import resume.miles.musthaveskill.dto.MustHaveSkillDto;
 import resume.miles.musthaveskill.entity.MustHaveSkillEntity;
+import resume.miles.jobs.enums.JobLevel;
 
 
 @Getter
@@ -35,6 +36,7 @@ public class JobDto {
 
     private LocalDateTime updatedAt;
     private String experience;
+    private JobLevel level;
  
     private List<MustHaveSkillDto> mustHaveSkills;
     private List<MandatorySkillDto> mandatorySkills;

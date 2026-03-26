@@ -1,0 +1,25 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "202603261430-1",
+        "author": "Antigravity",
+        "changes": [
+          {
+            "addColumn": {
+              "columns": [
+                {
+                  "column": {
+                    "name": "level",
+                    "type": "VARCHAR(20)"
+                  }
+                }
+              ],
+              "tableName": "job"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

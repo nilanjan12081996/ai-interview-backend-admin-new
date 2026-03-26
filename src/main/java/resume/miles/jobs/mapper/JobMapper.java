@@ -35,6 +35,7 @@ public class JobMapper {
                 .updatedAt(entity.getUpdatedAt())
                 .experience(entity.getExperience())
                 .jd(entity.getJd())
+                .level(entity.getLevel())
                 .build();
     }
 
@@ -61,6 +62,7 @@ public class JobMapper {
                 .updatedAt(entity.getUpdatedAt())
                 .experience(entity.getExperience())
                 .jd(entity.getJd())
+                .level(entity.getLevel())
                 .build();
     }
 
@@ -79,6 +81,7 @@ public class JobMapper {
                 .status(dto.getStatus())
                 .jd(dto.getJd())
                 .experience(dto.getExperience())
+                .level(dto.getLevel())
                 .build();
     }
 

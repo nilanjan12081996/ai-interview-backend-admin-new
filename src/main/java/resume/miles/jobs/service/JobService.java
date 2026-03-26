@@ -80,6 +80,7 @@ public JobDto createJob(JobDto dto) {
             .jd(dto.getJd())
             .status(1)
             .experience(dto.getExperience())
+            .level(dto.getLevel())
             .build();
     JobEntity saved = jobRepository.save(jobEntity);
     // 🔥 Set mandatory skills
@@ -257,6 +258,7 @@ public JobDto updateJob(Long id, JobDto dto) {
     if (dto.getRole() != null) job.setRole(dto.getRole());
     if (dto.getJd() != null) job.setJd(dto.getJd());
     if (dto.getExperience() != null) job.setExperience(dto.getExperience());
+    if (dto.getLevel() != null) job.setLevel(dto.getLevel());
 
     JobEntity updatedJob = jobRepository.save(job);
     Long jobId = updatedJob.getId();

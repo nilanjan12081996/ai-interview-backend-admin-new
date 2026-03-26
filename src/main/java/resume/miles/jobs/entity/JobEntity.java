@@ -9,6 +9,8 @@ import org.hibernate.annotations.BatchSize;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -27,6 +29,7 @@ import resume.miles.interview.entity.InterviewEntity;
 import resume.miles.interview.entity.InterviewLinkEntity;
 import resume.miles.mandatoryskill.entity.MandatorySkillEntity;
 import resume.miles.musthaveskill.entity.MustHaveSkillEntity;
+import resume.miles.jobs.enums.JobLevel;
 
 @Entity
 @Table(name = "job")
@@ -54,6 +57,10 @@ public class JobEntity extends BaseEntity{
     private String jd;
     @Column(name = "experience", length = 50)
     private String experience;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "level", length = 20)
+    private JobLevel level;
 
     @OneToMany(mappedBy = "jobDetails",
            cascade = CascadeType.ALL,
