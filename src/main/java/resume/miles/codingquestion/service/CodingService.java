@@ -1,6 +1,8 @@
 package resume.miles.codingquestion.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import resume.miles.client.repository.ClientRepository;
 import resume.miles.codingquestion.agent.CodingQuestionAssistant;
@@ -39,6 +41,8 @@ import dev.langchain4j.model.output.Response;
 @RequiredArgsConstructor
 public class CodingService {
 
+
+
     private final CodingRepository codingRepository;
     private final InterviewLinkRepository interviewLinkRepository;
     private final InterviewRepository interviewRepository;
@@ -49,7 +53,9 @@ public class CodingService {
     private final CodingQuestionAssistant aiAssistant;
 
     // 👈 1. INJECT PINECONE AND OPENAI DIRECTLY
-    private final EmbeddingStore<TextSegment> embeddingStore;
+    @Autowired
+    @Qualifier("pineconeEmbeddingStore")
+    private EmbeddingStore<TextSegment> embeddingStore;
     private final EmbeddingModel embeddingModel;
 
 //    public String generateCode(String token) {
