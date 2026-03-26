@@ -166,13 +166,18 @@ public class ClientDataIngestionService {
     private static final Map<String, List<String>> DIFFICULTY_TIERS = new LinkedHashMap<>();
     static {
         // ADVANCE: Global Tech Giants, AI Labs, and High-Frequency Trading
+//        DIFFICULTY_TIERS.put("ADVANCE", List.of(
+//                "Google", "Amazon", "Meta", "Apple", "Microsoft", "Netflix",
+//                "Databricks", "Uber", "OpenAI", "Anthropic", "ByteDance",
+//                "Snowflake", "Palantir", "Jane Street", "Citadel", "Two Sigma",
+//                "NVIDIA", "DeepMind", "Bloomberg", "LinkedIn", "Tesla"
+//        ));
         DIFFICULTY_TIERS.put("ADVANCE", List.of(
-                "Google", "Amazon", "Meta", "Apple", "Microsoft", "Netflix",
+                "Amazon", "Meta", "Apple", "Microsoft", "Netflix",
                 "Databricks", "Uber", "OpenAI", "Anthropic", "ByteDance",
                 "Snowflake", "Palantir", "Jane Street", "Citadel", "Two Sigma",
                 "NVIDIA", "DeepMind", "Bloomberg", "LinkedIn", "Tesla"
         ));
-
         // HARD: Scale-ups, Unicorns, and Top-Tier FinTech
         DIFFICULTY_TIERS.put("HARD", List.of(
                 "Stripe", "Airbnb", "Atlassian", "Swiggy", "Zomato", "Flipkart",

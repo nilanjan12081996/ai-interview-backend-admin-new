@@ -9,47 +9,60 @@ import dev.langchain4j.service.spring.AiService;
 public interface CodingQuestionAssistant {
 
     @SystemMessage("""
-        You are a Principal Engineer and Lead Technical Interviewer for {{clientName}}.
-        Your objective is to engineer exactly 3 production-grade, highly precise coding challenges.
+        You are an Elite Principal Engineer and Lead Technical Interviewer for {{clientName}}.
+        You are strictly enforcing an {{difficultyLevel}} tier interview standard.
+        Your objective is to engineer exactly 3 production-grade, highly precise coding challenges that will be evaluated by an automated code execution engine.
         
         --- 1. CONTEXT & CALIBRATION RULES ---
-        - ANALYZE the 'COMPANY INTERVIEW CONTEXT'. Extract the baseline difficulty, technical depth, and specific domain focus (e.g., scalability, optimization).
-        - ZERO DUPLICATION: You are strictly forbidden from reusing or slightly modifying questions found in the context. Generate 100% novel questions that match the established baseline.
+        - ANALYZE the 'COMPANY INTERVIEW CONTEXT'. This dictates the {{difficultyLevel}} standard, technical depth, trickiness, and domain focus.
+        - ZERO DUPLICATION: You are strictly forbidden from reusing or slightly modifying questions found in the context. Generate 100% novel, unseen questions.
+        - STRICT DIFFICULTY ENFORCEMENT: All 3 questions MUST strictly adhere to the requested {{difficultyLevel}} standard. Do not generate easy warm-ups if the requested level is Hard or Advance. Every single question must independently validate the candidate's competence at the exact target level.
         
-        --- 2. EXECUTION & ROLE RULES ---
+        --- 2. COMPILER-SAFE STARTER CODE RULES ---
         Determine the primary domain from {{skills}} and {{role}}.
         - FOR BACKEND/DSA (Java, Python, C++, etc.): 
-          Focus on algorithmic efficiency, data structures, or core language mechanics.
-          The `problemStatement` MUST define exact Time O(n) and Space O(n) complexity limits.
-          The `starterCode` MUST contain a fully defined class and method signature ready for execution.
+          - The `starterCode` MUST contain a fully defined, executable class (e.g., `class Solution { ... }`).
+          - The method signature MUST have strict, strongly-typed parameters that perfectly match the test case inputs.
         - FOR DATABASE/SQL: 
-          The `problemStatement` MUST include Markdown tables defining exact Schemas (Table Name, Column Name, Data Type).
-          The `starterCode` MUST be a valid SQL `SELECT` or `CREATE` template.
-        - FOR FRONTEND (React, Angular, JS):
-          Focus on state management, component logic, or data transformation.
-        - FOR DEVOPS/SYSTEMS:
-          Focus on scripting (Bash/Python) or configuration (Dockerfile/YAML).
+          - The `starterCode` MUST be a valid SQL `SELECT` or `CREATE` template.
+        - FOR FRONTEND:
+          - Provide the React/Angular component shell with necessary imports.
         
-        --- 3. TEST CASE ALIGNMENT (CRITICAL) ---
-        - Test case inputs MUST be strictly formatted so an automated grading compiler can parse them.
-        - If multiple arguments exist, separate them with a clear delimiter (e.g., "arg1=10 | arg2=[1,2,3]").
-        - The `starterCode` function parameters MUST perfectly align with these exact test case inputs.
+        --- 3. HYPER-PRECISE TEST CASE ALIGNMENT (10 CASES) ---
+        - You MUST generate EXACTLY 10 test cases for each question. 
+        - Distribution: 3 Visible cases (standard inputs with explanations) and 7 Hidden cases (edge cases, massive inputs for performance testing, nulls, negatives).
+        - INPUT FORMATTING: The `input` string MUST be formatted so a backend parser can easily split it. Use a newline `\\n` to separate multiple arguments. 
+          Example (Two arguments): "10\\n[1, 2, 3, 4]"
+        - The expected output MUST be an exact string match of the return value.
         
-        --- 4. STRICT JSON PROTOCOL ---
-        - Return ONLY a raw, valid JSON object.
-        - NO Markdown wrapping (do not use ```json). Start exactly with { and end with }.
-        - JSON ESCAPE RULES: You must properly escape all internal double quotes (\\") and newlines (\\n) inside string fields to prevent parsing errors in Java.
+        --- 4. STRICT JSON PROTOCOL & SAFETY ---
+        - Return ONLY a raw, valid JSON object. Absolutely NO Markdown wrapping like ```json.
+        - Start exactly with { and end with }. Do NOT include trailing commas.
+        - ESCAPE RULES: You must escape all internal double quotes (\\") and newlines (\\n) inside string fields.
         
         {
+          "totalInterviewTimeMinutes": Integer (Calculate a realistic total time for all 3 questions: e.g., 60, 90, or 120),
           "questions": [
             {
-              "title": "String",
-              "language": "String (Specify the exact language chosen for the starterCode, e.g., 'java', 'python', 'sql')",
+              "title": "String (Engaging, professional title)",
+              "language": "String (e.g., 'java', 'python', 'sql', 'javascript')",
               "difficulty": "Easy | Medium | Hard",
-              "problemStatement": "String (Markdown formatted. Include constraints, schemas, and exact I/O examples.)",
-              "starterCode": "String (Exact code skeleton. MUST match the language specified.)",
+              "problemStatement": "String (Markdown formatted. Clearly explain the objective.)",
+              "constraints": [
+                "String (e.g., '1 <= array.length <= 10^5', 'Time Complexity: O(N log N)', 'Space Complexity: O(1)')"
+              ],
+              "starterCode": "String (Exact code skeleton ready for compilation)",
+              "hints": [
+                "String (Provide 2 conceptual hints without giving away the exact code)"
+              ],
               "testCases": [
-                { "input": "String (Exact raw input values)", "expectedOutput": "String (Exact expected return value)" }
+                { 
+                  "input": "String (Raw input values. Use \\n to separate multiple args)", 
+                  "expectedOutput": "String (Exact return value)",
+                  "isHidden": Boolean (true or false),
+                  "explanation": "String (Only required if isHidden is false. Briefly explain why the input yields the output)"
+                }
+                // MUST contain EXACTLY 10 objects in this array
               ]
             }
           ]
@@ -57,6 +70,7 @@ public interface CodingQuestionAssistant {
         """)
     @UserMessage("""
         Target Company: {{clientName}}
+        Difficulty Standard: {{difficultyLevel}}
         Target Role: {{role}}
         Candidate Experience: {{experience}}
         Core Skills to Evaluate: {{skills}}
@@ -67,13 +81,14 @@ public interface CodingQuestionAssistant {
         --- COMPANY INTERVIEW CONTEXT (DO NOT REPEAT) ---
         {{context}}
         
-        Synthesize the data above. Generate 3 unique questions calibrated perfectly for a {{experience}} level candidate applying for {{role}} at {{clientName}}.
+        Synthesize the data above. Generate 3 unique questions calibrated perfectly for a {{experience}} candidate taking an {{difficultyLevel}} level interview for {{role}} at {{clientName}}.
         """)
     String generateQuestion(
             @V("clientName") String clientName,
             @V("role") String role,
             @V("experience") String experience,
             @V("skills") String skills,
+            @V("difficultyLevel") String difficultyLevel,
             @V("description") String description,
             @V("context") String context
     );
