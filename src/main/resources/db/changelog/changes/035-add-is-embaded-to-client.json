@@ -1,0 +1,27 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "035-add-is-embaded-to-client",
+        "author": "system",
+        "comment": "Add is_embaded column to client table",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "client",
+              "columns": [
+                {
+                  "column": {
+                    "name": "is_embaded",
+                    "type": "boolean",
+                    "defaultValueBoolean": false
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
