@@ -23,6 +23,7 @@ import dev.langchain4j.rag.query.Query;
 import dev.langchain4j.rag.content.Content;
 import dev.langchain4j.data.segment.TextSegment;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -104,26 +105,27 @@ public class CodingService {
 //        return generatedJson;
 //    }
         public String generateCode(String token) {
+            // 1. Fetch Interview Details
             InterviewLinkEntity linkEntity = interviewLinkRepository.findOne(CodeGenerateFindSpecification.getFullInterviewDetailsByToken(token))
                     .orElseThrow(() -> new RuntimeException("Invalid token: No interview link found."));
 
-            System.out.println(linkEntity.toString() + "interviewDetais");
-
+            // Extract Job Data
             String clientName = linkEntity.getInterview().getJobEntity().getClient().getClientName().trim();
             String role = linkEntity.getInterview().getJobEntity().getRole();
             String experience = linkEntity.getInterview().getJobEntity().getExperience();
             String description = linkEntity.getInterview().getJobEntity().getJd();
 
-            String skills = linkEntity.getInterview().getJobEntity().getMustHaveSkills()
+            // 2. Fetch ONLY Mandatory Skills
+            String skills = linkEntity.getInterview().getJobEntity().getMandatorySkills()
                     .stream()
                     .map(skillEntity -> skillEntity.getSkillName())
                     .collect(Collectors.joining(", "));
 
-            System.out.println("🤖 AI Engine Starting -> Generating question for Client: " + clientName + " | Role: " + role);
+            System.out.println("🤖 AI Engine Starting -> Client: " + clientName + " | Role: " + role);
+            System.out.println("🎯 Mandatory Skills: " + skills);
 
-            // --- STEP 1: MANUALLY FETCH DATA FROM PINECONE ---
+            // 3. Fetch Data from Pinecone (RAG)
             Filter pineconeClientFilter = metadataKey("client_name").isEqualTo(clientName);
-
             EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
                     .embeddingStore(embeddingStore)
                     .embeddingModel(embeddingModel)
@@ -140,7 +142,7 @@ public class CodingService {
 
             System.out.println("📚 Found " + searchResults.size() + " context paragraphs from Pinecone!");
 
-            // --- STEP 2: GENERATE THE JSON USING OPENAI ---
+            // 4. Generate the JSON using AI
             String generatedJson = aiAssistant.generateQuestion(
                     clientName,
                     role,
@@ -152,35 +154,36 @@ public class CodingService {
 
             System.out.println("✅ AI Generation Complete! Saving to databases...");
 
-            // --- STEP 3: SAVE TO MYSQL (Frontend usage) ---
-            // We create the entity using your Builder pattern
-            CodingEntity codingEntity = CodingEntity.builder()
-                    .token(token)
-                    .questionData(generatedJson) // Saves right into your JSON column
-                    .build();
+            // 5. Save to MySQL (Upsert Logic)
+            Optional<CodingEntity> existingRecord = codingRepository.findByToken(token);
+            boolean isNewRecord = existingRecord.isEmpty();
 
-            // NOTE: If you run the same token twice, this will throw a UniqueConstraint exception.
-            // You might want to add a check like codingRepository.findByToken(token) in the future!
+            CodingEntity codingEntity = existingRecord.orElseGet(() -> {
+                CodingEntity newEntity = new CodingEntity();
+                newEntity.setToken(token);
+                return newEntity;
+            });
+
+            codingEntity.setQuestionData(generatedJson);
             codingRepository.save(codingEntity);
-            System.out.println("💾 Saved successfully to MySQL table 'coding_questions'");
+            System.out.println("💾 Saved/Updated successfully to MySQL table 'coding_questions'");
 
-            // --- STEP 4: SAVE TO PINECONE (AI Memory / Feedback Loop) ---
-            // Create new metadata so the AI knows this is a previously generated question
-            Metadata newMetadata = new Metadata();
-            newMetadata.put("client_name", clientName);
-            newMetadata.put("role", role);
-            newMetadata.put("token", token);
-            newMetadata.put("source", "ai_generated_history");
+            // 6. Save to Pinecone (Deduplication Logic)
+            if (isNewRecord) {
+                Metadata newMetadata = new Metadata();
+                newMetadata.put("client_name", clientName);
+                newMetadata.put("role", role);
+                newMetadata.put("token", token);
+                newMetadata.put("source", "ai_generated_history");
 
-            // Convert the JSON string into a Pinecone TextSegment
-            TextSegment newSegment = TextSegment.from(generatedJson, newMetadata);
+                TextSegment newSegment = TextSegment.from(generatedJson, newMetadata);
+                Response<Embedding> embeddingResponse = embeddingModel.embed(newSegment);
 
-            // Convert the text into a 1536-dimension math vector using OpenAI
-            Response<Embedding> embeddingResponse = embeddingModel.embed(newSegment);
-
-            // Push it permanently to the cloud!
-            embeddingStore.add(embeddingResponse.content(), newSegment);
-            System.out.println("🧠 Saved successfully to Pinecone Vector Database!");
+                embeddingStore.add(embeddingResponse.content(), newSegment);
+                System.out.println("🧠 Saved successfully to Pinecone Vector Database!");
+            } else {
+                System.out.println("⚠️ Token existed. Updated MySQL, but skipped Pinecone to prevent duplicate vectors.");
+            }
 
             return generatedJson;
         }
