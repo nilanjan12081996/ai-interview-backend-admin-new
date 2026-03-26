@@ -18,4 +18,10 @@ public class WebScrapingController {
         new Thread(ingestionService::scrapeAndIngestClientData).start();
         return "Web scraping and Vector DB ingestion started in the background!";
     }
+
+    @PostMapping("/scrap")
+    public String scrapVectorDatabase() {
+        new Thread(ingestionService::scrapeAndIngestTieredData).start();
+        return "Web scraping and Vector DB ingestion started in the background!";
+    }
 }
