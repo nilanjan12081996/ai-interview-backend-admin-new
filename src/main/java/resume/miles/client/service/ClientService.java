@@ -24,6 +24,9 @@ public class ClientService {
         if (clientEntity.getStatus() == null) {
             clientEntity.setStatus(1);
         }
+        if (clientEntity.getIsEmbaded() == null) {
+            clientEntity.setIsEmbaded(false);
+        }
 
         // 3️⃣ Save
         ClientEntity savedClient = clientRepository.save(clientEntity);

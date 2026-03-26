@@ -23,4 +23,7 @@ public class ClientEntity extends BaseEntity{
 
     @Column(name = "status", nullable = false)
     private Integer status = 1;
+
+    @Column(name = "is_embaded")
+    private Boolean isEmbaded;
 }

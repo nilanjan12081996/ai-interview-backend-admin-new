@@ -15,4 +15,6 @@ public class ClientDto {
     private String clientName;
 
     private Integer status;
+
+    private Boolean isEmbaded;
 }

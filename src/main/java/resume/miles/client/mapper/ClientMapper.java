@@ -13,6 +13,7 @@ public class ClientMapper {
         return ClientEntity.builder()
                 .clientName(dto.getClientName())
                 .status(dto.getStatus())
+                .isEmbaded(dto.getIsEmbaded())
                 .build();
     }
       public static ClientDto toDto(ClientEntity entity) {
@@ -25,6 +26,7 @@ public class ClientMapper {
                 .id(entity.getId())
                 .clientName(entity.getClientName())
                 .status(entity.getStatus())
+                .isEmbaded(entity.getIsEmbaded())
                 .build();
     }
 }
