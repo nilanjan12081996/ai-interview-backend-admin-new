@@ -187,4 +187,10 @@ public class CodingService {
 
             return generatedJson;
         }
+
+    public String getQuestion(String token) {
+        return codingRepository.findByToken(token)
+                .map(CodingEntity::getQuestionData)
+                .orElseThrow(() -> new RuntimeException("Question not found for this token."));
+    }
 }

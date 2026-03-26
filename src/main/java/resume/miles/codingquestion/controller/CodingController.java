@@ -6,10 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import resume.miles.codingquestion.dto.GenerateQuestionDto;
 import resume.miles.codingquestion.service.CodingService;
 
@@ -55,6 +52,26 @@ public class CodingController {
             return ResponseEntity.status(400).body(response);
         }
 
+    }
+
+    @GetMapping("/get-question/{token}")
+    public ResponseEntity<?> getQuestionByToken(@PathVariable String token) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String data = codingService.getQuestion(token);
+            response.put("statusCode", 200);
+            response.put("data", data);
+            response.put("message", "question fetched successfully from db");
+            response.put("status", true);
+
+            return ResponseEntity.status(200).body(response);
+        } catch (Exception e) {
+            response.put("statusCode", 400);
+            response.put("message", e.getMessage());
+            response.put("status", false);
+
+            return ResponseEntity.status(400).body(response);
+        }
     }
 
 
