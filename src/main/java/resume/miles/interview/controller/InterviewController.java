@@ -203,24 +203,22 @@ public ResponseEntity<?> getCandidatesByJobId(
         ));
     }
 }
-@PostMapping("/resend-link/{id}")
+    @PostMapping("/resend-link/{id}")
     public ResponseEntity<?> resendLink(@PathVariable("id") Long interviewId) {
         try {
-            String newLink = interviewService.resendInterviewLink(interviewId);
-            // return ResponseEntity.ok("Interview link resent successfully: " + newLink);
+            Map<String, String> result = interviewService.resendInterviewLink(interviewId);
             return ResponseEntity.status(200).body(Map.of(
-                "message","Interview link resent successfully",
-                "statusCode",200,
-                "link",newLink,
-                "status",true
+                    "message", "Interview link resent successfully",
+                    "statusCode", 200,
+                    "link", result.get("link"),
+                    "token", result.get("token"),
+                    "status", true
             ));
         } catch (Exception e) {
-            // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            //                      .body("Error resending link: " + e.getMessage());
             return ResponseEntity.status(400).body(Map.of(
-                "message",e.getMessage(),
-                "statusCode",400,
-                "status",false
+                    "message", e.getMessage(),
+                    "statusCode", 400,
+                    "status", false
             ));
         }
     }

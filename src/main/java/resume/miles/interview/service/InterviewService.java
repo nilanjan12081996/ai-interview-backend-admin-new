@@ -75,6 +75,7 @@ public class InterviewService {
     private static final String AI_API_URL =
             "https://aiinterviewpythonmain.bestworks.cloud/api/v1/process-pdf";
 
+    // 1. Resend Interview Link
     @Transactional
 
     public Map<String, String> scheduleInterview(
@@ -195,7 +196,7 @@ public class InterviewService {
         // =========================
         String token = UUID.randomUUID().toString();
         // String link = "http://localhost:5173/interview/" + token;
-        String link = "https://aiinterviewpythonfront.bestworks.cloud/" + token;
+        String link = "https://interviewfoldfrontend.interviewfold.com/" + token;
 
         LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
 
@@ -604,8 +605,9 @@ public String getJobRoleByToken(String token) {
     throw new RuntimeException("Job ID not associated with this interview");
 }
 
+// Resend link logic
 @Transactional
-public String resendInterviewLink(Long interviewId) {
+public Map<String, String> resendInterviewLink(Long interviewId) {
     // 1. Fetch the existing interview
     InterviewEntity interview = interviewRepository.findById(interviewId)
             .orElseThrow(() -> new RuntimeException("Interview not found with ID: " + interviewId));
@@ -619,7 +621,7 @@ public String resendInterviewLink(Long interviewId) {
 
     // 3. Generate New Token and Link
     String newToken = UUID.randomUUID().toString();
-    String newLink = "https://aiinterviewpython.bestworks.cloud/" + newToken;
+    String newLink = "https://interviewfoldfrontend.interviewfold.com/" + newToken;
 
     // 4. Calculate Expiry (using your existing logic: 1 hour after start if end not present)
     LocalDateTime expiryDateTime;
@@ -673,7 +675,10 @@ public String resendInterviewLink(Long interviewId) {
 
         mailSender.send(message);
         
-        return newLink;
+        return Map.of(
+            "link", newLink,
+            "token", newToken
+        );
     } catch (Exception e) {
         throw new RuntimeException("Failed to resend interview invitation email", e);
     }
