@@ -22,6 +22,7 @@ public class UserService {
  private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final UserEmailService userEmailService;
 
      public UserDto createUser(UserDto userDto) {
 
@@ -52,7 +53,50 @@ public class UserService {
         // 6️⃣ Save user
         UserEntity savedUser = userRepository.save(userEntity);
 
+        // 6.1 Send email
+        userEmailService.sendRegistrationEmail(savedUser.getEmail(), userDto.getPassword());
+
         // 7️⃣ Convert Entity → DTO
+        return UserMapper.toDto(savedUser);
+    }
+
+    public UserDto registerUser(UserDto userDto) {
+        // 1️⃣ Check duplicate email
+        if (userRepository.existsByEmail(userDto.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        // 1.1 Check duplicate username
+        String effectiveUsername = (userDto.getUsername() != null && !userDto.getUsername().isEmpty()) 
+                                   ? userDto.getUsername() 
+                                   : userDto.getEmail();
+        if (userRepository.existsByUsername(effectiveUsername)) {
+            throw new RuntimeException("user id is already exists");
+        }
+
+        // 2️⃣ Generate password
+        String generatedPassword = java.util.UUID.randomUUID().toString().substring(0, 8);
+
+        // 3️⃣ Convert DTO → Entity
+        UserEntity userEntity = UserMapper.toEntity(userDto);
+
+        // 4️⃣ Set username as email if not provided
+        if (userEntity.getUsername() == null || userEntity.getUsername().isEmpty()) {
+            userEntity.setUsername(userDto.getEmail());
+        }
+
+        // 5️⃣ Encode password
+        userEntity.setPassword(passwordEncoder.encode(generatedPassword));
+        userEntity.setIsDeleted(0);
+        userEntity.setStatus(1);
+
+        // 6️⃣ Save user
+        UserEntity savedUser = userRepository.save(userEntity);
+
+        // 7️⃣ Send email
+        userEmailService.sendRegistrationEmail(savedUser.getEmail(), generatedPassword);
+
+        // 8️⃣ Convert Entity → DTO
         return UserMapper.toDto(savedUser);
     }
 

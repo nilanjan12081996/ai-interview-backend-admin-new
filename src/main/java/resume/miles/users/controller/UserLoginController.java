@@ -44,4 +44,22 @@ public ResponseEntity<?> loginUser(@RequestBody LoginRequestDto loginRequest) {
     }
 }
 
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+        try {
+            UserDto data = userService.registerUser(userDto);
+            return ResponseEntity.ok(Map.of(
+                "message", "Registration successful. Please check your email for the password.",
+                "data", data,
+                "status", true,
+                "statusCode", 200
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(Map.of(
+                "message", e.getMessage(),
+                "status", false,
+                "status_code", 400
+            ));
+        }
+    }
 }

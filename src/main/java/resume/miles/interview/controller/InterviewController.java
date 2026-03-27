@@ -47,7 +47,7 @@ public class InterviewController {
                         .body("Resume file is required");
             }
 
-            String link = interviewService.scheduleInterview(
+            Map<String, String> result = interviewService.scheduleInterview(
                     jobId,
                     candidateName,
                     email,
@@ -61,7 +61,8 @@ public class InterviewController {
 
             return ResponseEntity.status(201).body(Map.of(
                 "message","Interview Scheduled Successfully.",
-                "link",link,
+                "link",result.get("link"),
+                "token",result.get("token"),
                 "statusCode",201,
                 "status",true
             ));

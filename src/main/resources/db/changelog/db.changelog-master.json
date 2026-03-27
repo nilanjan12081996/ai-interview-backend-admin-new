@@ -104,6 +104,11 @@
       "include": {
         "file": "db/changelog/changes/036-add-level-to-job.json"
       }
+    },
+    {
+      "include": {
+        "file": "db/changelog/changes/037-add-company-name-to-users.json"
+      }
     }
   ]
 }

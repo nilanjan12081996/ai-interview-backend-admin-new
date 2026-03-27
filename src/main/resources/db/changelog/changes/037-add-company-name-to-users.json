@@ -1,0 +1,28 @@
+{
+    "databaseChangeLog": [
+        {
+            "changeSet": {
+                "id": "20260327-037",
+                "author": "nilanjan",
+                "changes": [
+                    {
+                        "addColumn": {
+                            "tableName": "users",
+                            "columns": [
+                                {
+                                    "column": {
+                                        "name": "company_name",
+                                        "type": "varchar(255)",
+                                        "constraints": {
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

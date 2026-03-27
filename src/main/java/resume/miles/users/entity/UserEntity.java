@@ -57,6 +57,9 @@ public class UserEntity extends BaseEntity {
     @Column(name = "oauth_provider")
     private String oauthProvider;
 
+    @Column(name = "company_name")
+    private String companyName;
+
     private Integer status = 1;
 
     @Column(name = "is_deleted")

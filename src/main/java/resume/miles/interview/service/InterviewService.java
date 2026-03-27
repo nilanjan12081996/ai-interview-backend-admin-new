@@ -77,7 +77,7 @@ public class InterviewService {
 
     @Transactional
 
-    public String scheduleInterview(
+    public Map<String, String> scheduleInterview(
             String jobId,
             String candidateName,
             String email,
@@ -257,7 +257,10 @@ public class InterviewService {
             System.err.println("Failed to send email: " + e.getMessage());
             throw new RuntimeException("Failed to send interview invitation email", e);
         }
-        return link;
+        return Map.of(
+            "link", link,
+            "token", token
+        );
     }
 
 
