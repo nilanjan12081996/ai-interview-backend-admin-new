@@ -73,8 +73,8 @@ private Set<MandatorySkillEntity> mandatorySkills;
            cascade = CascadeType.ALL,
            orphanRemoval = true)
             @OrderBy("id ASC")
-    @BatchSize(size =50)
-private Set<MustHaveSkillEntity> mustHaveSkills;
+            @BatchSize(size =50)
+            private Set<MustHaveSkillEntity> mustHaveSkills;
 
    @OneToMany(mappedBy = "jobEntity",
            cascade = CascadeType.ALL,
