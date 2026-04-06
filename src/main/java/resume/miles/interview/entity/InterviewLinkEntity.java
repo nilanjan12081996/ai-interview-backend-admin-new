@@ -48,6 +48,12 @@ public class InterviewLinkEntity extends BaseEntity {
     @Column(name="is_complete",nullable = false)
     private Integer is_complete;
 
+    @Column(name = "coding", nullable = false,columnDefinition = "TINYINT DEFAULT 0")
+    private Integer coding;
+
+    @Column(name = "interview", nullable = false,columnDefinition = "TINYINT DEFAULT 1")
+    private Integer interviewChecking;
+
     @Column(name = "termination_cause")
     private String terminationCause;
 

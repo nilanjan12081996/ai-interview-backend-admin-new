@@ -32,6 +32,7 @@ import resume.miles.analysis.repository.AnalysisRepository;
 import resume.miles.interview.dto.InterviewDto;
 import resume.miles.interview.dto.InterviewLinkDto;
 import resume.miles.interview.dto.InterviewScheduleResponseDto;
+import resume.miles.interview.dto.ResponseInterviewDataDto;
 import resume.miles.interview.entity.InterviewEntity;
 import resume.miles.interview.entity.InterviewLinkEntity;
 import resume.miles.interview.mapper.InterviewMapper;
@@ -87,7 +88,9 @@ public class InterviewService {
             Boolean isCoding,
             String startTime,
             String endTime,
-            String interviewDate
+            String interviewDate,
+            Integer coding,
+            Integer interviewData
     ) throws IOException {
 
         // =========================
@@ -220,6 +223,8 @@ public class InterviewService {
                 .interviewLink(link)
                 .expiryTime(expiryDateTime)
                 .is_complete(0)
+                .coding(coding==null? 0 : coding)
+                .interviewChecking(interviewData==null? 1 : interviewData)
                 .isActive(true)
                 .build();
 
@@ -683,6 +688,19 @@ public Map<String, String> resendInterviewLink(Long interviewId) {
         throw new RuntimeException("Failed to resend interview invitation email", e);
     }
 }
+
+
+        @Transactional(readOnly = true)
+        public ResponseInterviewDataDto dataDetails(String token){
+            Optional<InterviewLinkEntity> interviewLink = interviewLinkRepository.findByToken(token);
+            if(interviewLink.isEmpty()){
+                throw new RuntimeException("invalid token");
+            }
+            return ResponseInterviewDataDto.builder()
+                    .coding(interviewLink.get().getCoding())
+                    .interviewChecking(interviewLink.get().getInterviewChecking())
+                    .build();
+        }
 }
 
 

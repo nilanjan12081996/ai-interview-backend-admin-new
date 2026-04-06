@@ -32,4 +32,6 @@ public class InterviewScheduleResponseDto {
 
     private String analysis;
     private Integer is_complete;
+
+
 }

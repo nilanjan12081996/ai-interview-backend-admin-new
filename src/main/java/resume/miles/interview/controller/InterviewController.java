@@ -1,6 +1,7 @@
 package resume.miles.interview.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import resume.miles.interview.dto.InterviewDto;
 import resume.miles.interview.dto.InterviewLinkDto;
 import resume.miles.interview.dto.InterviewScheduleResponseDto;
+import resume.miles.interview.dto.ResponseInterviewDataDto;
 import resume.miles.interview.entity.InterviewLinkEntity;
 import resume.miles.interview.service.InterviewService;
 
@@ -22,6 +24,29 @@ import resume.miles.interview.service.InterviewService;
 public class InterviewController {
 
     private final InterviewService interviewService;
+
+    @GetMapping("/get/token/interview/type")
+    public ResponseEntity<?>  interviewdetails(@RequestParam(required = true) String token){
+        Map<String,Object> response = new HashMap<>();
+        try{
+                ResponseInterviewDataDto data = interviewService.dataDetails(token);
+
+                response.put("status",true);
+                response.put("satusCode",200);
+                response.put("message","data found");
+                response.put("data",data);
+
+                return ResponseEntity.status(200).body(response);
+        }catch(Exception e){
+                response.put("status",false);
+                response.put("statusCode",400);
+                response.put("message",e.getMessage());
+                response.put("error",e.getStackTrace());
+
+                return ResponseEntity.status(400).body(response);
+        }
+
+    }
 
     @PostMapping(value = "/schedule", consumes = "multipart/form-data")
     public ResponseEntity<?> scheduleInterview(
@@ -34,7 +59,9 @@ public class InterviewController {
             @RequestParam Boolean isCoding,
             @RequestParam String startTime,
             @RequestParam(required = false) String endTime,
-            @RequestParam(required = false) String interviewDate
+            @RequestParam(required = false) String interviewDate,
+            @RequestParam(required = false) Integer coding,
+            @RequestParam(required = false) Integer interview
 
     ) {
 
@@ -56,7 +83,9 @@ public class InterviewController {
                     isCoding,
                     startTime,
                     endTime,
-                    interviewDate
+                    interviewDate,
+                    coding,
+                    interview
             );
 
             return ResponseEntity.status(201).body(Map.of(

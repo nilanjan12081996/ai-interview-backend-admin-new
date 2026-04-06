@@ -1,0 +1,40 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "038-add-coding-and-interview-columns",
+        "author": "goodmood",
+        "comment": "Add coding and interview status columns to interview_link",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "interview_link",
+              "columns": [
+                {
+                  "column": {
+                    "name": "coding",
+                    "type": "tinyint",
+                    "defaultValueNumeric": 0,
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "interview",
+                    "type": "tinyint",
+                    "defaultValueNumeric": 1,
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

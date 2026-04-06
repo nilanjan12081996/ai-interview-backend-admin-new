@@ -1,6 +1,7 @@
 package resume.miles.interview.dto;
 
 
+import jakarta.persistence.Column;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,8 @@ public class InterviewLinkDto {
     private String terminationCause;
     private String userJustification;
     private Boolean isActive;
+    private Integer coding;
+    private Integer interviewChecking;
 
     private InterviewDto interviewDto; 
 }

@@ -173,7 +173,7 @@ public class ClientDataIngestionService {
 //                "NVIDIA", "DeepMind", "Bloomberg", "LinkedIn", "Tesla"
 //        ));
         DIFFICULTY_TIERS.put("ADVANCE", List.of(
-                "Amazon", "Meta", "Apple", "Microsoft", "Netflix",
+                "Google", "Amazon", "Meta", "Apple", "Microsoft", "Netflix",
                 "Databricks", "Uber", "OpenAI", "Anthropic", "ByteDance",
                 "Snowflake", "Palantir", "Jane Street", "Citadel", "Two Sigma",
                 "NVIDIA", "DeepMind", "Bloomberg", "LinkedIn", "Tesla"
