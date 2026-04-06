@@ -232,10 +232,10 @@ public ResponseEntity<?> getCandidatesByJobId(
         ));
     }
 }
-    @PostMapping("/resend-link/{id}")
-    public ResponseEntity<?> resendLink(@PathVariable("id") Long interviewId) {
+    @PostMapping("/resend-link/{id}/{coding}/{interviewData}")
+    public ResponseEntity<?> resendLink(@PathVariable("id") Long interviewId,@PathVariable("coding") Integer coding,@PathVariable("interviewData") Integer interviewData) {
         try {
-            Map<String, String> result = interviewService.resendInterviewLink(interviewId);
+            Map<String, String> result = interviewService.resendInterviewLink(interviewId,coding,interviewData);
             return ResponseEntity.status(200).body(Map.of(
                     "message", "Interview link resent successfully",
                     "statusCode", 200,

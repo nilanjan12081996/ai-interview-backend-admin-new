@@ -612,7 +612,7 @@ public String getJobRoleByToken(String token) {
 
 // Resend link logic
 @Transactional
-public Map<String, String> resendInterviewLink(Long interviewId) {
+public Map<String, String> resendInterviewLink(Long interviewId,Integer coding,Integer interviewData) {
     // 1. Fetch the existing interview
     InterviewEntity interview = interviewRepository.findById(interviewId)
             .orElseThrow(() -> new RuntimeException("Interview not found with ID: " + interviewId));
@@ -623,6 +623,7 @@ public Map<String, String> resendInterviewLink(Long interviewId) {
         oldLink.setIsActive(false);
     }
     interviewLinkRepository.saveAll(oldLinks);
+
 
     // 3. Generate New Token and Link
     String newToken = UUID.randomUUID().toString();
@@ -643,6 +644,8 @@ public Map<String, String> resendInterviewLink(Long interviewId) {
             .interviewLink(newLink)
             .expiryTime(expiryDateTime)
             .is_complete(0)
+            .coding(coding)
+            .interviewChecking(interviewData)
             .isActive(true)
             .build();
 
