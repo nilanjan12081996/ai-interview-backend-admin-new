@@ -109,6 +109,15 @@ public class CodingService {
         if (difficultyLevel.equals("ADVANCED")) {
             difficultyLevel = "ADVANCE";
         }
+        if (difficultyLevel.equals("HARD")) {
+            difficultyLevel = "HARD";
+        }
+        if (difficultyLevel.equals("MEDIUM")) {
+            difficultyLevel = "MEDIUM";
+        }
+        if (difficultyLevel.equals("LOW")) {
+            difficultyLevel = "LOW";
+        }
 
         // Normalize the experience text to match Pinecone buckets
         String rawExperience = linkEntity.getInterview().getJobEntity().getExperience();
