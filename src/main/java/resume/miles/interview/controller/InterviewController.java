@@ -48,7 +48,7 @@ public class InterviewController {
     @PostMapping(value = "/schedule", consumes = "multipart/form-data")
     public ResponseEntity<?> scheduleInterview(
 
-           @RequestBody InterviewScheduleDto interviewScheduleDto
+           @ModelAttribute InterviewScheduleDto interviewScheduleDto
     ) {
 
         try {
