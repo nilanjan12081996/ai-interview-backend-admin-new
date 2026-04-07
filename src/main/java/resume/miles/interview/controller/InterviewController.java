@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
-import resume.miles.interview.dto.InterviewDto;
-import resume.miles.interview.dto.InterviewLinkDto;
-import resume.miles.interview.dto.InterviewScheduleResponseDto;
-import resume.miles.interview.dto.ResponseInterviewDataDto;
+import resume.miles.interview.dto.*;
 import resume.miles.interview.entity.InterviewLinkEntity;
 import resume.miles.interview.service.InterviewService;
 
@@ -51,41 +48,30 @@ public class InterviewController {
     @PostMapping(value = "/schedule", consumes = "multipart/form-data")
     public ResponseEntity<?> scheduleInterview(
 
-            @RequestParam String jobId,
-            @RequestParam String candidateName,
-            @RequestParam String email,
-            @RequestParam String phoneNumber,
-            @RequestParam MultipartFile resumeFile,
-            @RequestParam Boolean isCoding,
-            @RequestParam String startTime,
-            @RequestParam(required = false) String endTime,
-            @RequestParam(required = false) String interviewDate,
-            @RequestParam(required = false) Integer coding,
-            @RequestParam(required = false) Integer interview
-
+           @RequestBody InterviewScheduleDto interviewScheduleDto
     ) {
 
         try {
 
             // Basic validation
-            if (resumeFile.isEmpty()) {
+            if (interviewScheduleDto.getResumeFile().isEmpty()) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body("Resume file is required");
             }
 
             Map<String, String> result = interviewService.scheduleInterview(
-                    jobId,
-                    candidateName,
-                    email,
-                    phoneNumber,
-                    resumeFile,
-                    isCoding,
-                    startTime,
-                    endTime,
-                    interviewDate,
-                    coding,
-                    interview
+                    interviewScheduleDto.getJobId(),
+                    interviewScheduleDto.getCandidateName(),
+                    interviewScheduleDto.getEmail(),
+                    interviewScheduleDto.getPhoneNumber(),
+                    interviewScheduleDto.getResumeFile(),
+                    interviewScheduleDto.getIsCoding(),
+                    interviewScheduleDto.getStartTime(),
+                    interviewScheduleDto.getEndTime(),
+                    interviewScheduleDto.getInterviewDate(),
+                    interviewScheduleDto.getCoding(),
+                    interviewScheduleDto.getInterview()
             );
 
             return ResponseEntity.status(201).body(Map.of(
