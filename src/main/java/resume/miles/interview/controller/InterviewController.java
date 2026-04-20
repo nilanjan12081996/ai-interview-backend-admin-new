@@ -48,7 +48,8 @@ public class InterviewController {
     @PostMapping(value = "/schedule", consumes = "multipart/form-data")
     public ResponseEntity<?> scheduleInterview(
 
-           @ModelAttribute InterviewScheduleDto interviewScheduleDto
+           @ModelAttribute InterviewScheduleDto interviewScheduleDto,@RequestParam Integer coding,
+           @RequestParam Integer interview
     ) {
 
         try {
@@ -70,8 +71,8 @@ public class InterviewController {
                     interviewScheduleDto.getStartTime(),
                     interviewScheduleDto.getEndTime(),
                     interviewScheduleDto.getInterviewDate(),
-                    interviewScheduleDto.getCoding(),
-                    interviewScheduleDto.getInterview()
+                    coding,
+                    interview
             );
 
             return ResponseEntity.status(201).body(Map.of(

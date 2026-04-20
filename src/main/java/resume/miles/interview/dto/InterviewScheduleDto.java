@@ -23,6 +23,5 @@ public class InterviewScheduleDto {
     private String interviewDate;
 
     // 1. Accept them as Strings from the frontend
-    private Integer coding;
-    private Integer interview;
+
 }
