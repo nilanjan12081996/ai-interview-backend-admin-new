@@ -735,9 +735,6 @@ public Map<String, String> resendInterviewLink(Long interviewId,Integer coding,I
         if (dto.getResumeLink() != null) {
             existingInterview.setResumeLink(dto.getResumeLink());
         }
-        if (dto.getIsCoding() != null) {
-            existingInterview.setIsCoding(dto.getIsCoding());
-        }
         if (dto.getStartTime() != null) {
             existingInterview.setStartTime(dto.getStartTime());
         }
