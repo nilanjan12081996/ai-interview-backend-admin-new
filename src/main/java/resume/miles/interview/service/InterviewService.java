@@ -720,9 +720,9 @@ public Map<String, String> resendInterviewLink(Long interviewId,Integer coding,I
                 .orElseThrow(() -> new RuntimeException("Interview schedule not found with ID: " + id));
 
         // 2. Update fields (checking for nulls allows partial updates via PATCH)
-        if (dto.getJobId() != null) {
-            existingInterview.setJobId(dto.getJobId());
-        }
+//        if (dto.getJobId() != null) {
+//            existingInterview.setJobId(dto.getJobId());
+//        }
         if (dto.getCandidateName() != null) {
             existingInterview.setCandidateName(dto.getCandidateName());
         }
