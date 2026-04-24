@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -144,7 +145,65 @@ public class InterviewController {
         }
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteInterviewSchedule(@RequestParam Long interviewScheduleId) {
+        Map<String,Object> response = new HashMap<>();
+        try{
+            String message = interviewService.deleteCandidate(interviewScheduleId);
+            response.put("status",true);
+            response.put("statusCode",200);
+            response.put("message",message);
 
+            return ResponseEntity.status(200).body(response);
+        }catch(RuntimeException e){
+            response.put("status",false);
+            response.put("statusCode",422);
+            response.put("message",e.getMessage());
+
+            return ResponseEntity.status(422).body(response);
+        }catch(Exception e){
+            response.put("status",false);
+            response.put("statusCode",400);
+            response.put("message",e.getMessage());
+            response.put("error",e.getStackTrace());
+
+            return ResponseEntity.status(400).body(response);
+        }
+    }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<?> editInterviewSchedule(
+            @PathVariable("id") Long interviewScheduleId,
+            @Valid @RequestBody InterviewDto interviewDto) {
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // Pass both the ID and the new data to the service
+            String message = interviewService.updateInterviewSchedule(interviewScheduleId, interviewDto);
+
+            response.put("status", true);
+            response.put("statusCode", 200);
+            response.put("message", message);
+
+            return ResponseEntity.status(200).body(response);
+
+        } catch (RuntimeException e) {
+            response.put("status", false);
+            response.put("statusCode", 422);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.status(422).body(response);
+        } catch (Exception e) {
+            response.put("status", false);
+            response.put("statusCode", 400);
+            response.put("message", e.getMessage());
+            // It's generally a security risk to expose full stack traces in production APIs,
+            // but keeping it here as you had it for debugging.
+            response.put("error", e.getStackTrace());
+
+            return ResponseEntity.status(400).body(response);
+        }
+    }
      @GetMapping("/list-data-exp")
     public ResponseEntity<?> getExpAndAllSkill(@RequestParam(required = true) String token) {
 

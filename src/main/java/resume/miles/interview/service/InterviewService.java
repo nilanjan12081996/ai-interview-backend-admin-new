@@ -704,6 +704,58 @@ public Map<String, String> resendInterviewLink(Long interviewId,Integer coding,I
                     .interviewChecking(interviewLink.get().getInterviewChecking())
                     .build();
         }
+
+        @Transactional
+        public String deleteCandidate(Long id) {
+            InterviewEntity entity = interviewRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Interview not found with ID: " + id));
+
+            interviewRepository.delete(entity);
+            return "Deleted successfully";
+        }
+    @Transactional
+    public String updateInterviewSchedule(Long id, InterviewDto dto) {
+        // 1. Fetch the existing entity
+        InterviewEntity existingInterview = interviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Interview schedule not found with ID: " + id));
+
+        // 2. Update fields (checking for nulls allows partial updates via PATCH)
+        if (dto.getJobId() != null) {
+            existingInterview.setJobId(dto.getJobId());
+        }
+        if (dto.getCandidateName() != null) {
+            existingInterview.setCandidateName(dto.getCandidateName());
+        }
+        if (dto.getEmail() != null) {
+            existingInterview.setEmail(dto.getEmail());
+        }
+        if (dto.getPhoneNumber() != null) {
+            existingInterview.setPhoneNumber(dto.getPhoneNumber());
+        }
+        if (dto.getResumeLink() != null) {
+            existingInterview.setResumeLink(dto.getResumeLink());
+        }
+        if (dto.getIsCoding() != null) {
+            existingInterview.setIsCoding(dto.getIsCoding());
+        }
+        if (dto.getStartTime() != null) {
+            existingInterview.setStartTime(dto.getStartTime());
+        }
+        if (dto.getEndTime() != null) {
+            existingInterview.setEndTime(dto.getEndTime());
+        }
+        if (dto.getInterviewDate() != null) {
+            existingInterview.setInterviewDate(dto.getInterviewDate());
+        }
+        if (dto.getStatus() != null) {
+            existingInterview.setStatus(dto.getStatus());
+        }
+
+        // 3. Save the updated entity
+        interviewRepository.save(existingInterview);
+
+        return "Interview schedule updated successfully.";
+    }
 }
 
 
