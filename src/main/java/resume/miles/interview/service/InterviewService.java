@@ -418,7 +418,8 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
 
         // 6️⃣ Return the DTO
         return InterviewScheduleResponseDto.builder()
-                .id(interview.getId()) // Ensure the ID is mapped for the "Resend" button
+                .id(interview.getId())
+                .jobId(interview.getJobId())// Ensure the ID is mapped for the "Resend" button
                 .candidateName(interview.getCandidateName())
                 .candidateEmail(interview.getEmail())
                 .candidatePhone(interview.getPhoneNumber())

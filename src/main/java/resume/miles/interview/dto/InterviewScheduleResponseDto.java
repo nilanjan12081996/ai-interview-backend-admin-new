@@ -13,6 +13,8 @@ import resume.miles.users.dto.UserDto;
 public class InterviewScheduleResponseDto {
 
     private Long id;
+    private String jobId;
+
     private String candidateName;
     private String candidateEmail;
     private String candidatePhone;
