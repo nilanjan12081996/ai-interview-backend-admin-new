@@ -50,10 +50,10 @@ public class InterviewDto {
 
     private LocalDate interviewDate;
 
-    private Integer status; // Optional (default 1)
+    private Integer status;
 
-    private LocalDateTime createdAt;  // ✅ add this
-    private LocalDateTime updatedAt;  // ✅ add this
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 
     private JobDto jobDto;
