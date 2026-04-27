@@ -126,12 +126,9 @@ public class InterviewController {
 
     @GetMapping("/list")
     public ResponseEntity<?> getAllInterviewSchedules() {
-
         try {
-
             List<InterviewScheduleResponseDto> response =
                     interviewService.getAllInterviewSchedules();
-
             return ResponseEntity.status(200).body(Map.of(
                 "message","List fetch successfully",
                 "status",true,
@@ -213,10 +210,7 @@ public class InterviewController {
     }
      @GetMapping("/list-data-exp")
     public ResponseEntity<?> getExpAndAllSkill(@RequestParam(required = true) String token) {
-
         try {
-
-             
             InterviewLinkDto interviewLinkDto = interviewService.getAllList(token);
             return ResponseEntity.status(200).body(Map.of(
                 "message","List fetch successfully",
@@ -225,9 +219,7 @@ public class InterviewController {
                 "data",interviewLinkDto
               
             ));
-
         } catch (Exception e) {
-
             return ResponseEntity
                     .status(400)
                     .body(Map.of(
@@ -257,34 +249,29 @@ public class InterviewController {
         }
     }
 
-@GetMapping("/job/candidates/{jobId}")
-public ResponseEntity<?> getCandidatesByJobId(
-        @PathVariable Long jobId) {
+    @GetMapping("/job/candidates/{jobId}")
+    public ResponseEntity<?> getCandidatesByJobId(
+            @PathVariable Long jobId) {
+        try {
+            // List<InterviewDto> candidates =
+            //         interviewService.getCandidatesByJobPrimaryId(jobId);
 
-    try {
+            List<InterviewScheduleResponseDto> candidates =
+            interviewService.getCandidatesByJobPrimaryId(jobId);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Candidates fetched successfully",
+                    "status", true,
+                    "statusCode",200,
+                    "data", candidates
 
-        // List<InterviewDto> candidates =
-        //         interviewService.getCandidatesByJobPrimaryId(jobId);
-
-        List<InterviewScheduleResponseDto> candidates =
-        interviewService.getCandidatesByJobPrimaryId(jobId);
-
-        return ResponseEntity.ok(Map.of(
-                "message", "Candidates fetched successfully",
-                "status", true,
-                "statusCode",200,
-                "data", candidates
-                
-        ));
-
-    } catch (Exception e) {
-
-        return ResponseEntity.badRequest().body(Map.of(
-                "message", e.getMessage(),
-                "status", false
-        ));
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "message", e.getMessage(),
+                    "status", false
+            ));
+        }
     }
-}
     @PostMapping("/resend-link/{id}/{coding}/{interviewData}")
     public ResponseEntity<?> resendLink(@PathVariable("id") Long interviewId,@PathVariable("coding") Integer coding,@PathVariable("interviewData") Integer interviewData) {
         try {
@@ -304,9 +291,4 @@ public ResponseEntity<?> getCandidatesByJobId(
             ));
         }
     }
-
-
-
-
-
 }

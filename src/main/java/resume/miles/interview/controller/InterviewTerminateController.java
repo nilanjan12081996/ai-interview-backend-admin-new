@@ -49,8 +49,6 @@ public class InterviewTerminateController {
             return ResponseEntity.status(400).body(response);
         }
     }
-
-
     @PostMapping("/user/reason")
     public ResponseEntity<?> interviewReasonUser(@Valid @RequestBody InterviewTerminateReasonDto interviewTerminateReasonDto, BindingResult bindingResult) {
         Map<String,Object> response = new HashMap<>();
