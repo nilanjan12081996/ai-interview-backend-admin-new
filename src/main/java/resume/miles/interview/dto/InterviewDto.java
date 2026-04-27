@@ -44,6 +44,8 @@ public class InterviewDto {
     @NotNull(message = "Start time is required")
     private LocalTime startTime;
 
+    private Long userId;
+
     private LocalTime endTime;
 
     private LocalDate interviewDate;

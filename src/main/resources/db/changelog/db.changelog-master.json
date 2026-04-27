@@ -114,6 +114,13 @@
       "include": {
         "file": "db/changelog/changes/038-add-coding-and-interview-columns.json"
       }
+    },
+    {
+      "include": {
+        "file": "db/changelog/changes/039-add-candidate-job-schedule.json"
+      }
     }
+
+
   ]
 }

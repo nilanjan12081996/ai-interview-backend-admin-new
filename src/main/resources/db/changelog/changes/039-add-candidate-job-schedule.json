@@ -1,0 +1,30 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "039-add-candidate-job-schedule",
+        "author": "goodmood",
+        "comment": "Add coding and interview status columns to interview_link",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "candidate_job_schedule",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "bigint",
+                    "defaultValueNumeric": 1,
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -26,6 +26,6 @@ public class InterviewLinkDto {
     private Boolean isActive;
     private Integer coding;
     private Integer interviewChecking;
-
+    private Long userId;
     private InterviewDto interviewDto; 
 }

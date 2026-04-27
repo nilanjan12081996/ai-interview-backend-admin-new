@@ -52,6 +52,7 @@ import resume.miles.transcription.entity.TranscriptionEntity;
 import resume.miles.transcription.repository.TransciptionRepository;
 import resume.miles.transcription.service.TranscriptionService;
 import resume.miles.analysis.service.AnalysisService;
+import resume.miles.users.mapper.UserMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -90,7 +91,8 @@ public class InterviewService {
             String endTime,
             String interviewDate,
             Integer coding,
-            Integer interviewData
+            Integer interviewData,
+            Long id
     ) throws IOException {
 
         // =========================
@@ -173,6 +175,7 @@ public class InterviewService {
                 .resumeLink(filePath)
                 .isCoding(isCoding)
                 .startTime(LocalTime.parse(startTime))
+                .userId(id)
                 .endTime(endTime != null ? LocalTime.parse(endTime) : null)
                 .interviewDate(interviewDate != null ? LocalDate.parse(interviewDate) : null)
                 .status(1)
@@ -432,6 +435,7 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
                 .terminationCause(terminationCause)     // Added
                 .userJustification(userJustification)   // Added
                 .is_complete(isComplete)
+                .users(UserMapper.toDto(interview.getUserAllName()))
                 .build();
 
     }).toList();

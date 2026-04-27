@@ -8,10 +8,12 @@ import java.util.Map;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import resume.miles.config.JwtUserDetails;
 import resume.miles.interview.dto.*;
 import resume.miles.interview.entity.InterviewLinkEntity;
 import resume.miles.interview.service.InterviewService;
@@ -49,13 +51,16 @@ public class InterviewController {
     @PostMapping(value = "/schedule", consumes = "multipart/form-data")
     public ResponseEntity<?> scheduleInterview(
 
-           @ModelAttribute InterviewScheduleDto interviewScheduleDto,@RequestParam Integer coding,
-           @RequestParam Integer interview
-    ) {
+            @ModelAttribute InterviewScheduleDto interviewScheduleDto, @RequestParam Integer coding,
+            @RequestParam Integer interview,
+            @AuthenticationPrincipal JwtUserDetails user
+            ) {
 
         try {
 
             // Basic validation
+            Long id = user.getId();
+
             if (interviewScheduleDto.getResumeFile().isEmpty()) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
@@ -73,7 +78,9 @@ public class InterviewController {
                     interviewScheduleDto.getEndTime(),
                     interviewScheduleDto.getInterviewDate(),
                     coding,
-                    interview
+                    interview,
+                    id
+
             );
 
             return ResponseEntity.status(201).body(Map.of(

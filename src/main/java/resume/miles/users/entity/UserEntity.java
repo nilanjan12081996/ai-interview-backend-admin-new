@@ -2,16 +2,16 @@ package resume.miles.users.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import resume.miles.config.baseclass.BaseEntity;
+import resume.miles.interview.entity.InterviewEntity;
 
 @Entity
 @Table(name="users")
@@ -64,5 +64,8 @@ public class UserEntity extends BaseEntity {
 
     @Column(name = "is_deleted")
     private Integer isDeleted = 0;
+
+    @OneToMany(mappedBy = "userAllName",cascade = CascadeType.ALL)
+    private Set<InterviewEntity> interview;
 
 }

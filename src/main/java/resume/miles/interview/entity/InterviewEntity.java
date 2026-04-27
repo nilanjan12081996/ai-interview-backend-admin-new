@@ -23,6 +23,8 @@ import lombok.Setter;
 import resume.miles.config.baseclass.BaseEntity;
 import resume.miles.jobs.entity.JobEntity;
 import resume.miles.transcription.entity.TranscriptionEntity;
+import resume.miles.users.entity.UserEntity;
+
 @Entity
 @Table(name = "candidate_job_schedule")
 @Getter
@@ -31,7 +33,7 @@ import resume.miles.transcription.entity.TranscriptionEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InterviewEntity extends BaseEntity {
-        @Column(name = "job_id", nullable = false, length = 255)
+    @Column(name = "job_id", nullable = false, length = 255)
     private String jobId;
 
     @Column(name = "candidate_name", nullable = false, length = 255)
@@ -51,6 +53,9 @@ public class InterviewEntity extends BaseEntity {
 
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
+
+    @Column(name = "user_id" , nullable = false)
+    private Long userId;
 
     @Column(name = "end_time")
     private LocalTime endTime;
@@ -73,4 +78,8 @@ public class InterviewEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", insertable = false,updatable = false)
     private JobEntity jobEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id",insertable = false,updatable = false)
+    private UserEntity userAllName;
 }

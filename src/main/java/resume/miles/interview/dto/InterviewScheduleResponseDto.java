@@ -2,9 +2,11 @@ package resume.miles.interview.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
+import resume.miles.users.dto.UserDto;
 
 @Getter
 @Builder
@@ -32,6 +34,8 @@ public class InterviewScheduleResponseDto {
 
     private String analysis;
     private Integer is_complete;
+
+    private UserDto users;
 
 
 }

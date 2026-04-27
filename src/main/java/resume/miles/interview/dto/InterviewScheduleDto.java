@@ -21,7 +21,7 @@ public class InterviewScheduleDto {
     private String startTime;
     private String endTime;
     private String interviewDate;
-
+    private Long userId;
     // 1. Accept them as Strings from the frontend
 
 }
