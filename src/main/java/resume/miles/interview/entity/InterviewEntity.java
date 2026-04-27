@@ -33,6 +33,7 @@ import resume.miles.users.entity.UserEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InterviewEntity extends BaseEntity {
+
     @Column(name = "job_id", nullable = false, length = 255)
     private String jobId;
 
