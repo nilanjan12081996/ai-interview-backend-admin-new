@@ -580,6 +580,8 @@ Integer isComplete = allLinks.stream()
             .transcription(transcriptFileLink)   // The historical transcription
             .analysis(analysisFileLink)          // The historical analysis
             .videoLink(videoLink)
+            .jobId(interview.getJobId())
+            .users(UserMapper.toDto(interview.getUserAllName()))
             .terminationCause(terminationCause)     // Added
             .userJustification(userJustification)                // The historical video
             .is_complete(isComplete)
