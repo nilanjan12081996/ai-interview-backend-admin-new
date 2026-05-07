@@ -91,6 +91,8 @@ public class InterviewService {
             String endTime,
             String interviewDate,
             Integer coding,
+            Long interviewTime,
+            Long codingTime,
             Integer interviewData,
             Long id
     ) throws IOException {
@@ -226,6 +228,9 @@ public class InterviewService {
                 .interviewLink(link)
                 .expiryTime(expiryDateTime)
                 .is_complete(0)
+                .interviewTime(interviewTime)
+                .codingTime(codingTime)
+                .terminated(0)
                 .coding(coding==null? 0 : coding)
                 .interviewChecking(interviewData==null? 1 : interviewData)
                 .isActive(true)
@@ -341,6 +346,9 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
         String terminationCause = null;
         String userJustification = null;
         String duration = null;
+        Long interviewTime = 0L;
+        Long codingTime = 0L;
+        Integer terminated = 0;
 
         // 4️⃣ Loop through past links to find the most recent resources
         for (InterviewLinkEntity pastLink : allLinks) {
@@ -353,6 +361,16 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
             // 🔹 Find User Justification (if we haven't found one yet)
             if (userJustification == null && pastLink.getUserJustification() != null) {
                 userJustification = pastLink.getUserJustification();
+            }
+            if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
+                interviewTime =  pastLink.getInterviewTime();
+            }
+
+            if (codingTime == 0L && pastLink.getCodingTime() != null) {
+                codingTime =  pastLink.getCodingTime();
+            }
+            if ( terminated == 0L && pastLink.getTerminated() != null) {
+                terminated =  pastLink.getTerminated();
             }
 
             // 🔹 Find Video
@@ -434,6 +452,9 @@ public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
                 .analysis(analysisFileLink)          // The historical analysis
                 .videoLink(videoLink)                // The historical video
                 .terminationCause(terminationCause)     // Added
+                .interviewTime(interviewTime)
+                .codingTime(codingTime)
+                .terminated(terminated)
                 .userJustification(userJustification)   // Added
                 .is_complete(isComplete)
                 .users(UserMapper.toDto(interview.getUserAllName()))

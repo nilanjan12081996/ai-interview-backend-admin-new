@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
 import resume.miles.users.dto.UserDto;
@@ -26,6 +27,15 @@ public class InterviewScheduleResponseDto {
     private LocalDate interviewDate;
     private LocalTime startTime;
     private LocalTime endTime;
+
+
+    private Long interviewTime;
+
+
+    private Long codingTime;
+
+
+    private Integer terminated;
 
     private String interviewLink;
     private String videoLink;

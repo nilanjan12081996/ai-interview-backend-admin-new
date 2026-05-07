@@ -40,4 +40,19 @@ public class InterviewTerminateService {
         interviewLinkRepository.save(interviewLinkdata);
         return "done";
     }
+
+    public String updateTermination(String token) {
+        Optional<InterviewLinkEntity> findData =  interviewLinkRepository.findByToken(token);
+        if(findData.isEmpty()) {
+            throw new RuntimeException("Interview Link Not Found For This Token");
+        }
+        InterviewLinkEntity interviewLinkdata = findData.get();
+
+        interviewLinkdata.setTerminated(1);
+
+        interviewLinkRepository.save(interviewLinkdata);
+        return "done";
+    }
+
+
 }

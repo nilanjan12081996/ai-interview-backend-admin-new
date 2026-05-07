@@ -53,6 +53,8 @@ public class InterviewController {
 
             @ModelAttribute InterviewScheduleDto interviewScheduleDto, @RequestParam Integer coding,
             @RequestParam Integer interview,
+            @RequestParam Long interviewTime,
+            @RequestParam Long codingTime,
             @AuthenticationPrincipal JwtUserDetails user
             ) {
 
@@ -78,6 +80,8 @@ public class InterviewController {
                     interviewScheduleDto.getEndTime(),
                     interviewScheduleDto.getInterviewDate(),
                     coding,
+                    interviewTime,
+                    codingTime,
                     interview,
                     id
 

@@ -77,4 +77,21 @@ public class InterviewTerminateController {
             return ResponseEntity.status(400).body(response);
         }
     }
+    @PatchMapping("/terminate-interview")
+    public ResponseEntity<?> interviewTerminated(@RequestParam String token){
+        Map<String,Object> response = new HashMap<>();
+        try{
+            String Data = interviewTerminateService.updateTermination(token);
+            response.put("message","update successfully");
+            response.put("status",true);
+            response.put("statusCode",200);
+            return ResponseEntity.status(200).body(response);
+        }catch (Exception e){
+            response.put("message",e.getMessage());
+            response.put("status",false);
+            response.put("statusCode",400);
+            return ResponseEntity.status(400).body(response);
+        }
+
+    }
 }

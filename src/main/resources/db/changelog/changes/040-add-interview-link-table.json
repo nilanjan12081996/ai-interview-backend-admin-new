@@ -1,0 +1,49 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "040-add-interview-link-table",
+        "author": "goodmood",
+        "validCheckSum": "ANY",
+        "comment": "Add coding and interview status columns to interview_link",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "interview_link",
+              "columns": [
+                {
+                  "column": {
+                    "name": "interview_time",
+                    "type": "BIGINT",
+                    "constraints": {
+                      "nullable": true
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "coding_time",
+                    "type": "BIGINT",
+                    "constraints": {
+                      "nullable": true
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "terminated",
+                    "type": "TINYINT",
+                    "defaultValueNumeric": 0,
+                    "constraints": {
+                      "nullable": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

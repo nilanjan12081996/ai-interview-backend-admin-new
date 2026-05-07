@@ -57,6 +57,15 @@ public class InterviewLinkEntity extends BaseEntity {
     @Column(name = "termination_cause")
     private String terminationCause;
 
+    @Column(name = "interview_time")
+    private Long interviewTime;
+
+    @Column(name="coding_time")
+    private Long codingTime;
+
+    @Column(name="terminated")
+    private Integer terminated;
+
     @Column(name = "user_justification", columnDefinition = "TEXT")
     private String userJustification;
 
