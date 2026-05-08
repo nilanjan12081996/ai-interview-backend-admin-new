@@ -63,7 +63,7 @@ public class InterviewLinkEntity extends BaseEntity {
     @Column(name="coding_time")
     private Long codingTime;
 
-    @Column(name="terminated")
+    @Column(name="is_terminated")
     private Integer terminated;
 
     @Column(name = "user_justification", columnDefinition = "TEXT")
