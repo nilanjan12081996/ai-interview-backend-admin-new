@@ -29,6 +29,8 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import resume.miles.analysis.entity.AnalysisEntity;
 import resume.miles.analysis.repository.AnalysisRepository;
+import resume.miles.codingquestion.dto.CodingDTO;
+import resume.miles.codingquestion.mapper.CodingMapper;
 import resume.miles.interview.dto.InterviewDto;
 import resume.miles.interview.dto.InterviewLinkDto;
 import resume.miles.interview.dto.InterviewScheduleResponseDto;
@@ -138,7 +140,7 @@ public class InterviewService {
         List<MandatorySkillEntity> mandatorySkill = mandatorySkillRepository.findByJob(Long.parseLong(jobId));
         List<String> musthaveSkillData = new ArrayList<>();
         List<String> mandatorySkillData = new ArrayList<>();
-        
+
         for(MustHaveSkillEntity skill : musthaveSkill){
             musthaveSkillData.add(skill.getSkillName());
         }
@@ -279,7 +281,7 @@ public class InterviewService {
 
 
     private List<String> callAiPdfProcessor(File file, String jd,String experience,String musthaveSkillfinal,String mandatorySkillfinal) {
-        
+
     try {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -313,157 +315,315 @@ public class InterviewService {
 
 
 
-@Transactional(readOnly = true)
-public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
+//@Transactional(readOnly = true)
+//public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
+//
+//    // 1️⃣ Fetch all distinct interviews (candidates) instead of all links
+//    // This prevents duplicate rows in the UI if a candidate has multiple links
+//    List<InterviewEntity> allInterviews = interviewRepository.findAll();
+//
+//    return allInterviews.stream().map(interview -> {
+//
+//        // 2️⃣ Fetch ALL links for this specific interview
+//        List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
+//
+//        // Sort them so newest links (highest ID) are checked first
+//        allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
+//
+//        // 3️⃣ Find the currently ACTIVE link for the URL and Status
+//        InterviewLinkEntity activeLink = allLinks.stream()
+//                .filter(InterviewLinkEntity::getIsActive)
+//                .findFirst()
+//                .orElse(null);
+//
+//        String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
+//        // Integer isComplete = activeLink != null ? activeLink.getIs_complete() : 0;
+//        Integer isComplete = allLinks.stream()
+//        .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
+//
+//        // Variables to hold our historical data
+//        String videoLink = null;
+//        String transcriptFileLink = null;
+//        String analysisFileLink = null;
+//        String terminationCause = null;
+//        String userJustification = null;
+//        String duration = null;
+//        Long interviewTime = 0L;
+//        Long codingTime = 0L;
+//        Integer terminated = 0;
+//
+//        // 4️⃣ Loop through past links to find the most recent resources
+//        for (InterviewLinkEntity pastLink : allLinks) {
+//            Long linkId = pastLink.getId();
+//
+//            if (terminationCause == null && pastLink.getTerminationCause() != null) {
+//                terminationCause = pastLink.getTerminationCause();
+//            }
+//
+//            // 🔹 Find User Justification (if we haven't found one yet)
+//            if (userJustification == null && pastLink.getUserJustification() != null) {
+//                userJustification = pastLink.getUserJustification();
+//            }
+//            if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
+//                interviewTime =  pastLink.getInterviewTime();
+//            }
+//
+//            if (codingTime == 0L && pastLink.getCodingTime() != null) {
+//                codingTime =  pastLink.getCodingTime();
+//            }
+//            if ( terminated == 0L && pastLink.getTerminated() != null) {
+//                terminated =  pastLink.getTerminated();
+//            }
+//
+//            // 🔹 Find Video
+//            if (videoLink == null) {
+//                videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+//                        .map(VideoRecordingEntity::getVideoLink).orElse(null);
+//            }
+//
+//            // 🔹 Find Transcription
+//            if (transcriptFileLink == null) {
+//                Optional<TranscriptionEntity> transcription = transciptionRepository
+//                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+//                if (transcription.isPresent()) {
+//                    transcriptFileLink = transcriptFileService.generateTranscriptFile(
+//                            linkId, transcription.get().getTranscript()
+//                    );
+//                }
+//            }
+//
+//            // 🔹 Find Analysis
+//            if (analysisFileLink == null) {
+//                Optional<AnalysisEntity> analysis = analysisRepository
+//                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+//                if (analysis.isPresent()) {
+//                    AnalysisEntity analysisDuration = analysis.get();
+//                    duration = analysisDuration.getDuration();
+//                    analysisFileLink = analysisService.generateAnalysisPdf(
+//                            linkId,
+//                            analysis.get().getAnalysis(),
+//                            interview.getCandidateName(),
+//                            interview.getEmail(),
+//                            interview.getPhoneNumber(),
+//                            pastLink.getInterviewLink(),
+//                            interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
+//                            duration,
+//                            videoLink,
+//                            transcriptFileLink
+//                    );
+//                }
+//            }
+//
+//            // Stop searching if we've found all three files
+//            if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
+//                terminationCause != null && userJustification != null) {
+//                break;
+//            }
+//        }
+//
+//        // 5️⃣ Fetch Job Info safely
+//        JobEntity job = null;
+//        try {
+//            if (interview.getJobId() != null) {
+//                Long jobId = Long.parseLong(interview.getJobId());
+//                job = jobRepository.findById(jobId).orElse(null);
+//            }
+//        } catch (NumberFormatException e) {
+//            // Fails gracefully if jobId is not a valid number
+//            job = null;
+//        }
+//
+//        String clientName = (job != null && job.getClient() != null) ? job.getClient().getClientName() : null;
+//        String jobDescription = job != null ? job.getJd() : null;
+//
+//        // 6️⃣ Return the DTO
+//        return InterviewScheduleResponseDto.builder()
+//                .id(interview.getId())
+//                .jobId(interview.getJobId())// Ensure the ID is mapped for the "Resend" button
+//                .candidateName(interview.getCandidateName())
+//                .candidateEmail(interview.getEmail())
+//                .candidatePhone(interview.getPhoneNumber())
+//                .resumeLink(interview.getResumeLink())
+//                .jobDescription(jobDescription)
+//                .jobName(clientName)
+//                .interviewDate(interview.getInterviewDate())
+//                .startTime(interview.getStartTime())
+//                .endTime(interview.getEndTime())
+//                .interviewLink(interviewUrl)         // The fresh, new active link
+//                .transcription(transcriptFileLink)   // The historical transcription
+//                .analysis(analysisFileLink)          // The historical analysis
+//                .videoLink(videoLink)                // The historical video
+//                .terminationCause(terminationCause)     // Added
+//                .interviewTime(interviewTime)
+//                .codingTime(codingTime)
+//                .terminated(terminated)
+//                .userJustification(userJustification)   // Added
+//                .is_complete(isComplete)
+//                .users(UserMapper.toDto(interview.getUserAllName()))
+//
+//
+//                .build();
+//
+//    }).toList();
+//}
 
-    // 1️⃣ Fetch all distinct interviews (candidates) instead of all links
-    // This prevents duplicate rows in the UI if a candidate has multiple links
-    List<InterviewEntity> allInterviews = interviewRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
 
-    return allInterviews.stream().map(interview -> {
+        // 1️⃣ Fetch all distinct interviews (candidates) instead of all links
+        // This prevents duplicate rows in the UI if a candidate has multiple links
+        List<InterviewEntity> allInterviews = interviewRepository.findAll();
 
-        // 2️⃣ Fetch ALL links for this specific interview
-        List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
-        
-        // Sort them so newest links (highest ID) are checked first
-        allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
+        return allInterviews.stream().map(interview -> {
 
-        // 3️⃣ Find the currently ACTIVE link for the URL and Status
-        InterviewLinkEntity activeLink = allLinks.stream()
-                .filter(InterviewLinkEntity::getIsActive)
-                .findFirst()
-                .orElse(null);
+            // 2️⃣ Fetch ALL links for this specific interview
+            List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
 
-        String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
-        // Integer isComplete = activeLink != null ? activeLink.getIs_complete() : 0;
-        Integer isComplete = allLinks.stream()
-        .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
+            // Sort them so newest links (highest ID) are checked first
+            allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
 
-        // Variables to hold our historical data
-        String videoLink = null;
-        String transcriptFileLink = null;
-        String analysisFileLink = null;
-        String terminationCause = null;
-        String userJustification = null;
-        String duration = null;
-        Long interviewTime = 0L;
-        Long codingTime = 0L;
-        Integer terminated = 0;
+            // 3️⃣ Find the currently ACTIVE link for the URL and Status
+            InterviewLinkEntity activeLink = allLinks.stream()
+                    .filter(InterviewLinkEntity::getIsActive)
+                    .findFirst()
+                    .orElse(null);
 
-        // 4️⃣ Loop through past links to find the most recent resources
-        for (InterviewLinkEntity pastLink : allLinks) {
-            Long linkId = pastLink.getId();
+            String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
+            Integer isComplete = allLinks.stream()
+                    .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
 
-            if (terminationCause == null && pastLink.getTerminationCause() != null) {
-                terminationCause = pastLink.getTerminationCause();
-            }
+            // Variables to hold our historical data
+            String videoLink = null;
+            String transcriptFileLink = null;
+            String analysisFileLink = null;
+            String terminationCause = null;
+            String userJustification = null;
+            String duration = null;
+            Long interviewTime = 0L;
+            Long codingTime = 0L;
+            Integer terminated = 0;
 
-            // 🔹 Find User Justification (if we haven't found one yet)
-            if (userJustification == null && pastLink.getUserJustification() != null) {
-                userJustification = pastLink.getUserJustification();
-            }
-            if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
-                interviewTime =  pastLink.getInterviewTime();
-            }
+            // 🌟 NEW: Variable to hold the Coding DTO
+            CodingDTO codingDto = null;
 
-            if (codingTime == 0L && pastLink.getCodingTime() != null) {
-                codingTime =  pastLink.getCodingTime();
-            }
-            if ( terminated == 0L && pastLink.getTerminated() != null) {
-                terminated =  pastLink.getTerminated();
-            }
+            // 4️⃣ Loop through past links to find the most recent resources
+            for (InterviewLinkEntity pastLink : allLinks) {
+                Long linkId = pastLink.getId();
 
-            // 🔹 Find Video
-            if (videoLink == null) {
-                videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
-                        .map(VideoRecordingEntity::getVideoLink).orElse(null);
-            }
+                if (terminationCause == null && pastLink.getTerminationCause() != null) {
+                    terminationCause = pastLink.getTerminationCause();
+                }
 
-            // 🔹 Find Transcription
-            if (transcriptFileLink == null) {
-                Optional<TranscriptionEntity> transcription = transciptionRepository
-                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-                if (transcription.isPresent()) {
-                    transcriptFileLink = transcriptFileService.generateTranscriptFile(
-                            linkId, transcription.get().getTranscript()
-                    );
+                // 🔹 Find User Justification (if we haven't found one yet)
+                if (userJustification == null && pastLink.getUserJustification() != null) {
+                    userJustification = pastLink.getUserJustification();
+                }
+                if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
+                    interviewTime =  pastLink.getInterviewTime();
+                }
+
+                if (codingTime == 0L && pastLink.getCodingTime() != null) {
+                    codingTime =  pastLink.getCodingTime();
+                }
+                if ( terminated == 0L && pastLink.getTerminated() != null) {
+                    terminated =  pastLink.getTerminated();
+                }
+
+                // 🌟 NEW: Find Coding Data using the OneToOne relationship and map it!
+                if (codingDto == null && pastLink.getCodingEntity() != null) {
+                    codingDto = CodingMapper.toDto(pastLink.getCodingEntity());
+                }
+
+                // 🔹 Find Video
+                if (videoLink == null) {
+                    videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+                            .map(VideoRecordingEntity::getVideoLink).orElse(null);
+                }
+
+                // 🔹 Find Transcription
+                if (transcriptFileLink == null) {
+                    Optional<TranscriptionEntity> transcription = transciptionRepository
+                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+                    if (transcription.isPresent()) {
+                        transcriptFileLink = transcriptFileService.generateTranscriptFile(
+                                linkId, transcription.get().getTranscript()
+                        );
+                    }
+                }
+
+                // 🔹 Find Analysis
+                if (analysisFileLink == null) {
+                    Optional<AnalysisEntity> analysis = analysisRepository
+                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+                    if (analysis.isPresent()) {
+                        AnalysisEntity analysisDuration = analysis.get();
+                        duration = analysisDuration.getDuration();
+                        analysisFileLink = analysisService.generateAnalysisPdf(
+                                linkId,
+                                analysis.get().getAnalysis(),
+                                interview.getCandidateName(),
+                                interview.getEmail(),
+                                interview.getPhoneNumber(),
+                                pastLink.getInterviewLink(),
+                                interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
+                                duration,
+                                videoLink,
+                                transcriptFileLink
+                        );
+                    }
+                }
+
+                // Stop searching if we've found all files/data we need
+                if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
+                        terminationCause != null && userJustification != null && codingDto != null) {
+                    break;
                 }
             }
 
-            // 🔹 Find Analysis
-            if (analysisFileLink == null) {
-                Optional<AnalysisEntity> analysis = analysisRepository
-                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-                if (analysis.isPresent()) {
-                    AnalysisEntity analysisDuration = analysis.get();
-                    duration = analysisDuration.getDuration();
-                    analysisFileLink = analysisService.generateAnalysisPdf(
-                            linkId,
-                            analysis.get().getAnalysis(),
-                            interview.getCandidateName(),
-                            interview.getEmail(),
-                            interview.getPhoneNumber(),
-                            pastLink.getInterviewLink(), 
-                            interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-                            duration,
-                            videoLink,
-                            transcriptFileLink
-                    );
+            // 5️⃣ Fetch Job Info safely
+            JobEntity job = null;
+            try {
+                if (interview.getJobId() != null) {
+                    Long jobId = Long.parseLong(interview.getJobId());
+                    job = jobRepository.findById(jobId).orElse(null);
                 }
+            } catch (NumberFormatException e) {
+                // Fails gracefully if jobId is not a valid number
+                job = null;
             }
 
-            // Stop searching if we've found all three files
-            if (videoLink != null && transcriptFileLink != null && analysisFileLink != null && 
-                terminationCause != null && userJustification != null) {
-                break;
-            }
-        }
+            String clientName = (job != null && job.getClient() != null) ? job.getClient().getClientName() : null;
+            String jobDescription = job != null ? job.getJd() : null;
 
-        // 5️⃣ Fetch Job Info safely
-        JobEntity job = null;
-        try {
-            if (interview.getJobId() != null) {
-                Long jobId = Long.parseLong(interview.getJobId());
-                job = jobRepository.findById(jobId).orElse(null);
-            }
-        } catch (NumberFormatException e) {
-            // Fails gracefully if jobId is not a valid number
-            job = null; 
-        }
+            // 6️⃣ Return the DTO
+            return InterviewScheduleResponseDto.builder()
+                    .id(interview.getId())
+                    .jobId(interview.getJobId())// Ensure the ID is mapped for the "Resend" button
+                    .candidateName(interview.getCandidateName())
+                    .candidateEmail(interview.getEmail())
+                    .candidatePhone(interview.getPhoneNumber())
+                    .resumeLink(interview.getResumeLink())
+                    .jobDescription(jobDescription)
+                    .jobName(clientName)
+                    .interviewDate(interview.getInterviewDate())
+                    .startTime(interview.getStartTime())
+                    .endTime(interview.getEndTime())
+                    .interviewLink(interviewUrl)         // The fresh, new active link
+                    .transcription(transcriptFileLink)   // The historical transcription
+                    .analysis(analysisFileLink)          // The historical analysis
+                    .videoLink(videoLink)                // The historical video
+                    .terminationCause(terminationCause)
+                    .interviewTime(interviewTime)
+                    .codingTime(codingTime)
+                    .terminated(terminated)
+                    .userJustification(userJustification)
+                    .is_complete(isComplete)
+                    .users(UserMapper.toDto(interview.getUserAllName()))
+                    .codingDTO(codingDto)                // 🌟 NEW: Attach the CodingDTO here!
+                    .build();
 
-        String clientName = (job != null && job.getClient() != null) ? job.getClient().getClientName() : null;
-        String jobDescription = job != null ? job.getJd() : null;
-
-        // 6️⃣ Return the DTO
-        return InterviewScheduleResponseDto.builder()
-                .id(interview.getId())
-                .jobId(interview.getJobId())// Ensure the ID is mapped for the "Resend" button
-                .candidateName(interview.getCandidateName())
-                .candidateEmail(interview.getEmail())
-                .candidatePhone(interview.getPhoneNumber())
-                .resumeLink(interview.getResumeLink())
-                .jobDescription(jobDescription)
-                .jobName(clientName)
-                .interviewDate(interview.getInterviewDate())
-                .startTime(interview.getStartTime())
-                .endTime(interview.getEndTime())
-                .interviewLink(interviewUrl)         // The fresh, new active link
-                .transcription(transcriptFileLink)   // The historical transcription
-                .analysis(analysisFileLink)          // The historical analysis
-                .videoLink(videoLink)                // The historical video
-                .terminationCause(terminationCause)     // Added
-                .interviewTime(interviewTime)
-                .codingTime(codingTime)
-                .terminated(terminated)
-                .userJustification(userJustification)   // Added
-                .is_complete(isComplete)
-                .users(UserMapper.toDto(interview.getUserAllName()))
-                .build();
-
-    }).toList();
-}
-
-
+        }).toList();
+    }
 
 @Transactional(readOnly = true)
 public InterviewLinkDto getAllList(String token){
@@ -481,6 +641,144 @@ public InterviewLinkDto getAllList(String token){
 }
 
 
+//@Transactional(readOnly = true)
+//public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
+//
+//    // 1️⃣ Check job exists
+//    JobEntity job = jobRepository.findById(jobPrimaryId)
+//            .orElseThrow(() -> new RuntimeException("Job not found"));
+//
+//    String jobIdString = String.valueOf(jobPrimaryId);
+//
+//    // 2️⃣ Fetch interviews
+//    List<InterviewEntity> interviews =
+//            interviewRepository.findByJobId(jobIdString);
+//
+//
+//
+//
+//
+//return interviews.stream().map(interview -> {
+//
+//    // 1️⃣ Fetch ALL links for this interview
+//    List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
+//
+//    // Sort them so newest links (highest ID) are checked first
+//    allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
+//
+//    // 2️⃣ Find the currently ACTIVE link for the Resend/Interview URL
+//    InterviewLinkEntity activeLink = allLinks.stream()
+//            .filter(InterviewLinkEntity::getIsActive)
+//            .findFirst()
+//            .orElse(null);
+//
+//    String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
+////     Integer isComplete = activeLink != null ? activeLink.getIs_complete() : 0;
+//// Check if ANY of the candidate's links (past or present) were completed
+//Integer isComplete = allLinks.stream()
+//        .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
+//
+//    // Variables to hold our historical data
+//    String videoLink = null;
+//    String transcriptFileLink = null;
+//    String analysisFileLink = null;
+//    String terminationCause = null;
+//    String userJustification = null;
+//    String duration = null;
+//
+//    // 3️⃣ Loop through all past and present links to find the resources
+//    for (InterviewLinkEntity pastLink : allLinks) {
+//        Long linkId = pastLink.getId();
+//
+//        // 🔹 Find Termination Cause (if we haven't found one yet)
+//            if (terminationCause == null && pastLink.getTerminationCause() != null) {
+//                terminationCause = pastLink.getTerminationCause();
+//            }
+//            if (userJustification == null && pastLink.getUserJustification() != null) {
+//                userJustification = pastLink.getUserJustification();
+//            }
+//
+//        // 🔹 Find Video (if we haven't found one yet)
+//        if (videoLink == null) {
+//            videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+//                    .map(VideoRecordingEntity::getVideoLink).orElse(null);
+//        }
+//
+//        // 🔹 Find Transcription (if we haven't found one yet)
+//        if (transcriptFileLink == null) {
+//            Optional<TranscriptionEntity> transcription = transciptionRepository
+//                    .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+//            if (transcription.isPresent()) {
+//                transcriptFileLink = transcriptFileService.generateTranscriptFile(
+//                        linkId, transcription.get().getTranscript()
+//                );
+//            }
+//        }
+//
+//        // 🔹 Find Analysis (if we haven't found one yet)
+//        if (analysisFileLink == null) {
+//            Optional<AnalysisEntity> analysis = analysisRepository
+//                    .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+//
+//            if (analysis.isPresent()) {
+//                  AnalysisEntity analysisDuration = analysis.get();
+//                  duration = analysisDuration.getDuration();
+//                analysisFileLink = analysisService.generateAnalysisPdf(
+//                        linkId,
+//                        analysis.get().getAnalysis(),
+//                        interview.getCandidateName(),
+//                        interview.getEmail(),
+//                        interview.getPhoneNumber(),
+//                        pastLink.getInterviewLink(), // Pass the link where the interview actually happened
+//                        interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
+//                        duration,
+//                        videoLink,
+//                        transcriptFileLink
+//                );
+//            }
+//        }
+//
+//        // Stop searching if we've found all three files
+//        if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
+//                terminationCause != null && userJustification != null) {
+//                break;
+//            }
+//    }
+//
+//    // 4️⃣ Return the combined Data Transfer Object
+//    return InterviewScheduleResponseDto.builder()
+//            .id(interview.getId())
+//            .candidateName(interview.getCandidateName())
+//            .candidateEmail(interview.getEmail())
+//            .candidatePhone(interview.getPhoneNumber())
+//            .resumeLink(interview.getResumeLink())
+//            .jobDescription(job.getJd())
+//            .jobName(job.getClient() != null ? job.getClient().getClientName() : null)
+//            .interviewDate(interview.getInterviewDate())
+//            .startTime(interview.getStartTime())
+//            .endTime(interview.getEndTime())
+//            .interviewLink(interviewUrl)         // The fresh, new active link
+//            .transcription(transcriptFileLink)   // The historical transcription
+//            .analysis(analysisFileLink)          // The historical analysis
+//            .videoLink(videoLink)
+//            .jobId(interview.getJobId())
+//            .users(UserMapper.toDto(interview.getUserAllName()))
+//            .terminationCause(terminationCause)     // Added
+//            .userJustification(userJustification)                // The historical video
+//            .is_complete(isComplete)
+//            .build();
+//
+//}).toList();
+//
+//
+//
+//
+//
+//
+//
+//
+//}
+
 @Transactional(readOnly = true)
 public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
 
@@ -494,43 +792,45 @@ public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPr
     List<InterviewEntity> interviews =
             interviewRepository.findByJobId(jobIdString);
 
-  
+    return interviews.stream().map(interview -> {
 
+        // 1️⃣ Fetch ALL links for this interview
+        List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
 
+        // Sort them so newest links (highest ID) are checked first
+        allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
 
-return interviews.stream().map(interview -> {
+        // 2️⃣ Find the currently ACTIVE link for the Resend/Interview URL
+        InterviewLinkEntity activeLink = allLinks.stream()
+                .filter(InterviewLinkEntity::getIsActive)
+                .findFirst()
+                .orElse(null);
 
-    // 1️⃣ Fetch ALL links for this interview
-    List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
-    
-    // Sort them so newest links (highest ID) are checked first
-    allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
+        String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
 
-    // 2️⃣ Find the currently ACTIVE link for the Resend/Interview URL
-    InterviewLinkEntity activeLink = allLinks.stream()
-            .filter(InterviewLinkEntity::getIsActive)
-            .findFirst()
-            .orElse(null);
+        // Check if ANY of the candidate's links (past or present) were completed
+        Integer isComplete = allLinks.stream()
+                .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
 
-    String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
-//     Integer isComplete = activeLink != null ? activeLink.getIs_complete() : 0;
-// Check if ANY of the candidate's links (past or present) were completed
-Integer isComplete = allLinks.stream()
-        .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
+        // Variables to hold our historical data
+        String videoLink = null;
+        String transcriptFileLink = null;
+        String analysisFileLink = null;
+        String terminationCause = null;
+        String userJustification = null;
+        String duration = null;
 
-    // Variables to hold our historical data
-    String videoLink = null;
-    String transcriptFileLink = null;
-    String analysisFileLink = null;
-    String terminationCause = null;
-    String userJustification = null;
-    String duration = null;
+        // 🌟 NEW: Added variables to hold time, termination flag, and coding DTO
+        Long interviewTime = 0L;
+        Long codingTime = 0L;
+        Integer terminated = 0;
+        resume.miles.codingquestion.dto.CodingDTO codingDto = null;
 
-    // 3️⃣ Loop through all past and present links to find the resources
-    for (InterviewLinkEntity pastLink : allLinks) {
-        Long linkId = pastLink.getId();
+        // 3️⃣ Loop through all past and present links to find the resources
+        for (InterviewLinkEntity pastLink : allLinks) {
+            Long linkId = pastLink.getId();
 
-        // 🔹 Find Termination Cause (if we haven't found one yet)
+            // 🔹 Find Termination Cause (if we haven't found one yet)
             if (terminationCause == null && pastLink.getTerminationCause() != null) {
                 terminationCause = pastLink.getTerminationCause();
             }
@@ -538,88 +838,99 @@ Integer isComplete = allLinks.stream()
                 userJustification = pastLink.getUserJustification();
             }
 
-        // 🔹 Find Video (if we haven't found one yet)
-        if (videoLink == null) {
-            videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
-                    .map(VideoRecordingEntity::getVideoLink).orElse(null);
-        }
-
-        // 🔹 Find Transcription (if we haven't found one yet)
-        if (transcriptFileLink == null) {
-            Optional<TranscriptionEntity> transcription = transciptionRepository
-                    .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-            if (transcription.isPresent()) {
-                transcriptFileLink = transcriptFileService.generateTranscriptFile(
-                        linkId, transcription.get().getTranscript()
-                );
+            // 🌟 NEW: Find Timing and Termination Flags
+            if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
+                interviewTime = pastLink.getInterviewTime();
             }
-        }
-
-        // 🔹 Find Analysis (if we haven't found one yet)
-        if (analysisFileLink == null) {
-            Optional<AnalysisEntity> analysis = analysisRepository
-                    .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-                  
-            if (analysis.isPresent()) {
-                  AnalysisEntity analysisDuration = analysis.get();
-                  duration = analysisDuration.getDuration();
-                analysisFileLink = analysisService.generateAnalysisPdf(
-                        linkId,
-                        analysis.get().getAnalysis(),
-                        interview.getCandidateName(),
-                        interview.getEmail(),
-                        interview.getPhoneNumber(),
-                        pastLink.getInterviewLink(), // Pass the link where the interview actually happened
-                        interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-                        duration,
-                        videoLink,
-                        transcriptFileLink
-                );
+            if (codingTime == 0L && pastLink.getCodingTime() != null) {
+                codingTime = pastLink.getCodingTime();
             }
-        }
+            if (terminated == 0 && pastLink.getTerminated() != null) {
+                terminated = pastLink.getTerminated();
+            }
 
-        // Stop searching if we've found all three files
-        if (videoLink != null && transcriptFileLink != null && analysisFileLink != null && 
-                terminationCause != null && userJustification != null) {
+            // 🌟 NEW: Find Coding Data using the OneToOne relationship and map it!
+            if (codingDto == null && pastLink.getCodingEntity() != null) {
+                codingDto = resume.miles.codingquestion.mapper.CodingMapper.toDto(pastLink.getCodingEntity());
+            }
+
+            // 🔹 Find Video (if we haven't found one yet)
+            if (videoLink == null) {
+                videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+                        .map(VideoRecordingEntity::getVideoLink).orElse(null);
+            }
+
+            // 🔹 Find Transcription (if we haven't found one yet)
+            if (transcriptFileLink == null) {
+                Optional<TranscriptionEntity> transcription = transciptionRepository
+                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+                if (transcription.isPresent()) {
+                    transcriptFileLink = transcriptFileService.generateTranscriptFile(
+                            linkId, transcription.get().getTranscript()
+                    );
+                }
+            }
+
+            // 🔹 Find Analysis (if we haven't found one yet)
+            if (analysisFileLink == null) {
+                Optional<AnalysisEntity> analysis = analysisRepository
+                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+
+                if (analysis.isPresent()) {
+                    AnalysisEntity analysisDuration = analysis.get();
+                    duration = analysisDuration.getDuration();
+                    analysisFileLink = analysisService.generateAnalysisPdf(
+                            linkId,
+                            analysis.get().getAnalysis(),
+                            interview.getCandidateName(),
+                            interview.getEmail(),
+                            interview.getPhoneNumber(),
+                            pastLink.getInterviewLink(), // Pass the link where the interview actually happened
+                            interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
+                            duration,
+                            videoLink,
+                            transcriptFileLink
+                    );
+                }
+            }
+
+            // Stop searching if we've found all files and data
+            if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
+                    terminationCause != null && userJustification != null && codingDto != null) {
                 break;
             }
-    }
+        }
 
-    // 4️⃣ Return the combined Data Transfer Object
-    return InterviewScheduleResponseDto.builder()
-            .id(interview.getId())
-            .candidateName(interview.getCandidateName())
-            .candidateEmail(interview.getEmail())
-            .candidatePhone(interview.getPhoneNumber())
-            .resumeLink(interview.getResumeLink())
-            .jobDescription(job.getJd())
-            .jobName(job.getClient() != null ? job.getClient().getClientName() : null)
-            .interviewDate(interview.getInterviewDate())
-            .startTime(interview.getStartTime())
-            .endTime(interview.getEndTime())
-            .interviewLink(interviewUrl)         // The fresh, new active link
-            .transcription(transcriptFileLink)   // The historical transcription
-            .analysis(analysisFileLink)          // The historical analysis
-            .videoLink(videoLink)
-            .jobId(interview.getJobId())
-            .users(UserMapper.toDto(interview.getUserAllName()))
-            .terminationCause(terminationCause)     // Added
-            .userJustification(userJustification)                // The historical video
-            .is_complete(isComplete)
-            .build();
+        // 4️⃣ Return the combined Data Transfer Object
+        return InterviewScheduleResponseDto.builder()
+                .id(interview.getId())
+                .candidateName(interview.getCandidateName())
+                .candidateEmail(interview.getEmail())
+                .candidatePhone(interview.getPhoneNumber())
+                .resumeLink(interview.getResumeLink())
+                .jobDescription(job.getJd())
+                .jobName(job.getClient() != null ? job.getClient().getClientName() : null)
+                .interviewDate(interview.getInterviewDate())
+                .startTime(interview.getStartTime())
+                .endTime(interview.getEndTime())
+                .interviewLink(interviewUrl)         // The fresh, new active link
+                .transcription(transcriptFileLink)   // The historical transcription
+                .analysis(analysisFileLink)          // The historical analysis
+                .videoLink(videoLink)
+                .jobId(interview.getJobId())
+                .users(UserMapper.toDto(interview.getUserAllName()))
+                .terminationCause(terminationCause)
+                .userJustification(userJustification)
+                .is_complete(isComplete)
+                // 🌟 NEW: Attach the newly tracked data here!
+                .interviewTime(interviewTime)
+                .codingTime(codingTime)
+                .terminated(terminated)
+                .codingDTO(codingDto)
+                .build();
 
-}).toList();
-
-
-
-
-
-
-
-
+    }).toList();
 }
-
-
 
 
 

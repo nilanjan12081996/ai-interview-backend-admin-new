@@ -7,6 +7,7 @@ import java.util.List;
 import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
+import resume.miles.codingquestion.dto.CodingDTO;
 import resume.miles.users.dto.UserDto;
 
 @Getter
@@ -48,5 +49,7 @@ public class InterviewScheduleResponseDto {
     private Integer is_complete;
 
     private UserDto users;
+
+    private CodingDTO codingDTO;
 
 }

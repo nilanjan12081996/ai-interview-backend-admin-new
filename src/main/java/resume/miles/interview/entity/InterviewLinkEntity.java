@@ -3,22 +3,15 @@ package resume.miles.interview.entity;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.BatchSize;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import resume.miles.codingquestion.entity.CodingEntity;
 import resume.miles.config.baseclass.BaseEntity;
 import resume.miles.transcription.entity.TranscriptionEntity;
 
@@ -75,6 +68,13 @@ public class InterviewLinkEntity extends BaseEntity {
             @OrderBy("id ASC")
     @BatchSize(size =50)
     private Set<TranscriptionEntity> transcriptions;
+
+    @OneToOne(
+            mappedBy = "interviewLink",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+    )
+    private CodingEntity codingEntity;
 
 
 }

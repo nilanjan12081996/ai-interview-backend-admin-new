@@ -16,6 +16,7 @@ public class CodingDTO {
     private String token;
     private String questionData;
     private Integer status;
+    private String aiCost;
     private Integer isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

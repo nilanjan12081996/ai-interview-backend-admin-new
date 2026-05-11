@@ -19,6 +19,7 @@ public class CodingMapper {
                 .id(entity.getId())
                 .token(entity.getToken())
                 .questionData(entity.getQuestionData())
+                .aiCost(entity.getAiCost())
                 .status(entity.getStatus())
                 .isDeleted(entity.getIsDeleted())
                 .createdAt(entity.getCreatedAt())
@@ -37,6 +38,7 @@ public class CodingMapper {
                 .questionData(dto.getQuestionData())
                 // If status or isDeleted are null in DTO, default them to 1 and 0
                 .status(dto.getStatus() != null ? dto.getStatus() : 1)
+                .aiCost(dto.getAiCost())
                 .isDeleted(dto.getIsDeleted() != null ? dto.getIsDeleted() : 0)
                 .createdAt(dto.getCreatedAt())
                 .updatedAt(dto.getUpdatedAt())

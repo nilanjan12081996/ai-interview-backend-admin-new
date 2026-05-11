@@ -1,5 +1,6 @@
 package resume.miles.codingquestion.agent;
 
+import dev.langchain4j.service.Result;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
@@ -84,7 +85,7 @@ public interface CodingQuestionAssistant {
         
         Synthesize the data above. Generate exactly 3 unique questions calibrated perfectly for a {{experience}} candidate taking an {{difficultyLevel}} level interview for {{role}} at {{clientName}}.
         """)
-    String generateQuestion(
+    Result<String> generateQuestion(
             @V("clientName") String clientName,
             @V("role") String role,
             @V("experience") String experience,

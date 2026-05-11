@@ -33,6 +33,7 @@ public class QuestionContoller {
 
     @Value("${openai.api.key}")
     private String openApi;
+
 @GetMapping("/get-question/{token}")
 public ResponseEntity<?> getQuestion(@PathVariable String token)
 {

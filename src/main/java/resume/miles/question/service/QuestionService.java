@@ -20,26 +20,26 @@ public class QuestionService {
 
     public List<QuestionResponseDTO> getQuestionsByToken(String token) {
 
-    InterviewLinkEntity link = interviewLinkRepository
-            .findByTokenAndIsActiveTrue(token)
-            .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
+        InterviewLinkEntity link = interviewLinkRepository
+                .findByTokenAndIsActiveTrue(token)
+                .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
 
-    if (link.getExpiryTime().isBefore(LocalDateTime.now())) {
-        throw new RuntimeException("Token expired");
+        if (link.getExpiryTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token expired");
+        }
+        if(link.getIs_complete()==1){
+            throw new RuntimeException("Interview already completed");
+        }
+
+        Long interviewId = link.getInterview().getId();
+
+        List<QuestionEntity> questionEntities =
+                questionRepository.findByCandidateJobScheduleId(interviewId);
+
+        return questionEntities.stream()
+                .map(QuestionMapper::toDTO)
+                .toList();
     }
-    if(link.getIs_complete()==1){
-        throw new RuntimeException("Interview already completed");
-    }
-
-    Long interviewId = link.getInterview().getId();
-
-    List<QuestionEntity> questionEntities =
-            questionRepository.findByCandidateJobScheduleId(interviewId);
-
-    return questionEntities.stream()
-            .map(QuestionMapper::toDTO)
-            .toList();
-}
 
 public String markInterviewComplete(String token){
 
