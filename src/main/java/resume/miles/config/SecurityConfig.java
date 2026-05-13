@@ -61,7 +61,8 @@ public class SecurityConfig {
                                 "/api/goodmood/terminate/**",
                                 "/api/coding/**",
                                 "/api/admin/rag/**",
-                                "/api/goodmood/interview/get/token/interview/type"
+                                "/api/goodmood/interview/get/token/interview/type",
+                                "/api/aiinterview/coding/ans/**"
 
                             
                         ).permitAll()

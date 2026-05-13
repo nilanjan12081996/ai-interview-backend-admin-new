@@ -24,6 +24,8 @@ public class CodingAnsService {
           CodingEntity codingEntity =  codingRepository.findById(codingAnsDto.getQuestionId()).orElseThrow(()->new RuntimeException("CodingEntity not found"));
           if(codingAnsDto.getId()==null){
               CodingAnsEntity codingAnsEntity = CodingAnsMapper.toEntity(codingAnsDto);
+              codingAnsEntity.setStatus(1);
+              codingAnsEntity.setIsDeleted(0);
               saveData = codingAnsRepository.save(codingAnsEntity);
           }else{
               Optional<CodingAnsEntity> codingAnsEntityFound =  codingAnsRepository.findById(codingAnsDto.getId());
