@@ -80,237 +80,431 @@ public class InterviewService {
             "https://aiinterviewpythonmain.bestworks.cloud/api/v1/process-pdf";
 
     // 1. Resend Interview Link
-    @Transactional
+//    @Transactional
+//
+//    public Map<String, String> scheduleInterview(
+//            String jobId,
+//            String candidateName,
+//            String email,
+//            String phoneNumber,
+//            MultipartFile resumeFile,
+//            Boolean isCoding,
+//            String startTime,
+//            String endTime,
+//            String interviewDate,
+//            Integer coding,
+//            Long interviewTime,
+//            Long codingTime,
+//            Integer interviewData,
+//            Long id
+//    ) throws IOException {
+//
+//        // =========================
+//        // 1️⃣ VALIDATION
+//        // =========================
+//        if (resumeFile == null || resumeFile.isEmpty()) {
+//            throw new IllegalArgumentException("Resume file is required");
+//        }
+//
+//        if (!resumeFile.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
+//            throw new IllegalArgumentException("Only PDF files are allowed");
+//        }
+//
+//        // =========================
+//        // 2️⃣ SAVE FILE LOCALLY
+//        // =========================
+//        String projectDir = System.getProperty("user.dir");
+//        String uploadDir = projectDir + File.separator + "uploads";
+//
+//        File directory = new File(uploadDir);
+//        if (!directory.exists()) {
+//            directory.mkdirs();
+//        }
+//
+//        String originalFileName = resumeFile.getOriginalFilename()
+//                .replaceAll("\\s+", "_");
+//
+//        String fileName = UUID.randomUUID() + "_" + originalFileName;
+//        File destinationFile = new File(directory, fileName);
+//
+//        resumeFile.transferTo(destinationFile);
+//
+//        String filePath = "uploads/" + fileName;
+//
+//        // =========================
+//        // 3️⃣ FETCH JOB + JD
+//        // =========================
+//        JobEntity job = jobRepository.findById(Long.parseLong(jobId))
+//                .orElseThrow(() -> new RuntimeException("Job not found"));
+//        List<MustHaveSkillEntity> musthaveSkill= mustHaveSkillRepository.findByJob(Long.parseLong(jobId));
+//        List<MandatorySkillEntity> mandatorySkill = mandatorySkillRepository.findByJob(Long.parseLong(jobId));
+//        List<String> musthaveSkillData = new ArrayList<>();
+//        List<String> mandatorySkillData = new ArrayList<>();
+//
+//        for(MustHaveSkillEntity skill : musthaveSkill){
+//            musthaveSkillData.add(skill.getSkillName());
+//        }
+//
+//        for(MandatorySkillEntity skill : mandatorySkill){
+//            mandatorySkillData.add(skill.getSkillName());
+//        }
+//
+//        String finalSkillsMusthaveSkill = String.join(", ", musthaveSkillData);
+//        String finalSkillsMandatorySkill = String.join(", ", mandatorySkillData);
+//
+//        System.out.println("musthaveSkill"+finalSkillsMusthaveSkill);
+//         System.out.println("mandatorySkill"+finalSkillsMandatorySkill);
+//
+//
+//// Output: "Java, Spring Boot, SQL"
+//
+//        String jd = job.getJd();
+//        String experience=job.getExperience();
+//         String musthaveSkillfinal=finalSkillsMusthaveSkill;
+//         String mandatorySkillfinal=finalSkillsMandatorySkill;
+//
+//        // =========================
+//        // 4️⃣ CALL AI PROCESS PDF API
+//        // =========================
+//       // callAiPdfProcessor(destinationFile, jd);
+//
+//        // =========================
+//        // 5️⃣ SAVE INTERVIEW
+//        // =========================
+//        InterviewEntity interview = InterviewEntity.builder()
+//                .jobId(jobId)
+//                .candidateName(candidateName)
+//                .email(email)
+//                .phoneNumber(phoneNumber)
+//                .resumeLink(filePath)
+//                .isCoding(isCoding)
+//                .startTime(LocalTime.parse(startTime))
+//                .userId(id)
+//                .endTime(endTime != null ? LocalTime.parse(endTime) : null)
+//                .interviewDate(interviewDate != null ? LocalDate.parse(interviewDate) : null)
+//                .status(1)
+//                .build();
+//
+//        InterviewEntity savedInterview = interviewRepository.save(interview);
+//
+//        List<String> aiQuestions = callAiPdfProcessor(destinationFile, jd,experience,musthaveSkillfinal,mandatorySkillfinal);
+//
+//        for (String question : aiQuestions) {
+//
+//    QuestionEntity questionEntity = QuestionEntity.builder()
+//            .candidateJobScheduleId(savedInterview.getId())
+//            .questions(question)
+//            .createdAt(LocalDateTime.now())
+//            .updatedAt(LocalDateTime.now())
+//            .build();
+//
+//    questionRepository.save(questionEntity);
+//}
+//
+//        // =========================
+//        // 6️⃣ GENERATE TOKEN + LINK
+//        // =========================
+//        String token = UUID.randomUUID().toString();
+//        // String link = "http://localhost:5173/interview/" + token;
+//        String link = "https://interviewfoldfrontend.interviewfold.com/" + token;
+//
+//        LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
+//
+//            LocalTime parsedEndTime;
+//
+//            // If endTime is provided → use it
+//            if (endTime != null && !endTime.isEmpty()) {
+//                parsedEndTime = LocalTime.parse(endTime);
+//            } else {
+//                // fallback → 1 hour after startTime
+//                parsedEndTime = LocalTime.parse(startTime).plusHours(1);
+//            }
+//
+//            // Combine to LocalDateTime
+//            LocalDateTime expiryDateTime =
+//                    LocalDateTime.of(parsedInterviewDate, parsedEndTime);
+//
+//        InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
+//                .interview(savedInterview)
+//                .token(token)
+//                .interviewLink(link)
+//                .expiryTime(expiryDateTime)
+//                .is_complete(0)
+//                .interviewTime(interviewTime)
+//                .codingTime(codingTime)
+//                .terminated(0)
+//                .coding(coding==null? 0 : coding)
+//                .interviewChecking(interviewData==null? 1 : interviewData)
+//                .isActive(true)
+//                .build();
+//
+//        interviewLinkRepository.save(linkEntity);
+//        try {
+//            Context context = new Context();
+//            context.setVariable("candidateName", candidateName);
+//            context.setVariable("interviewLink", link);
+//            System.out.println("interviewLink"+link);
+//            context.setVariable("jobTitle", job.getRole()); // Ensure job title is passed to the template
+//
+//            String formattedTime = startTime != null ? startTime : "TBD";
+//            if (endTime != null && !endTime.trim().isEmpty()) {
+//                formattedTime += " - " + endTime;
+//            }
+//            context.setVariable("interviewDate", interviewDate != null ? interviewDate : "TBD");
+//            context.setVariable("interviewTime", formattedTime);
+//
+//            String process = templateEngine.process("interviewLinkSend", context);
+//
+//            MimeMessage message = mailSender.createMimeMessage();
+//            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+//
+//            helper.setFrom("iksen.testmail@gmail.com");
+//            // Ensure you use the 'email' variable passed to the method, not 'toEmail'
+//            helper.setTo(email);
+//            helper.setSubject("Invitation: AI Interview");
+//            helper.setText(process, true); // Set true for HTML
+//
+//            mailSender.send(message);
+//            System.out.println("Email successfully sent to: " + email);
+//
+//        } catch (jakarta.mail.MessagingException e) {
+//            // You can choose to throw a RuntimeException or log the error.
+//            // Throwing a RuntimeException will rollback the transaction if the email fails.
+//            System.err.println("Failed to send email: " + e.getMessage());
+//            throw new RuntimeException("Failed to send interview invitation email", e);
+//        }
+//        return Map.of(
+//            "link", link,
+//            "token", token
+//        );
+//    }
+@Transactional
+public Map<String, String> scheduleInterview(
+        String jobId,
+        String candidateName,
+        String email,
+        String phoneNumber,
+        MultipartFile resumeFile,
+        Boolean isCoding,
+        String startTime,
+        String endTime,
+        String interviewDate,
+        Integer coding,
+        Long interviewTime,
+        Long codingTime,
+        Integer interviewData,
+        Long id
+) throws IOException {
 
-    public Map<String, String> scheduleInterview(
-            String jobId,
-            String candidateName,
-            String email,
-            String phoneNumber,
-            MultipartFile resumeFile,
-            Boolean isCoding,
-            String startTime,
-            String endTime,
-            String interviewDate,
-            Integer coding,
-            Long interviewTime,
-            Long codingTime,
-            Integer interviewData,
-            Long id
-    ) throws IOException {
+    // =========================
+    // 1️⃣ VALIDATION
+    // =========================
+    if (resumeFile == null || resumeFile.isEmpty()) {
+        throw new IllegalArgumentException("Resume file is required");
+    }
 
-        // =========================
-        // 1️⃣ VALIDATION
-        // =========================
-        if (resumeFile == null || resumeFile.isEmpty()) {
-            throw new IllegalArgumentException("Resume file is required");
-        }
+    if (!resumeFile.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
+        throw new IllegalArgumentException("Only PDF files are allowed");
+    }
 
-        if (!resumeFile.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
-            throw new IllegalArgumentException("Only PDF files are allowed");
-        }
+    // =========================
+    // 2️⃣ SAVE FILE LOCALLY
+    // =========================
+    String projectDir = System.getProperty("user.dir");
+    String uploadDir = projectDir + File.separator + "uploads";
 
-        // =========================
-        // 2️⃣ SAVE FILE LOCALLY
-        // =========================
-        String projectDir = System.getProperty("user.dir");
-        String uploadDir = projectDir + File.separator + "uploads";
+    File directory = new File(uploadDir);
+    if (!directory.exists()) {
+        directory.mkdirs();
+    }
 
-        File directory = new File(uploadDir);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
+    String originalFileName = resumeFile.getOriginalFilename().replaceAll("\\s+", "_");
+    String fileName = UUID.randomUUID() + "_" + originalFileName;
+    File destinationFile = new File(directory, fileName);
 
-        String originalFileName = resumeFile.getOriginalFilename()
-                .replaceAll("\\s+", "_");
+    resumeFile.transferTo(destinationFile);
+    String filePath = "uploads/" + fileName;
 
-        String fileName = UUID.randomUUID() + "_" + originalFileName;
-        File destinationFile = new File(directory, fileName);
+    // =========================
+    // 3️⃣ FETCH JOB + SKILLS
+    // =========================
+    JobEntity job = jobRepository.findById(Long.parseLong(jobId))
+            .orElseThrow(() -> new RuntimeException("Job not found"));
 
-        resumeFile.transferTo(destinationFile);
+    List<MustHaveSkillEntity> musthaveSkill = mustHaveSkillRepository.findByJob(Long.parseLong(jobId));
+    List<MandatorySkillEntity> mandatorySkill = mandatorySkillRepository.findByJob(Long.parseLong(jobId));
 
-        String filePath = "uploads/" + fileName;
+    String musthaveSkillfinal = musthaveSkill.stream()
+            .map(MustHaveSkillEntity::getSkillName)
+            .collect(Collectors.joining(", "));
 
-        // =========================
-        // 3️⃣ FETCH JOB + JD
-        // =========================
-        JobEntity job = jobRepository.findById(Long.parseLong(jobId))
-                .orElseThrow(() -> new RuntimeException("Job not found"));
-        List<MustHaveSkillEntity> musthaveSkill= mustHaveSkillRepository.findByJob(Long.parseLong(jobId));
-        List<MandatorySkillEntity> mandatorySkill = mandatorySkillRepository.findByJob(Long.parseLong(jobId));
-        List<String> musthaveSkillData = new ArrayList<>();
-        List<String> mandatorySkillData = new ArrayList<>();
+    String mandatorySkillfinal = mandatorySkill.stream()
+            .map(MandatorySkillEntity::getSkillName)
+            .collect(Collectors.joining(", "));
 
-        for(MustHaveSkillEntity skill : musthaveSkill){
-            musthaveSkillData.add(skill.getSkillName());
-        }
+    String jd = job.getJd();
+    String experience = job.getExperience();
 
-        for(MandatorySkillEntity skill : mandatorySkill){
-            mandatorySkillData.add(skill.getSkillName());
-        }
+    // =========================
+    // 4️⃣ GENERATE TOKEN & LINK (Moved Up)
+    // =========================
+    // We generate these now so they can be sent to the Python API
+    String token = UUID.randomUUID().toString();
+    String link = "https://interviewfoldfrontend.interviewfold.com/" + token;
 
-        String finalSkillsMusthaveSkill = String.join(", ", musthaveSkillData);
-        String finalSkillsMandatorySkill = String.join(", ", mandatorySkillData);
-
-        System.out.println("musthaveSkill"+finalSkillsMusthaveSkill);
-         System.out.println("mandatorySkill"+finalSkillsMandatorySkill);
-
-
-// Output: "Java, Spring Boot, SQL"
-
-        String jd = job.getJd();
-        String experience=job.getExperience();
-         String musthaveSkillfinal=finalSkillsMusthaveSkill;
-         String mandatorySkillfinal=finalSkillsMandatorySkill;
-
-        // =========================
-        // 4️⃣ CALL AI PROCESS PDF API
-        // =========================
-       // callAiPdfProcessor(destinationFile, jd);
-
-        // =========================
-        // 5️⃣ SAVE INTERVIEW
-        // =========================
-        InterviewEntity interview = InterviewEntity.builder()
-                .jobId(jobId)
-                .candidateName(candidateName)
-                .email(email)
-                .phoneNumber(phoneNumber)
-                .resumeLink(filePath)
-                .isCoding(isCoding)
-                .startTime(LocalTime.parse(startTime))
-                .userId(id)
-                .endTime(endTime != null ? LocalTime.parse(endTime) : null)
-                .interviewDate(interviewDate != null ? LocalDate.parse(interviewDate) : null)
-                .status(1)
-                .build();
-
-        InterviewEntity savedInterview = interviewRepository.save(interview);
-
-        List<String> aiQuestions = callAiPdfProcessor(destinationFile, jd,experience,musthaveSkillfinal,mandatorySkillfinal);
-
-        for (String question : aiQuestions) {
-
-    QuestionEntity questionEntity = QuestionEntity.builder()
-            .candidateJobScheduleId(savedInterview.getId())
-            .questions(question)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
+    // =========================
+    // 5️⃣ SAVE INTERVIEW ENTITY
+    // =========================
+    InterviewEntity interview = InterviewEntity.builder()
+            .jobId(jobId)
+            .candidateName(candidateName)
+            .email(email)
+            .phoneNumber(phoneNumber)
+            .resumeLink(filePath)
+            .isCoding(isCoding)
+            .startTime(LocalTime.parse(startTime))
+            .userId(id)
+            .endTime(endTime != null && !endTime.isEmpty() ? LocalTime.parse(endTime) : null)
+            .interviewDate(interviewDate != null ? LocalDate.parse(interviewDate) : null)
+            .status(1)
             .build();
 
-    questionRepository.save(questionEntity);
-}
+    InterviewEntity savedInterview = interviewRepository.save(interview);
 
-        // =========================
-        // 6️⃣ GENERATE TOKEN + LINK
-        // =========================
-        String token = UUID.randomUUID().toString();
-        // String link = "http://localhost:5173/interview/" + token;
-        String link = "https://interviewfoldfrontend.interviewfold.com/" + token;
+    // =========================
+    // 6️⃣ CALL AI PROCESSOR (Python API)
+    // =========================
+    // Now 'link' is defined and can be passed correctly
+    List<String> aiQuestions = callAiPdfProcessor(
+            destinationFile,
+            jd,
+            experience,
+            musthaveSkillfinal,
+            mandatorySkillfinal,
+            link
+    );
 
-        LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
-
-            LocalTime parsedEndTime;
-
-            // If endTime is provided → use it
-            if (endTime != null && !endTime.isEmpty()) {
-                parsedEndTime = LocalTime.parse(endTime);
-            } else {
-                // fallback → 1 hour after startTime
-                parsedEndTime = LocalTime.parse(startTime).plusHours(1);
-            }
-
-            // Combine to LocalDateTime
-            LocalDateTime expiryDateTime =
-                    LocalDateTime.of(parsedInterviewDate, parsedEndTime);
-
-        InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
-                .interview(savedInterview)
-                .token(token)
-                .interviewLink(link)
-                .expiryTime(expiryDateTime)
-                .is_complete(0)
-                .interviewTime(interviewTime)
-                .codingTime(codingTime)
-                .terminated(0)
-                .coding(coding==null? 0 : coding)
-                .interviewChecking(interviewData==null? 1 : interviewData)
-                .isActive(true)
+    // Save generated questions to DB
+    for (String question : aiQuestions) {
+        QuestionEntity questionEntity = QuestionEntity.builder()
+                .candidateJobScheduleId(savedInterview.getId())
+                .questions(question)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
+        questionRepository.save(questionEntity);
+    }
 
-        interviewLinkRepository.save(linkEntity);
-        try {
-            Context context = new Context();
-            context.setVariable("candidateName", candidateName);
-            context.setVariable("interviewLink", link);
-            System.out.println("interviewLink"+link);
-            context.setVariable("jobTitle", job.getRole()); // Ensure job title is passed to the template
+    // =========================
+    // 7️⃣ SAVE INTERVIEW LINK ENTITY
+    // =========================
+    LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
+    LocalTime parsedEndTime = (endTime != null && !endTime.isEmpty())
+            ? LocalTime.parse(endTime)
+            : LocalTime.parse(startTime).plusHours(1);
 
-            String formattedTime = startTime != null ? startTime : "TBD";
-            if (endTime != null && !endTime.trim().isEmpty()) {
-                formattedTime += " - " + endTime;
-            }
-            context.setVariable("interviewDate", interviewDate != null ? interviewDate : "TBD");
-            context.setVariable("interviewTime", formattedTime);
+    LocalDateTime expiryDateTime = LocalDateTime.of(parsedInterviewDate, parsedEndTime);
 
-            String process = templateEngine.process("interviewLinkSend", context);
+    InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
+            .interview(savedInterview)
+            .token(token)
+            .interviewLink(link)
+            .expiryTime(expiryDateTime)
+            .is_complete(0)
+            .interviewTime(interviewTime)
+            .codingTime(codingTime)
+            .terminated(0)
+            .coding(coding == null ? 0 : coding)
+            .interviewChecking(interviewData == null ? 1 : interviewData)
+            .isActive(true)
+            .build();
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+    interviewLinkRepository.save(linkEntity);
 
-            helper.setFrom("iksen.testmail@gmail.com");
-            // Ensure you use the 'email' variable passed to the method, not 'toEmail'
-            helper.setTo(email);
-            helper.setSubject("Invitation: AI Interview");
-            helper.setText(process, true); // Set true for HTML
+    // =========================
+    // 8️⃣ SEND EMAIL NOTIFICATION
+    // =========================
+    try {
+        Context context = new Context();
+        context.setVariable("candidateName", candidateName);
+        context.setVariable("interviewLink", link);
+        context.setVariable("jobTitle", job.getRole());
 
-            mailSender.send(message);
-            System.out.println("Email successfully sent to: " + email);
-
-        } catch (jakarta.mail.MessagingException e) {
-            // You can choose to throw a RuntimeException or log the error.
-            // Throwing a RuntimeException will rollback the transaction if the email fails.
-            System.err.println("Failed to send email: " + e.getMessage());
-            throw new RuntimeException("Failed to send interview invitation email", e);
+        String formattedTime = startTime;
+        if (endTime != null && !endTime.trim().isEmpty()) {
+            formattedTime += " - " + endTime;
         }
-        return Map.of(
+        context.setVariable("interviewDate", interviewDate);
+        context.setVariable("interviewTime", formattedTime);
+
+        String process = templateEngine.process("interviewLinkSend", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setFrom("iksen.testmail@gmail.com");
+        helper.setTo(email);
+        helper.setSubject("Invitation: AI Interview");
+        helper.setText(process, true);
+
+        mailSender.send(message);
+    } catch (jakarta.mail.MessagingException e) {
+        throw new RuntimeException("Failed to send interview invitation email", e);
+    }
+
+    return Map.of(
             "link", link,
             "token", token
-        );
-    }
+    );
+}
+    private List<String> callAiPdfProcessor(
+            File file,
+            String jd,
+            String experience,
+            String musthaveSkillfinal,
+            String mandatorySkillfinal,
+            String link
+    ) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("pdf_file", new FileSystemResource(file));
+            body.add("jd_text", jd);
+            body.add("Experience", experience);
+            body.add("Nice_to_have_skills", musthaveSkillfinal);
+            body.add("Mandatory_skills", mandatorySkillfinal);
 
-    private List<String> callAiPdfProcessor(File file, String jd,String experience,String musthaveSkillfinal,String mandatorySkillfinal) {
+            // 🚀 This is the new line to send the link to your Python API
+            body.add("interview_link", link);
 
-    try {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            HttpEntity<MultiValueMap<String, Object>> requestEntity =
+                    new HttpEntity<>(body, headers);
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("pdf_file", new FileSystemResource(file));
-        body.add("jd_text", jd);
-        body.add("Experience", experience);
-        body.add("Nice_to_have_skills", musthaveSkillfinal);
-        body.add("Mandatory_skills", mandatorySkillfinal);
+            // Make the POST request to the Python API
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    AI_API_URL,
+                    requestEntity,
+                    Map.class
+            );
 
-        HttpEntity<MultiValueMap<String, Object>> requestEntity =
-                new HttpEntity<>(body, headers);
+            Map<String, Object> responseBody = response.getBody();
 
-        ResponseEntity<Map> response =
-                restTemplate.postForEntity(
-                        AI_API_URL,
-                        requestEntity,
-                        Map.class
-                );
+            if (responseBody == null || !responseBody.containsKey("response")) {
+                throw new RuntimeException("AI API returned an empty or invalid response");
+            }
 
-        Map<String, Object> responseBody = response.getBody();
-        System.out.println("response.getBody()"+response.getBody());
+            System.out.println("AI Response Body: " + responseBody);
 
-        return (List<String>) responseBody.get("response");
+            // Cast the "response" field to a List of Strings
+            return (List<String>) responseBody.get("response");
 
-    } catch (Exception e) {
-        throw new RuntimeException("AI Processing Failed", e);
-    }
+        } catch (Exception e) {
+            System.err.println("Error calling AI PDF Processor: " + e.getMessage());
+            throw new RuntimeException("AI Processing Failed: " + e.getMessage(), e);
+        }
+
 }
 
 
