@@ -51,4 +51,13 @@ public class CodingAnsService {
         }
         return CodingAnsMapper.toDto(codingAnsEntityFound.get());
     }
+
+    @Transactional
+    public CodingAnsDto listWithToken(String token) {
+        Optional<CodingAnsEntity> codingEntityWithToken  =  codingAnsRepository.findByToken(token);
+        if(codingEntityWithToken.isEmpty()){
+            throw new RuntimeException("CodingAns not found");
+        }
+        return CodingAnsMapper.toDto(codingEntityWithToken.get());
+    }
 }
