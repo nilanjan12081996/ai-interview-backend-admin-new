@@ -90,6 +90,7 @@ public class CodingAnsController {
             CodingAnsDto codingAnsDtoResponse = codingAnsService.listWithToken(token);
             response.put("statusCode", 200);
             response.put("message", "ans found");
+            response.put("ans", codingAnsDtoResponse);
             response.put("status", true);
 
             return ResponseEntity.status(200).body(response);
