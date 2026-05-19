@@ -81,395 +81,397 @@ public class InterviewService {
 
     private final CodingAnsRepository codingAnsRepository;
 
-    private static final String AI_API_URL =
-            "https://aiinterviewpythonmain.bestworks.cloud/api/v1/process-pdf";
+    private static final String AI_API_URL = "https://aiinterviewpythonmain.bestworks.cloud/api/v1/process-pdf";
 
     // 1. Resend Interview Link
-//    @Transactional
-//
-//    public Map<String, String> scheduleInterview(
-//            String jobId,
-//            String candidateName,
-//            String email,
-//            String phoneNumber,
-//            MultipartFile resumeFile,
-//            Boolean isCoding,
-//            String startTime,
-//            String endTime,
-//            String interviewDate,
-//            Integer coding,
-//            Long interviewTime,
-//            Long codingTime,
-//            Integer interviewData,
-//            Long id
-//    ) throws IOException {
-//
-//        // =========================
-//        // 1️⃣ VALIDATION
-//        // =========================
-//        if (resumeFile == null || resumeFile.isEmpty()) {
-//            throw new IllegalArgumentException("Resume file is required");
-//        }
-//
-//        if (!resumeFile.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
-//            throw new IllegalArgumentException("Only PDF files are allowed");
-//        }
-//
-//        // =========================
-//        // 2️⃣ SAVE FILE LOCALLY
-//        // =========================
-//        String projectDir = System.getProperty("user.dir");
-//        String uploadDir = projectDir + File.separator + "uploads";
-//
-//        File directory = new File(uploadDir);
-//        if (!directory.exists()) {
-//            directory.mkdirs();
-//        }
-//
-//        String originalFileName = resumeFile.getOriginalFilename()
-//                .replaceAll("\\s+", "_");
-//
-//        String fileName = UUID.randomUUID() + "_" + originalFileName;
-//        File destinationFile = new File(directory, fileName);
-//
-//        resumeFile.transferTo(destinationFile);
-//
-//        String filePath = "uploads/" + fileName;
-//
-//        // =========================
-//        // 3️⃣ FETCH JOB + JD
-//        // =========================
-//        JobEntity job = jobRepository.findById(Long.parseLong(jobId))
-//                .orElseThrow(() -> new RuntimeException("Job not found"));
-//        List<MustHaveSkillEntity> musthaveSkill= mustHaveSkillRepository.findByJob(Long.parseLong(jobId));
-//        List<MandatorySkillEntity> mandatorySkill = mandatorySkillRepository.findByJob(Long.parseLong(jobId));
-//        List<String> musthaveSkillData = new ArrayList<>();
-//        List<String> mandatorySkillData = new ArrayList<>();
-//
-//        for(MustHaveSkillEntity skill : musthaveSkill){
-//            musthaveSkillData.add(skill.getSkillName());
-//        }
-//
-//        for(MandatorySkillEntity skill : mandatorySkill){
-//            mandatorySkillData.add(skill.getSkillName());
-//        }
-//
-//        String finalSkillsMusthaveSkill = String.join(", ", musthaveSkillData);
-//        String finalSkillsMandatorySkill = String.join(", ", mandatorySkillData);
-//
-//        System.out.println("musthaveSkill"+finalSkillsMusthaveSkill);
-//         System.out.println("mandatorySkill"+finalSkillsMandatorySkill);
-//
-//
-//// Output: "Java, Spring Boot, SQL"
-//
-//        String jd = job.getJd();
-//        String experience=job.getExperience();
-//         String musthaveSkillfinal=finalSkillsMusthaveSkill;
-//         String mandatorySkillfinal=finalSkillsMandatorySkill;
-//
-//        // =========================
-//        // 4️⃣ CALL AI PROCESS PDF API
-//        // =========================
-//       // callAiPdfProcessor(destinationFile, jd);
-//
-//        // =========================
-//        // 5️⃣ SAVE INTERVIEW
-//        // =========================
-//        InterviewEntity interview = InterviewEntity.builder()
-//                .jobId(jobId)
-//                .candidateName(candidateName)
-//                .email(email)
-//                .phoneNumber(phoneNumber)
-//                .resumeLink(filePath)
-//                .isCoding(isCoding)
-//                .startTime(LocalTime.parse(startTime))
-//                .userId(id)
-//                .endTime(endTime != null ? LocalTime.parse(endTime) : null)
-//                .interviewDate(interviewDate != null ? LocalDate.parse(interviewDate) : null)
-//                .status(1)
-//                .build();
-//
-//        InterviewEntity savedInterview = interviewRepository.save(interview);
-//
-//        List<String> aiQuestions = callAiPdfProcessor(destinationFile, jd,experience,musthaveSkillfinal,mandatorySkillfinal);
-//
-//        for (String question : aiQuestions) {
-//
-//    QuestionEntity questionEntity = QuestionEntity.builder()
-//            .candidateJobScheduleId(savedInterview.getId())
-//            .questions(question)
-//            .createdAt(LocalDateTime.now())
-//            .updatedAt(LocalDateTime.now())
-//            .build();
-//
-//    questionRepository.save(questionEntity);
-//}
-//
-//        // =========================
-//        // 6️⃣ GENERATE TOKEN + LINK
-//        // =========================
-//        String token = UUID.randomUUID().toString();
-//        // String link = "http://localhost:5173/interview/" + token;
-//        String link = "https://interviewfoldfrontend.interviewfold.com/" + token;
-//
-//        LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
-//
-//            LocalTime parsedEndTime;
-//
-//            // If endTime is provided → use it
-//            if (endTime != null && !endTime.isEmpty()) {
-//                parsedEndTime = LocalTime.parse(endTime);
-//            } else {
-//                // fallback → 1 hour after startTime
-//                parsedEndTime = LocalTime.parse(startTime).plusHours(1);
-//            }
-//
-//            // Combine to LocalDateTime
-//            LocalDateTime expiryDateTime =
-//                    LocalDateTime.of(parsedInterviewDate, parsedEndTime);
-//
-//        InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
-//                .interview(savedInterview)
-//                .token(token)
-//                .interviewLink(link)
-//                .expiryTime(expiryDateTime)
-//                .is_complete(0)
-//                .interviewTime(interviewTime)
-//                .codingTime(codingTime)
-//                .terminated(0)
-//                .coding(coding==null? 0 : coding)
-//                .interviewChecking(interviewData==null? 1 : interviewData)
-//                .isActive(true)
-//                .build();
-//
-//        interviewLinkRepository.save(linkEntity);
-//        try {
-//            Context context = new Context();
-//            context.setVariable("candidateName", candidateName);
-//            context.setVariable("interviewLink", link);
-//            System.out.println("interviewLink"+link);
-//            context.setVariable("jobTitle", job.getRole()); // Ensure job title is passed to the template
-//
-//            String formattedTime = startTime != null ? startTime : "TBD";
-//            if (endTime != null && !endTime.trim().isEmpty()) {
-//                formattedTime += " - " + endTime;
-//            }
-//            context.setVariable("interviewDate", interviewDate != null ? interviewDate : "TBD");
-//            context.setVariable("interviewTime", formattedTime);
-//
-//            String process = templateEngine.process("interviewLinkSend", context);
-//
-//            MimeMessage message = mailSender.createMimeMessage();
-//            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-//
-//            helper.setFrom("iksen.testmail@gmail.com");
-//            // Ensure you use the 'email' variable passed to the method, not 'toEmail'
-//            helper.setTo(email);
-//            helper.setSubject("Invitation: AI Interview");
-//            helper.setText(process, true); // Set true for HTML
-//
-//            mailSender.send(message);
-//            System.out.println("Email successfully sent to: " + email);
-//
-//        } catch (jakarta.mail.MessagingException e) {
-//            // You can choose to throw a RuntimeException or log the error.
-//            // Throwing a RuntimeException will rollback the transaction if the email fails.
-//            System.err.println("Failed to send email: " + e.getMessage());
-//            throw new RuntimeException("Failed to send interview invitation email", e);
-//        }
-//        return Map.of(
-//            "link", link,
-//            "token", token
-//        );
-//    }
-@Transactional
-public Map<String, String> scheduleInterview(
-        String jobId,
-        String candidateName,
-        String email,
-        String phoneNumber,
-        MultipartFile resumeFile,
-        Boolean isCoding,
-        String startTime,
-        String endTime,
-        String interviewDate,
-        Integer coding,
-        Long interviewTime,
-        Long codingTime,
-        Integer interviewData,
-        Long id
-) throws IOException {
+    // @Transactional
+    //
+    // public Map<String, String> scheduleInterview(
+    // String jobId,
+    // String candidateName,
+    // String email,
+    // String phoneNumber,
+    // MultipartFile resumeFile,
+    // Boolean isCoding,
+    // String startTime,
+    // String endTime,
+    // String interviewDate,
+    // Integer coding,
+    // Long interviewTime,
+    // Long codingTime,
+    // Integer interviewData,
+    // Long id
+    // ) throws IOException {
+    //
+    // // =========================
+    // // 1️⃣ VALIDATION
+    // // =========================
+    // if (resumeFile == null || resumeFile.isEmpty()) {
+    // throw new IllegalArgumentException("Resume file is required");
+    // }
+    //
+    // if (!resumeFile.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
+    // throw new IllegalArgumentException("Only PDF files are allowed");
+    // }
+    //
+    // // =========================
+    // // 2️⃣ SAVE FILE LOCALLY
+    // // =========================
+    // String projectDir = System.getProperty("user.dir");
+    // String uploadDir = projectDir + File.separator + "uploads";
+    //
+    // File directory = new File(uploadDir);
+    // if (!directory.exists()) {
+    // directory.mkdirs();
+    // }
+    //
+    // String originalFileName = resumeFile.getOriginalFilename()
+    // .replaceAll("\\s+", "_");
+    //
+    // String fileName = UUID.randomUUID() + "_" + originalFileName;
+    // File destinationFile = new File(directory, fileName);
+    //
+    // resumeFile.transferTo(destinationFile);
+    //
+    // String filePath = "uploads/" + fileName;
+    //
+    // // =========================
+    // // 3️⃣ FETCH JOB + JD
+    // // =========================
+    // JobEntity job = jobRepository.findById(Long.parseLong(jobId))
+    // .orElseThrow(() -> new RuntimeException("Job not found"));
+    // List<MustHaveSkillEntity> musthaveSkill=
+    // mustHaveSkillRepository.findByJob(Long.parseLong(jobId));
+    // List<MandatorySkillEntity> mandatorySkill =
+    // mandatorySkillRepository.findByJob(Long.parseLong(jobId));
+    // List<String> musthaveSkillData = new ArrayList<>();
+    // List<String> mandatorySkillData = new ArrayList<>();
+    //
+    // for(MustHaveSkillEntity skill : musthaveSkill){
+    // musthaveSkillData.add(skill.getSkillName());
+    // }
+    //
+    // for(MandatorySkillEntity skill : mandatorySkill){
+    // mandatorySkillData.add(skill.getSkillName());
+    // }
+    //
+    // String finalSkillsMusthaveSkill = String.join(", ", musthaveSkillData);
+    // String finalSkillsMandatorySkill = String.join(", ", mandatorySkillData);
+    //
+    // System.out.println("musthaveSkill"+finalSkillsMusthaveSkill);
+    // System.out.println("mandatorySkill"+finalSkillsMandatorySkill);
+    //
+    //
+    //// Output: "Java, Spring Boot, SQL"
+    //
+    // String jd = job.getJd();
+    // String experience=job.getExperience();
+    // String musthaveSkillfinal=finalSkillsMusthaveSkill;
+    // String mandatorySkillfinal=finalSkillsMandatorySkill;
+    //
+    // // =========================
+    // // 4️⃣ CALL AI PROCESS PDF API
+    // // =========================
+    // // callAiPdfProcessor(destinationFile, jd);
+    //
+    // // =========================
+    // // 5️⃣ SAVE INTERVIEW
+    // // =========================
+    // InterviewEntity interview = InterviewEntity.builder()
+    // .jobId(jobId)
+    // .candidateName(candidateName)
+    // .email(email)
+    // .phoneNumber(phoneNumber)
+    // .resumeLink(filePath)
+    // .isCoding(isCoding)
+    // .startTime(LocalTime.parse(startTime))
+    // .userId(id)
+    // .endTime(endTime != null ? LocalTime.parse(endTime) : null)
+    // .interviewDate(interviewDate != null ? LocalDate.parse(interviewDate) : null)
+    // .status(1)
+    // .build();
+    //
+    // InterviewEntity savedInterview = interviewRepository.save(interview);
+    //
+    // List<String> aiQuestions = callAiPdfProcessor(destinationFile,
+    // jd,experience,musthaveSkillfinal,mandatorySkillfinal);
+    //
+    // for (String question : aiQuestions) {
+    //
+    // QuestionEntity questionEntity = QuestionEntity.builder()
+    // .candidateJobScheduleId(savedInterview.getId())
+    // .questions(question)
+    // .createdAt(LocalDateTime.now())
+    // .updatedAt(LocalDateTime.now())
+    // .build();
+    //
+    // questionRepository.save(questionEntity);
+    // }
+    //
+    // // =========================
+    // // 6️⃣ GENERATE TOKEN + LINK
+    // // =========================
+    // String token = UUID.randomUUID().toString();
+    // // String link = "http://localhost:5173/interview/" + token;
+    // String link = "https://interviewfoldfrontend.interviewfold.com/" + token;
+    //
+    // LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
+    //
+    // LocalTime parsedEndTime;
+    //
+    // // If endTime is provided → use it
+    // if (endTime != null && !endTime.isEmpty()) {
+    // parsedEndTime = LocalTime.parse(endTime);
+    // } else {
+    // // fallback → 1 hour after startTime
+    // parsedEndTime = LocalTime.parse(startTime).plusHours(1);
+    // }
+    //
+    // // Combine to LocalDateTime
+    // LocalDateTime expiryDateTime =
+    // LocalDateTime.of(parsedInterviewDate, parsedEndTime);
+    //
+    // InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
+    // .interview(savedInterview)
+    // .token(token)
+    // .interviewLink(link)
+    // .expiryTime(expiryDateTime)
+    // .is_complete(0)
+    // .interviewTime(interviewTime)
+    // .codingTime(codingTime)
+    // .terminated(0)
+    // .coding(coding==null? 0 : coding)
+    // .interviewChecking(interviewData==null? 1 : interviewData)
+    // .isActive(true)
+    // .build();
+    //
+    // interviewLinkRepository.save(linkEntity);
+    // try {
+    // Context context = new Context();
+    // context.setVariable("candidateName", candidateName);
+    // context.setVariable("interviewLink", link);
+    // System.out.println("interviewLink"+link);
+    // context.setVariable("jobTitle", job.getRole()); // Ensure job title is passed
+    // to the template
+    //
+    // String formattedTime = startTime != null ? startTime : "TBD";
+    // if (endTime != null && !endTime.trim().isEmpty()) {
+    // formattedTime += " - " + endTime;
+    // }
+    // context.setVariable("interviewDate", interviewDate != null ? interviewDate :
+    // "TBD");
+    // context.setVariable("interviewTime", formattedTime);
+    //
+    // String process = templateEngine.process("interviewLinkSend", context);
+    //
+    // MimeMessage message = mailSender.createMimeMessage();
+    // MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+    //
+    // helper.setFrom("iksen.testmail@gmail.com");
+    // // Ensure you use the 'email' variable passed to the method, not 'toEmail'
+    // helper.setTo(email);
+    // helper.setSubject("Invitation: AI Interview");
+    // helper.setText(process, true); // Set true for HTML
+    //
+    // mailSender.send(message);
+    // System.out.println("Email successfully sent to: " + email);
+    //
+    // } catch (jakarta.mail.MessagingException e) {
+    // // You can choose to throw a RuntimeException or log the error.
+    // // Throwing a RuntimeException will rollback the transaction if the email
+    // fails.
+    // System.err.println("Failed to send email: " + e.getMessage());
+    // throw new RuntimeException("Failed to send interview invitation email", e);
+    // }
+    // return Map.of(
+    // "link", link,
+    // "token", token
+    // );
+    // }
+    @Transactional
+    public Map<String, String> scheduleInterview(
+            String jobId,
+            String candidateName,
+            String email,
+            String phoneNumber,
+            MultipartFile resumeFile,
+            Boolean isCoding,
+            String startTime,
+            String endTime,
+            String interviewDate,
+            Integer coding,
+            Long interviewTime,
+            Long codingTime,
+            Integer interviewData,
+            Long id) throws IOException {
 
-    // =========================
-    // 1️⃣ VALIDATION
-    // =========================
-    if (resumeFile == null || resumeFile.isEmpty()) {
-        throw new IllegalArgumentException("Resume file is required");
-    }
-
-    if (!resumeFile.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
-        throw new IllegalArgumentException("Only PDF files are allowed");
-    }
-
-    // =========================
-    // 2️⃣ SAVE FILE LOCALLY
-    // =========================
-    String projectDir = System.getProperty("user.dir");
-    String uploadDir = projectDir + File.separator + "uploads";
-
-    File directory = new File(uploadDir);
-    if (!directory.exists()) {
-        directory.mkdirs();
-    }
-
-    String originalFileName = resumeFile.getOriginalFilename().replaceAll("\\s+", "_");
-    String fileName = UUID.randomUUID() + "_" + originalFileName;
-    File destinationFile = new File(directory, fileName);
-
-    resumeFile.transferTo(destinationFile);
-    String filePath = "uploads/" + fileName;
-
-    // =========================
-    // 3️⃣ FETCH JOB + SKILLS
-    // =========================
-    JobEntity job = jobRepository.findById(Long.parseLong(jobId))
-            .orElseThrow(() -> new RuntimeException("Job not found"));
-
-    List<MustHaveSkillEntity> musthaveSkill = mustHaveSkillRepository.findByJob(Long.parseLong(jobId));
-    List<MandatorySkillEntity> mandatorySkill = mandatorySkillRepository.findByJob(Long.parseLong(jobId));
-
-    String musthaveSkillfinal = musthaveSkill.stream()
-            .map(MustHaveSkillEntity::getSkillName)
-            .collect(Collectors.joining(", "));
-
-    String mandatorySkillfinal = mandatorySkill.stream()
-            .map(MandatorySkillEntity::getSkillName)
-            .collect(Collectors.joining(", "));
-
-    String jd = job.getJd();
-    String experience = job.getExperience();
-
-    // =========================
-    // 4️⃣ GENERATE TOKEN & LINK (Moved Up)
-    // =========================
-    // We generate these now so they can be sent to the Python API
-    String token = UUID.randomUUID().toString();
-    String link = "https://interviewfoldfrontend.interviewfold.com/" + token;
-
-    // =========================
-    // 5️⃣ SAVE INTERVIEW ENTITY
-    // =========================
-    InterviewEntity interview = InterviewEntity.builder()
-            .jobId(jobId)
-            .candidateName(candidateName)
-            .email(email)
-            .phoneNumber(phoneNumber)
-            .resumeLink(filePath)
-            .isCoding(isCoding)
-            .startTime(LocalTime.parse(startTime))
-            .userId(id)
-            .endTime(endTime != null && !endTime.isEmpty() ? LocalTime.parse(endTime) : null)
-            .interviewDate(interviewDate != null ? LocalDate.parse(interviewDate) : null)
-            .status(1)
-            .build();
-
-    InterviewEntity savedInterview = interviewRepository.save(interview);
-
-    // =========================
-    // 6️⃣ CALL AI PROCESSOR (Python API)
-    // =========================
-    // Now 'link' is defined and can be passed correctly
-    List<String> aiQuestions = callAiPdfProcessor(
-            destinationFile,
-            jd,
-            experience,
-            musthaveSkillfinal,
-            mandatorySkillfinal,
-            link
-    );
-
-    // Save generated questions to DB
-    for (String question : aiQuestions) {
-        QuestionEntity questionEntity = QuestionEntity.builder()
-                .candidateJobScheduleId(savedInterview.getId())
-                .questions(question)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-        questionRepository.save(questionEntity);
-    }
-
-    // =========================
-    // 7️⃣ SAVE INTERVIEW LINK ENTITY
-    // =========================
-    LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
-    LocalTime parsedEndTime = (endTime != null && !endTime.isEmpty())
-            ? LocalTime.parse(endTime)
-            : LocalTime.parse(startTime).plusHours(1);
-
-    LocalDateTime expiryDateTime = LocalDateTime.of(parsedInterviewDate, parsedEndTime);
-
-    InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
-            .interview(savedInterview)
-            .token(token)
-            .interviewLink(link)
-            .expiryTime(expiryDateTime)
-            .is_complete(0)
-            .interviewTime(interviewTime)
-            .codingTime(codingTime)
-            .terminated(0)
-            .coding(coding == null ? 0 : coding)
-            .interviewChecking(interviewData == null ? 1 : interviewData)
-            .isActive(true)
-            .build();
-
-    interviewLinkRepository.save(linkEntity);
-
-    // =========================
-    // 8️⃣ SEND EMAIL NOTIFICATION
-    // =========================
-    try {
-        Context context = new Context();
-        context.setVariable("candidateName", candidateName);
-        context.setVariable("interviewLink", link);
-        context.setVariable("jobTitle", job.getRole());
-
-        String formattedTime = startTime;
-        if (endTime != null && !endTime.trim().isEmpty()) {
-            formattedTime += " - " + endTime;
+        // =========================
+        // 1️⃣ VALIDATION
+        // =========================
+        if (resumeFile == null || resumeFile.isEmpty()) {
+            throw new IllegalArgumentException("Resume file is required");
         }
-        context.setVariable("interviewDate", interviewDate);
-        context.setVariable("interviewTime", formattedTime);
 
-        String process = templateEngine.process("interviewLinkSend", context);
+        if (!resumeFile.getOriginalFilename().toLowerCase().endsWith(".pdf")) {
+            throw new IllegalArgumentException("Only PDF files are allowed");
+        }
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        // =========================
+        // 2️⃣ SAVE FILE LOCALLY
+        // =========================
+        String projectDir = System.getProperty("user.dir");
+        String uploadDir = projectDir + File.separator + "uploads";
 
-        helper.setFrom("iksen.testmail@gmail.com");
-        helper.setTo(email);
-        helper.setSubject("Invitation: AI Interview");
-        helper.setText(process, true);
+        File directory = new File(uploadDir);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
 
-        mailSender.send(message);
-    } catch (jakarta.mail.MessagingException e) {
-        throw new RuntimeException("Failed to send interview invitation email", e);
+        String originalFileName = resumeFile.getOriginalFilename().replaceAll("\\s+", "_");
+        String fileName = UUID.randomUUID() + "_" + originalFileName;
+        File destinationFile = new File(directory, fileName);
+
+        resumeFile.transferTo(destinationFile);
+        String filePath = "uploads/" + fileName;
+
+        // =========================
+        // 3️⃣ FETCH JOB + SKILLS
+        // =========================
+        JobEntity job = jobRepository.findById(Long.parseLong(jobId))
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        List<MustHaveSkillEntity> musthaveSkill = mustHaveSkillRepository.findByJob(Long.parseLong(jobId));
+        List<MandatorySkillEntity> mandatorySkill = mandatorySkillRepository.findByJob(Long.parseLong(jobId));
+
+        String musthaveSkillfinal = musthaveSkill.stream()
+                .map(MustHaveSkillEntity::getSkillName)
+                .collect(Collectors.joining(", "));
+
+        String mandatorySkillfinal = mandatorySkill.stream()
+                .map(MandatorySkillEntity::getSkillName)
+                .collect(Collectors.joining(", "));
+
+        String jd = job.getJd();
+        String experience = job.getExperience();
+
+        // =========================
+        // 4️⃣ GENERATE TOKEN & LINK (Moved Up)
+        // =========================
+        // We generate these now so they can be sent to the Python API
+        String token = UUID.randomUUID().toString();
+        String link = "https://interviewfoldfrontend.interviewfold.com/" + token;
+
+        // =========================
+        // 5️⃣ SAVE INTERVIEW ENTITY
+        // =========================
+        InterviewEntity interview = InterviewEntity.builder()
+                .jobId(jobId)
+                .candidateName(candidateName)
+                .email(email)
+                .phoneNumber(phoneNumber)
+                .resumeLink(filePath)
+                .isCoding(isCoding)
+                .startTime(LocalTime.parse(startTime))
+                .userId(id)
+                .endTime(endTime != null && !endTime.isEmpty() ? LocalTime.parse(endTime) : null)
+                .interviewDate(interviewDate != null ? LocalDate.parse(interviewDate) : null)
+                .status(1)
+                .build();
+
+        InterviewEntity savedInterview = interviewRepository.save(interview);
+
+        // =========================
+        // 6️⃣ CALL AI PROCESSOR (Python API)
+        // =========================
+        // Now 'link' is defined and can be passed correctly
+        List<String> aiQuestions = callAiPdfProcessor(
+                destinationFile,
+                jd,
+                experience,
+                musthaveSkillfinal,
+                mandatorySkillfinal,
+                link);
+
+        // Save generated questions to DB
+        for (String question : aiQuestions) {
+            QuestionEntity questionEntity = QuestionEntity.builder()
+                    .candidateJobScheduleId(savedInterview.getId())
+                    .questions(question)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+            questionRepository.save(questionEntity);
+        }
+
+        // =========================
+        // 7️⃣ SAVE INTERVIEW LINK ENTITY
+        // =========================
+        LocalDate parsedInterviewDate = LocalDate.parse(interviewDate);
+        LocalTime parsedEndTime = (endTime != null && !endTime.isEmpty())
+                ? LocalTime.parse(endTime)
+                : LocalTime.parse(startTime).plusHours(1);
+
+        LocalDateTime expiryDateTime = LocalDateTime.of(parsedInterviewDate, parsedEndTime);
+
+        InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
+                .interview(savedInterview)
+                .token(token)
+                .interviewLink(link)
+                .expiryTime(expiryDateTime)
+                .is_complete(0)
+                .interviewTime(interviewTime)
+                .codingTime(codingTime)
+                .terminated(0)
+                .coding(coding == null ? 0 : coding)
+                .interviewChecking(interviewData == null ? 1 : interviewData)
+                .isActive(true)
+                .build();
+
+        interviewLinkRepository.save(linkEntity);
+
+        // =========================
+        // 8️⃣ SEND EMAIL NOTIFICATION
+        // =========================
+        try {
+            Context context = new Context();
+            context.setVariable("candidateName", candidateName);
+            context.setVariable("interviewLink", link);
+            context.setVariable("jobTitle", job.getRole());
+
+            String formattedTime = startTime;
+            if (endTime != null && !endTime.trim().isEmpty()) {
+                formattedTime += " - " + endTime;
+            }
+            context.setVariable("interviewDate", interviewDate);
+            context.setVariable("interviewTime", formattedTime);
+
+            String process = templateEngine.process("interviewLinkSend", context);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom("iksen.testmail@gmail.com");
+            helper.setTo(email);
+            helper.setSubject("Invitation: AI Interview");
+            helper.setText(process, true);
+
+            mailSender.send(message);
+        } catch (jakarta.mail.MessagingException e) {
+            throw new RuntimeException("Failed to send interview invitation email", e);
+        }
+
+        return Map.of(
+                "link", link,
+                "token", token);
     }
 
-    return Map.of(
-            "link", link,
-            "token", token
-    );
-}
     private List<String> callAiPdfProcessor(
             File file,
             String jd,
             String experience,
             String musthaveSkillfinal,
             String mandatorySkillfinal,
-            String link
-    ) {
+            String link) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -484,15 +486,13 @@ public Map<String, String> scheduleInterview(
             // 🚀 This is the new line to send the link to your Python API
             body.add("interview_link", link);
 
-            HttpEntity<MultiValueMap<String, Object>> requestEntity =
-                    new HttpEntity<>(body, headers);
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             // Make the POST request to the Python API
             ResponseEntity<Map> response = restTemplate.postForEntity(
                     AI_API_URL,
                     requestEntity,
-                    Map.class
-            );
+                    Map.class);
 
             Map<String, Object> responseBody = response.getBody();
 
@@ -510,927 +510,937 @@ public Map<String, String> scheduleInterview(
             throw new RuntimeException("AI Processing Failed: " + e.getMessage(), e);
         }
 
-}
+    }
 
+    // @Transactional(readOnly = true)
+    // public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
+    //
+    // // 1️⃣ Fetch all distinct interviews (candidates) instead of all links
+    // // This prevents duplicate rows in the UI if a candidate has multiple links
+    // List<InterviewEntity> allInterviews = interviewRepository.findAll();
+    //
+    // return allInterviews.stream().map(interview -> {
+    //
+    // // 2️⃣ Fetch ALL links for this specific interview
+    // List<InterviewLinkEntity> allLinks =
+    // interviewLinkRepository.findAllByInterview(interview);
+    //
+    // // Sort them so newest links (highest ID) are checked first
+    // allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
+    //
+    // // 3️⃣ Find the currently ACTIVE link for the URL and Status
+    // InterviewLinkEntity activeLink = allLinks.stream()
+    // .filter(InterviewLinkEntity::getIsActive)
+    // .findFirst()
+    // .orElse(null);
+    //
+    // String interviewUrl = activeLink != null ? activeLink.getInterviewLink() :
+    // null;
+    // // Integer isComplete = activeLink != null ? activeLink.getIs_complete() : 0;
+    // Integer isComplete = allLinks.stream()
+    // .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 :
+    // 0;
+    //
+    // // Variables to hold our historical data
+    // String videoLink = null;
+    // String transcriptFileLink = null;
+    // String analysisFileLink = null;
+    // String terminationCause = null;
+    // String userJustification = null;
+    // String duration = null;
+    // Long interviewTime = 0L;
+    // Long codingTime = 0L;
+    // Integer terminated = 0;
+    //
+    // // 4️⃣ Loop through past links to find the most recent resources
+    // for (InterviewLinkEntity pastLink : allLinks) {
+    // Long linkId = pastLink.getId();
+    //
+    // if (terminationCause == null && pastLink.getTerminationCause() != null) {
+    // terminationCause = pastLink.getTerminationCause();
+    // }
+    //
+    // // 🔹 Find User Justification (if we haven't found one yet)
+    // if (userJustification == null && pastLink.getUserJustification() != null) {
+    // userJustification = pastLink.getUserJustification();
+    // }
+    // if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
+    // interviewTime = pastLink.getInterviewTime();
+    // }
+    //
+    // if (codingTime == 0L && pastLink.getCodingTime() != null) {
+    // codingTime = pastLink.getCodingTime();
+    // }
+    // if ( terminated == 0L && pastLink.getTerminated() != null) {
+    // terminated = pastLink.getTerminated();
+    // }
+    //
+    // // 🔹 Find Video
+    // if (videoLink == null) {
+    // videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+    // .map(VideoRecordingEntity::getVideoLink).orElse(null);
+    // }
+    //
+    // // 🔹 Find Transcription
+    // if (transcriptFileLink == null) {
+    // Optional<TranscriptionEntity> transcription = transciptionRepository
+    // .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+    // if (transcription.isPresent()) {
+    // transcriptFileLink = transcriptFileService.generateTranscriptFile(
+    // linkId, transcription.get().getTranscript()
+    // );
+    // }
+    // }
+    //
+    // // 🔹 Find Analysis
+    // if (analysisFileLink == null) {
+    // Optional<AnalysisEntity> analysis = analysisRepository
+    // .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+    // if (analysis.isPresent()) {
+    // AnalysisEntity analysisDuration = analysis.get();
+    // duration = analysisDuration.getDuration();
+    // analysisFileLink = analysisService.generateAnalysisPdf(
+    // linkId,
+    // analysis.get().getAnalysis(),
+    // interview.getCandidateName(),
+    // interview.getEmail(),
+    // interview.getPhoneNumber(),
+    // pastLink.getInterviewLink(),
+    // interview.getInterviewDate() != null ?
+    // interview.getInterviewDate().toString() : null,
+    // duration,
+    // videoLink,
+    // transcriptFileLink
+    // );
+    // }
+    // }
+    //
+    // // Stop searching if we've found all three files
+    // if (videoLink != null && transcriptFileLink != null && analysisFileLink !=
+    // null &&
+    // terminationCause != null && userJustification != null) {
+    // break;
+    // }
+    // }
+    //
+    // // 5️⃣ Fetch Job Info safely
+    // JobEntity job = null;
+    // try {
+    // if (interview.getJobId() != null) {
+    // Long jobId = Long.parseLong(interview.getJobId());
+    // job = jobRepository.findById(jobId).orElse(null);
+    // }
+    // } catch (NumberFormatException e) {
+    // // Fails gracefully if jobId is not a valid number
+    // job = null;
+    // }
+    //
+    // String clientName = (job != null && job.getClient() != null) ?
+    // job.getClient().getClientName() : null;
+    // String jobDescription = job != null ? job.getJd() : null;
+    //
+    // // 6️⃣ Return the DTO
+    // return InterviewScheduleResponseDto.builder()
+    // .id(interview.getId())
+    // .jobId(interview.getJobId())// Ensure the ID is mapped for the "Resend"
+    // button
+    // .candidateName(interview.getCandidateName())
+    // .candidateEmail(interview.getEmail())
+    // .candidatePhone(interview.getPhoneNumber())
+    // .resumeLink(interview.getResumeLink())
+    // .jobDescription(jobDescription)
+    // .jobName(clientName)
+    // .interviewDate(interview.getInterviewDate())
+    // .startTime(interview.getStartTime())
+    // .endTime(interview.getEndTime())
+    // .interviewLink(interviewUrl) // The fresh, new active link
+    // .transcription(transcriptFileLink) // The historical transcription
+    // .analysis(analysisFileLink) // The historical analysis
+    // .videoLink(videoLink) // The historical video
+    // .terminationCause(terminationCause) // Added
+    // .interviewTime(interviewTime)
+    // .codingTime(codingTime)
+    // .terminated(terminated)
+    // .userJustification(userJustification) // Added
+    // .is_complete(isComplete)
+    // .users(UserMapper.toDto(interview.getUserAllName()))
+    //
+    //
+    // .build();
+    //
+    // }).toList();
+    // }
 
+    // @Transactional(readOnly = true)
+    // public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
+    //
+    // // 1️⃣ Fetch all distinct interviews (candidates) instead of all links
+    // // This prevents duplicate rows in the UI if a candidate has multiple links
+    // List<InterviewEntity> allInterviews = interviewRepository.findAll();
+    //
+    // return allInterviews.stream().map(interview -> {
+    //
+    // // 2️⃣ Fetch ALL links for this specific interview
+    // List<InterviewLinkEntity> allLinks =
+    // interviewLinkRepository.findAllByInterview(interview);
+    //
+    // // Sort them so newest links (highest ID) are checked first
+    // allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
+    //
+    // // 3️⃣ Find the currently ACTIVE link for the URL and Status
+    // InterviewLinkEntity activeLink = allLinks.stream()
+    // .filter(InterviewLinkEntity::getIsActive)
+    // .findFirst()
+    // .orElse(null);
+    //
+    // String interviewUrl = activeLink != null ? activeLink.getInterviewLink() :
+    // null;
+    // Integer isComplete = allLinks.stream()
+    // .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 :
+    // 0;
+    //
+    // // Variables to hold our historical data
+    // String videoLink = null;
+    // String transcriptFileLink = null;
+    // String analysisFileLink = null;
+    // String terminationCause = null;
+    // String userJustification = null;
+    // String duration = null;
+    // Long interviewTime = 0L;
+    // Long codingTime = 0L;
+    // Integer terminated = 0;
+    //
+    // // 🌟 NEW: Variable to hold the Coding DTO
+    // CodingDTO codingDto = null;
+    //
+    // // 4️⃣ Loop through past links to find the most recent resources
+    // for (InterviewLinkEntity pastLink : allLinks) {
+    // Long linkId = pastLink.getId();
+    //
+    // if (terminationCause == null && pastLink.getTerminationCause() != null) {
+    // terminationCause = pastLink.getTerminationCause();
+    // }
+    //
+    // // 🔹 Find User Justification (if we haven't found one yet)
+    // if (userJustification == null && pastLink.getUserJustification() != null) {
+    // userJustification = pastLink.getUserJustification();
+    // }
+    // if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
+    // interviewTime = pastLink.getInterviewTime();
+    // }
+    //
+    // if (codingTime == 0L && pastLink.getCodingTime() != null) {
+    // codingTime = pastLink.getCodingTime();
+    // }
+    // if ( terminated == 0L && pastLink.getTerminated() != null) {
+    // terminated = pastLink.getTerminated();
+    // }
+    //
+    // // 🌟 NEW: Find Coding Data using the OneToOne relationship and map it!
+    // if (codingDto == null && pastLink.getCodingEntity() != null) {
+    // codingDto = CodingMapper.toDto(pastLink.getCodingEntity());
+    // }
+    //
+    // // 🔹 Find Video
+    // if (videoLink == null) {
+    // videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+    // .map(VideoRecordingEntity::getVideoLink).orElse(null);
+    // }
+    //
+    // // 🔹 Find Transcription
+    // if (transcriptFileLink == null) {
+    // Optional<TranscriptionEntity> transcription = transciptionRepository
+    // .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+    // if (transcription.isPresent()) {
+    // transcriptFileLink = transcriptFileService.generateTranscriptFile(
+    // linkId, transcription.get().getTranscript()
+    // );
+    // }
+    // }
+    //
+    // // 🔹 Find Analysis
+    // if (analysisFileLink == null) {
+    // Optional<AnalysisEntity> analysis = analysisRepository
+    // .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+    // if (analysis.isPresent()) {
+    // AnalysisEntity analysisDuration = analysis.get();
+    // duration = analysisDuration.getDuration();
+    // analysisFileLink = analysisService.generateAnalysisPdf(
+    // linkId,
+    // analysis.get().getAnalysis(),
+    // interview.getCandidateName(),
+    // interview.getEmail(),
+    // interview.getPhoneNumber(),
+    // pastLink.getInterviewLink(),
+    // interview.getInterviewDate() != null ?
+    // interview.getInterviewDate().toString() : null,
+    // duration,
+    // videoLink,
+    // transcriptFileLink
+    // );
+    // }
+    // }
+    //
+    // // Stop searching if we've found all files/data we need
+    // if (videoLink != null && transcriptFileLink != null && analysisFileLink !=
+    // null &&
+    // terminationCause != null && userJustification != null && codingDto != null) {
+    // break;
+    // }
+    // }
+    //
+    // // 5️⃣ Fetch Job Info safely
+    // JobEntity job = null;
+    // try {
+    // if (interview.getJobId() != null) {
+    // Long jobId = Long.parseLong(interview.getJobId());
+    // job = jobRepository.findById(jobId).orElse(null);
+    // }
+    // } catch (NumberFormatException e) {
+    // // Fails gracefully if jobId is not a valid number
+    // job = null;
+    // }
+    //
+    // String clientName = (job != null && job.getClient() != null) ?
+    // job.getClient().getClientName() : null;
+    // String jobDescription = job != null ? job.getJd() : null;
+    //
+    // // 6️⃣ Return the DTO
+    // return InterviewScheduleResponseDto.builder()
+    // .id(interview.getId())
+    // .jobId(interview.getJobId())// Ensure the ID is mapped for the "Resend"
+    // button
+    // .candidateName(interview.getCandidateName())
+    // .candidateEmail(interview.getEmail())
+    // .candidatePhone(interview.getPhoneNumber())
+    // .resumeLink(interview.getResumeLink())
+    // .jobDescription(jobDescription)
+    // .jobName(clientName)
+    // .interviewDate(interview.getInterviewDate())
+    // .startTime(interview.getStartTime())
+    // .endTime(interview.getEndTime())
+    // .interviewLink(interviewUrl) // The fresh, new active link
+    // .transcription(transcriptFileLink) // The historical transcription
+    // .analysis(analysisFileLink) // The historical analysis
+    // .videoLink(videoLink) // The historical video
+    // .terminationCause(terminationCause)
+    // .interviewTime(interviewTime)
+    // .codingTime(codingTime)
+    // .terminated(terminated)
+    // .userJustification(userJustification)
+    // .is_complete(isComplete)
+    // .users(UserMapper.toDto(interview.getUserAllName()))
+    // .codingDTO(codingDto) // 🌟 NEW: Attach the CodingDTO here!
+    // .build();
+    //
+    // }).toList();
+    // }
+    @Transactional(readOnly = true)
+    public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
 
-//@Transactional(readOnly = true)
-//public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
-//
-//    // 1️⃣ Fetch all distinct interviews (candidates) instead of all links
-//    // This prevents duplicate rows in the UI if a candidate has multiple links
-//    List<InterviewEntity> allInterviews = interviewRepository.findAll();
-//
-//    return allInterviews.stream().map(interview -> {
-//
-//        // 2️⃣ Fetch ALL links for this specific interview
-//        List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
-//
-//        // Sort them so newest links (highest ID) are checked first
-//        allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
-//
-//        // 3️⃣ Find the currently ACTIVE link for the URL and Status
-//        InterviewLinkEntity activeLink = allLinks.stream()
-//                .filter(InterviewLinkEntity::getIsActive)
-//                .findFirst()
-//                .orElse(null);
-//
-//        String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
-//        // Integer isComplete = activeLink != null ? activeLink.getIs_complete() : 0;
-//        Integer isComplete = allLinks.stream()
-//        .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
-//
-//        // Variables to hold our historical data
-//        String videoLink = null;
-//        String transcriptFileLink = null;
-//        String analysisFileLink = null;
-//        String terminationCause = null;
-//        String userJustification = null;
-//        String duration = null;
-//        Long interviewTime = 0L;
-//        Long codingTime = 0L;
-//        Integer terminated = 0;
-//
-//        // 4️⃣ Loop through past links to find the most recent resources
-//        for (InterviewLinkEntity pastLink : allLinks) {
-//            Long linkId = pastLink.getId();
-//
-//            if (terminationCause == null && pastLink.getTerminationCause() != null) {
-//                terminationCause = pastLink.getTerminationCause();
-//            }
-//
-//            // 🔹 Find User Justification (if we haven't found one yet)
-//            if (userJustification == null && pastLink.getUserJustification() != null) {
-//                userJustification = pastLink.getUserJustification();
-//            }
-//            if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
-//                interviewTime =  pastLink.getInterviewTime();
-//            }
-//
-//            if (codingTime == 0L && pastLink.getCodingTime() != null) {
-//                codingTime =  pastLink.getCodingTime();
-//            }
-//            if ( terminated == 0L && pastLink.getTerminated() != null) {
-//                terminated =  pastLink.getTerminated();
-//            }
-//
-//            // 🔹 Find Video
-//            if (videoLink == null) {
-//                videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
-//                        .map(VideoRecordingEntity::getVideoLink).orElse(null);
-//            }
-//
-//            // 🔹 Find Transcription
-//            if (transcriptFileLink == null) {
-//                Optional<TranscriptionEntity> transcription = transciptionRepository
-//                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-//                if (transcription.isPresent()) {
-//                    transcriptFileLink = transcriptFileService.generateTranscriptFile(
-//                            linkId, transcription.get().getTranscript()
-//                    );
-//                }
-//            }
-//
-//            // 🔹 Find Analysis
-//            if (analysisFileLink == null) {
-//                Optional<AnalysisEntity> analysis = analysisRepository
-//                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-//                if (analysis.isPresent()) {
-//                    AnalysisEntity analysisDuration = analysis.get();
-//                    duration = analysisDuration.getDuration();
-//                    analysisFileLink = analysisService.generateAnalysisPdf(
-//                            linkId,
-//                            analysis.get().getAnalysis(),
-//                            interview.getCandidateName(),
-//                            interview.getEmail(),
-//                            interview.getPhoneNumber(),
-//                            pastLink.getInterviewLink(),
-//                            interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-//                            duration,
-//                            videoLink,
-//                            transcriptFileLink
-//                    );
-//                }
-//            }
-//
-//            // Stop searching if we've found all three files
-//            if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
-//                terminationCause != null && userJustification != null) {
-//                break;
-//            }
-//        }
-//
-//        // 5️⃣ Fetch Job Info safely
-//        JobEntity job = null;
-//        try {
-//            if (interview.getJobId() != null) {
-//                Long jobId = Long.parseLong(interview.getJobId());
-//                job = jobRepository.findById(jobId).orElse(null);
-//            }
-//        } catch (NumberFormatException e) {
-//            // Fails gracefully if jobId is not a valid number
-//            job = null;
-//        }
-//
-//        String clientName = (job != null && job.getClient() != null) ? job.getClient().getClientName() : null;
-//        String jobDescription = job != null ? job.getJd() : null;
-//
-//        // 6️⃣ Return the DTO
-//        return InterviewScheduleResponseDto.builder()
-//                .id(interview.getId())
-//                .jobId(interview.getJobId())// Ensure the ID is mapped for the "Resend" button
-//                .candidateName(interview.getCandidateName())
-//                .candidateEmail(interview.getEmail())
-//                .candidatePhone(interview.getPhoneNumber())
-//                .resumeLink(interview.getResumeLink())
-//                .jobDescription(jobDescription)
-//                .jobName(clientName)
-//                .interviewDate(interview.getInterviewDate())
-//                .startTime(interview.getStartTime())
-//                .endTime(interview.getEndTime())
-//                .interviewLink(interviewUrl)         // The fresh, new active link
-//                .transcription(transcriptFileLink)   // The historical transcription
-//                .analysis(analysisFileLink)          // The historical analysis
-//                .videoLink(videoLink)                // The historical video
-//                .terminationCause(terminationCause)     // Added
-//                .interviewTime(interviewTime)
-//                .codingTime(codingTime)
-//                .terminated(terminated)
-//                .userJustification(userJustification)   // Added
-//                .is_complete(isComplete)
-//                .users(UserMapper.toDto(interview.getUserAllName()))
-//
-//
-//                .build();
-//
-//    }).toList();
-//}
+        // 1️⃣ Fetch all distinct interviews (candidates) instead of all links
+        // This prevents duplicate rows in the UI if a candidate has multiple links
+        List<InterviewEntity> allInterviews = interviewRepository.findAll();
 
-//    @Transactional(readOnly = true)
-//    public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
-//
-//        // 1️⃣ Fetch all distinct interviews (candidates) instead of all links
-//        // This prevents duplicate rows in the UI if a candidate has multiple links
-//        List<InterviewEntity> allInterviews = interviewRepository.findAll();
-//
-//        return allInterviews.stream().map(interview -> {
-//
-//            // 2️⃣ Fetch ALL links for this specific interview
-//            List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
-//
-//            // Sort them so newest links (highest ID) are checked first
-//            allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
-//
-//            // 3️⃣ Find the currently ACTIVE link for the URL and Status
-//            InterviewLinkEntity activeLink = allLinks.stream()
-//                    .filter(InterviewLinkEntity::getIsActive)
-//                    .findFirst()
-//                    .orElse(null);
-//
-//            String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
-//            Integer isComplete = allLinks.stream()
-//                    .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
-//
-//            // Variables to hold our historical data
-//            String videoLink = null;
-//            String transcriptFileLink = null;
-//            String analysisFileLink = null;
-//            String terminationCause = null;
-//            String userJustification = null;
-//            String duration = null;
-//            Long interviewTime = 0L;
-//            Long codingTime = 0L;
-//            Integer terminated = 0;
-//
-//            // 🌟 NEW: Variable to hold the Coding DTO
-//            CodingDTO codingDto = null;
-//
-//            // 4️⃣ Loop through past links to find the most recent resources
-//            for (InterviewLinkEntity pastLink : allLinks) {
-//                Long linkId = pastLink.getId();
-//
-//                if (terminationCause == null && pastLink.getTerminationCause() != null) {
-//                    terminationCause = pastLink.getTerminationCause();
-//                }
-//
-//                // 🔹 Find User Justification (if we haven't found one yet)
-//                if (userJustification == null && pastLink.getUserJustification() != null) {
-//                    userJustification = pastLink.getUserJustification();
-//                }
-//                if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
-//                    interviewTime =  pastLink.getInterviewTime();
-//                }
-//
-//                if (codingTime == 0L && pastLink.getCodingTime() != null) {
-//                    codingTime =  pastLink.getCodingTime();
-//                }
-//                if ( terminated == 0L && pastLink.getTerminated() != null) {
-//                    terminated =  pastLink.getTerminated();
-//                }
-//
-//                // 🌟 NEW: Find Coding Data using the OneToOne relationship and map it!
-//                if (codingDto == null && pastLink.getCodingEntity() != null) {
-//                    codingDto = CodingMapper.toDto(pastLink.getCodingEntity());
-//                }
-//
-//                // 🔹 Find Video
-//                if (videoLink == null) {
-//                    videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
-//                            .map(VideoRecordingEntity::getVideoLink).orElse(null);
-//                }
-//
-//                // 🔹 Find Transcription
-//                if (transcriptFileLink == null) {
-//                    Optional<TranscriptionEntity> transcription = transciptionRepository
-//                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-//                    if (transcription.isPresent()) {
-//                        transcriptFileLink = transcriptFileService.generateTranscriptFile(
-//                                linkId, transcription.get().getTranscript()
-//                        );
-//                    }
-//                }
-//
-//                // 🔹 Find Analysis
-//                if (analysisFileLink == null) {
-//                    Optional<AnalysisEntity> analysis = analysisRepository
-//                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-//                    if (analysis.isPresent()) {
-//                        AnalysisEntity analysisDuration = analysis.get();
-//                        duration = analysisDuration.getDuration();
-//                        analysisFileLink = analysisService.generateAnalysisPdf(
-//                                linkId,
-//                                analysis.get().getAnalysis(),
-//                                interview.getCandidateName(),
-//                                interview.getEmail(),
-//                                interview.getPhoneNumber(),
-//                                pastLink.getInterviewLink(),
-//                                interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-//                                duration,
-//                                videoLink,
-//                                transcriptFileLink
-//                        );
-//                    }
-//                }
-//
-//                // Stop searching if we've found all files/data we need
-//                if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
-//                        terminationCause != null && userJustification != null && codingDto != null) {
-//                    break;
-//                }
-//            }
-//
-//            // 5️⃣ Fetch Job Info safely
-//            JobEntity job = null;
-//            try {
-//                if (interview.getJobId() != null) {
-//                    Long jobId = Long.parseLong(interview.getJobId());
-//                    job = jobRepository.findById(jobId).orElse(null);
-//                }
-//            } catch (NumberFormatException e) {
-//                // Fails gracefully if jobId is not a valid number
-//                job = null;
-//            }
-//
-//            String clientName = (job != null && job.getClient() != null) ? job.getClient().getClientName() : null;
-//            String jobDescription = job != null ? job.getJd() : null;
-//
-//            // 6️⃣ Return the DTO
-//            return InterviewScheduleResponseDto.builder()
-//                    .id(interview.getId())
-//                    .jobId(interview.getJobId())// Ensure the ID is mapped for the "Resend" button
-//                    .candidateName(interview.getCandidateName())
-//                    .candidateEmail(interview.getEmail())
-//                    .candidatePhone(interview.getPhoneNumber())
-//                    .resumeLink(interview.getResumeLink())
-//                    .jobDescription(jobDescription)
-//                    .jobName(clientName)
-//                    .interviewDate(interview.getInterviewDate())
-//                    .startTime(interview.getStartTime())
-//                    .endTime(interview.getEndTime())
-//                    .interviewLink(interviewUrl)         // The fresh, new active link
-//                    .transcription(transcriptFileLink)   // The historical transcription
-//                    .analysis(analysisFileLink)          // The historical analysis
-//                    .videoLink(videoLink)                // The historical video
-//                    .terminationCause(terminationCause)
-//                    .interviewTime(interviewTime)
-//                    .codingTime(codingTime)
-//                    .terminated(terminated)
-//                    .userJustification(userJustification)
-//                    .is_complete(isComplete)
-//                    .users(UserMapper.toDto(interview.getUserAllName()))
-//                    .codingDTO(codingDto)                // 🌟 NEW: Attach the CodingDTO here!
-//                    .build();
-//
-//        }).toList();
-//    }
-@Transactional(readOnly = true)
-public List<InterviewScheduleResponseDto> getAllInterviewSchedules() {
+        return allInterviews.stream().map(interview -> {
 
-    // 1️⃣ Fetch all distinct interviews (candidates) instead of all links
-    // This prevents duplicate rows in the UI if a candidate has multiple links
-    List<InterviewEntity> allInterviews = interviewRepository.findAll();
+            // 2️⃣ Fetch ALL links for this specific interview
+            List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
 
-    return allInterviews.stream().map(interview -> {
+            // Sort them so newest links (highest ID) are checked first
+            allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
 
-        // 2️⃣ Fetch ALL links for this specific interview
-        List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
+            // 3️⃣ Find the currently ACTIVE link for the URL and Status
+            InterviewLinkEntity activeLink = allLinks.stream()
+                    .filter(InterviewLinkEntity::getIsActive)
+                    .findFirst()
+                    .orElse(null);
 
-        // Sort them so newest links (highest ID) are checked first
-        allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
+            String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
+            Integer isComplete = allLinks.stream()
+                    .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
 
-        // 3️⃣ Find the currently ACTIVE link for the URL and Status
-        InterviewLinkEntity activeLink = allLinks.stream()
-                .filter(InterviewLinkEntity::getIsActive)
-                .findFirst()
-                .orElse(null);
+            // Variables to hold our historical data
+            String videoLink = null;
+            String transcriptFileLink = null;
+            String analysisFileLink = null;
+            String terminationCause = null;
+            String userJustification = null;
+            String duration = null;
+            Long interviewTime = 0L;
+            Long codingTime = 0L;
+            Integer terminated = 0;
 
-        String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
-        Integer isComplete = allLinks.stream()
-                .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
+            // 🌟 Variable to hold the Coding DTO
+            CodingDTO codingDto = null;
 
-        // Variables to hold our historical data
-        String videoLink = null;
-        String transcriptFileLink = null;
-        String analysisFileLink = null;
-        String terminationCause = null;
-        String userJustification = null;
-        String duration = null;
-        Long interviewTime = 0L;
-        Long codingTime = 0L;
-        Integer terminated = 0;
+            // 4️⃣ Loop through past links to find the most recent resources
+            for (InterviewLinkEntity pastLink : allLinks) {
+                Long linkId = pastLink.getId();
 
-        // 🌟 Variable to hold the Coding DTO
-        CodingDTO codingDto = null;
+                if (terminationCause == null && pastLink.getTerminationCause() != null) {
+                    terminationCause = pastLink.getTerminationCause();
+                }
 
-        // 4️⃣ Loop through past links to find the most recent resources
-        for (InterviewLinkEntity pastLink : allLinks) {
-            Long linkId = pastLink.getId();
+                // 🔹 Find User Justification
+                if (userJustification == null && pastLink.getUserJustification() != null) {
+                    userJustification = pastLink.getUserJustification();
+                }
 
-            if (terminationCause == null && pastLink.getTerminationCause() != null) {
-                terminationCause = pastLink.getTerminationCause();
-            }
+                if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
+                    interviewTime = pastLink.getInterviewTime();
+                }
 
-            // 🔹 Find User Justification
-            if (userJustification == null && pastLink.getUserJustification() != null) {
-                userJustification = pastLink.getUserJustification();
-            }
+                if (codingTime == 0L && pastLink.getCodingTime() != null) {
+                    codingTime = pastLink.getCodingTime();
+                }
 
-            if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
-                interviewTime = pastLink.getInterviewTime();
-            }
+                if (terminated == 0 && pastLink.getTerminated() != null) {
+                    terminated = pastLink.getTerminated();
+                }
 
-            if (codingTime == 0L && pastLink.getCodingTime() != null) {
-                codingTime = pastLink.getCodingTime();
-            }
+                // 🌟 NEW: Find Coding Data and map both the question and answers
+                if (codingDto == null && pastLink.getCodingEntity() != null) {
+                    // Map the base Coding entity to DTO
+                    codingDto = CodingMapper.toDto(pastLink.getCodingEntity());
 
-            if (terminated == 0 && pastLink.getTerminated() != null) {
-                terminated = pastLink.getTerminated();
-            }
+                    // Fetch the answers using the common token from the link
+                    List<CodingAnsEntity> answerEntities = codingAnsRepository
+                            .findAllAnswersByToken(pastLink.getToken());
 
-            // 🌟 NEW: Find Coding Data and map both the question and answers
-            if (codingDto == null && pastLink.getCodingEntity() != null) {
-                // Map the base Coding entity to DTO
-                codingDto = CodingMapper.toDto(pastLink.getCodingEntity());
+                    // Map the answer entities to DTOs
+                    List<CodingAnsDto> answerDtos = answerEntities.stream().map(ans -> CodingAnsDto.builder()
+                            .id(ans.getId())
+                            .token(ans.getToken())
+                            .questionId(ans.getQuestionId())
+                            .ans(ans.getAns())
+                            .status(ans.getStatus())
+                            .isDeleted(ans.getIsDeleted())
+                            .createdAt(ans.getCreatedAt())
+                            .updatedAt(ans.getUpdatedAt())
+                            .build()).toList();
 
-                // Fetch the answers using the common token from the link
-                List<CodingAnsEntity> answerEntities = codingAnsRepository.findAllAnswersByToken(pastLink.getToken());
+                    // Attach the answers to the main CodingDTO
+                    codingDto.setAnswers(answerDtos);
+                }
 
-                // Map the answer entities to DTOs
-                List<CodingAnsDto> answerDtos = answerEntities.stream().map(ans ->
-                        CodingAnsDto.builder()
-                                .id(ans.getId())
-                                .token(ans.getToken())
-                                .questionId(ans.getQuestionId())
-                                .ans(ans.getAns())
-                                .status(ans.getStatus())
-                                .isDeleted(ans.getIsDeleted())
-                                .createdAt(ans.getCreatedAt())
-                                .updatedAt(ans.getUpdatedAt())
-                                .build()
-                ).toList();
+                // 🔹 Find Video
+                if (videoLink == null) {
+                    videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+                            .map(VideoRecordingEntity::getVideoLink).orElse(null);
+                }
 
-                // Attach the answers to the main CodingDTO
-                codingDto.setAnswers(answerDtos);
-            }
+                // 🔹 Find Transcription
+                if (transcriptFileLink == null) {
+                    Optional<TranscriptionEntity> transcription = transciptionRepository
+                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+                    if (transcription.isPresent()) {
+                        transcriptFileLink = transcriptFileService.generateTranscriptFile(
+                                linkId, transcription.get().getTranscript());
+                    }
+                }
 
-            // 🔹 Find Video
-            if (videoLink == null) {
-                videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
-                        .map(VideoRecordingEntity::getVideoLink).orElse(null);
-            }
+                // 🔹 Find Analysis
+                if (analysisFileLink == null) {
+                    Optional<AnalysisEntity> analysis = analysisRepository
+                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+                    if (analysis.isPresent()) {
+                        AnalysisEntity analysisDuration = analysis.get();
+                        duration = analysisDuration.getDuration();
+                        analysisFileLink = analysisService.generateAnalysisPdf(
+                                linkId,
+                                analysis.get().getAnalysis(),
+                                interview.getCandidateName(),
+                                interview.getEmail(),
+                                interview.getPhoneNumber(),
+                                pastLink.getInterviewLink(),
+                                interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
+                                duration,
+                                videoLink,
+                                transcriptFileLink);
+                    }
+                }
 
-            // 🔹 Find Transcription
-            if (transcriptFileLink == null) {
-                Optional<TranscriptionEntity> transcription = transciptionRepository
-                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-                if (transcription.isPresent()) {
-                    transcriptFileLink = transcriptFileService.generateTranscriptFile(
-                            linkId, transcription.get().getTranscript()
-                    );
+                // Stop searching if we've found all files/data we need
+                if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
+                        terminationCause != null && userJustification != null && codingDto != null) {
+                    break;
                 }
             }
 
-            // 🔹 Find Analysis
-            if (analysisFileLink == null) {
-                Optional<AnalysisEntity> analysis = analysisRepository
-                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-                if (analysis.isPresent()) {
-                    AnalysisEntity analysisDuration = analysis.get();
-                    duration = analysisDuration.getDuration();
-                    analysisFileLink = analysisService.generateAnalysisPdf(
-                            linkId,
-                            analysis.get().getAnalysis(),
-                            interview.getCandidateName(),
-                            interview.getEmail(),
-                            interview.getPhoneNumber(),
-                            pastLink.getInterviewLink(),
-                            interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-                            duration,
-                            videoLink,
-                            transcriptFileLink
-                    );
+            // 5️⃣ Fetch Job Info safely
+            JobEntity job = null;
+            try {
+                if (interview.getJobId() != null) {
+                    Long jobId = Long.parseLong(interview.getJobId());
+                    job = jobRepository.findById(jobId).orElse(null);
                 }
+            } catch (NumberFormatException e) {
+                // Fails gracefully if jobId is not a valid number
+                job = null;
             }
 
-            // Stop searching if we've found all files/data we need
-            if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
-                    terminationCause != null && userJustification != null && codingDto != null) {
-                break;
-            }
-        }
+            String clientName = (job != null && job.getClient() != null) ? job.getClient().getClientName() : null;
+            String jobDescription = job != null ? job.getJd() : null;
 
-        // 5️⃣ Fetch Job Info safely
-        JobEntity job = null;
-        try {
-            if (interview.getJobId() != null) {
-                Long jobId = Long.parseLong(interview.getJobId());
-                job = jobRepository.findById(jobId).orElse(null);
-            }
-        } catch (NumberFormatException e) {
-            // Fails gracefully if jobId is not a valid number
-            job = null;
-        }
-
-        String clientName = (job != null && job.getClient() != null) ? job.getClient().getClientName() : null;
-        String jobDescription = job != null ? job.getJd() : null;
-
-        // 6️⃣ Return the DTO
-        return InterviewScheduleResponseDto.builder()
-                .id(interview.getId())
-                .jobId(interview.getJobId())
-                .candidateName(interview.getCandidateName())
-                .candidateEmail(interview.getEmail())
-                .candidatePhone(interview.getPhoneNumber())
-                .resumeLink(interview.getResumeLink())
-                .jobDescription(jobDescription)
-                .jobName(clientName)
-                .interviewDate(interview.getInterviewDate())
-                .startTime(interview.getStartTime())
-                .endTime(interview.getEndTime())
-                .interviewLink(interviewUrl)
-                .transcription(transcriptFileLink)
-                .analysis(analysisFileLink)
-                .videoLink(videoLink)
-                .terminationCause(terminationCause)
-                .interviewTime(interviewTime)
-                .codingTime(codingTime)
-                .terminated(terminated)
-                .userJustification(userJustification)
-                .is_complete(isComplete)
-                .users(UserMapper.toDto(interview.getUserAllName()))
-                .codingDTO(codingDto)                // 🌟 The mapped CodingDTO including Answers
-                .build();
-
-    }).toList();
-}
-
-@Transactional(readOnly = true)
-public InterviewLinkDto getAllList(String token){
-
-    Optional<InterviewLinkEntity> entity = interviewLinkRepository.findByTokenAndIsActiveTrue(token);
-    if(entity.isEmpty()){
-        throw new RuntimeException("invalid token" + token);
-    }
-     InterviewLinkDto interviewLinkDto = InterviewLinkDto.builder()
-                                        .id(entity.get().getId())
-                                        .interviewDto(InterviewMapper.toDTONew(entity.get().getInterview()))
-                                        .build();
-    return interviewLinkDto;
-
-}
-
-
-//@Transactional(readOnly = true)
-//public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
-//
-//    // 1️⃣ Check job exists
-//    JobEntity job = jobRepository.findById(jobPrimaryId)
-//            .orElseThrow(() -> new RuntimeException("Job not found"));
-//
-//    String jobIdString = String.valueOf(jobPrimaryId);
-//
-//    // 2️⃣ Fetch interviews
-//    List<InterviewEntity> interviews =
-//            interviewRepository.findByJobId(jobIdString);
-//
-//
-//
-//
-//
-//return interviews.stream().map(interview -> {
-//
-//    // 1️⃣ Fetch ALL links for this interview
-//    List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
-//
-//    // Sort them so newest links (highest ID) are checked first
-//    allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
-//
-//    // 2️⃣ Find the currently ACTIVE link for the Resend/Interview URL
-//    InterviewLinkEntity activeLink = allLinks.stream()
-//            .filter(InterviewLinkEntity::getIsActive)
-//            .findFirst()
-//            .orElse(null);
-//
-//    String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
-////     Integer isComplete = activeLink != null ? activeLink.getIs_complete() : 0;
-//// Check if ANY of the candidate's links (past or present) were completed
-//Integer isComplete = allLinks.stream()
-//        .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
-//
-//    // Variables to hold our historical data
-//    String videoLink = null;
-//    String transcriptFileLink = null;
-//    String analysisFileLink = null;
-//    String terminationCause = null;
-//    String userJustification = null;
-//    String duration = null;
-//
-//    // 3️⃣ Loop through all past and present links to find the resources
-//    for (InterviewLinkEntity pastLink : allLinks) {
-//        Long linkId = pastLink.getId();
-//
-//        // 🔹 Find Termination Cause (if we haven't found one yet)
-//            if (terminationCause == null && pastLink.getTerminationCause() != null) {
-//                terminationCause = pastLink.getTerminationCause();
-//            }
-//            if (userJustification == null && pastLink.getUserJustification() != null) {
-//                userJustification = pastLink.getUserJustification();
-//            }
-//
-//        // 🔹 Find Video (if we haven't found one yet)
-//        if (videoLink == null) {
-//            videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
-//                    .map(VideoRecordingEntity::getVideoLink).orElse(null);
-//        }
-//
-//        // 🔹 Find Transcription (if we haven't found one yet)
-//        if (transcriptFileLink == null) {
-//            Optional<TranscriptionEntity> transcription = transciptionRepository
-//                    .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-//            if (transcription.isPresent()) {
-//                transcriptFileLink = transcriptFileService.generateTranscriptFile(
-//                        linkId, transcription.get().getTranscript()
-//                );
-//            }
-//        }
-//
-//        // 🔹 Find Analysis (if we haven't found one yet)
-//        if (analysisFileLink == null) {
-//            Optional<AnalysisEntity> analysis = analysisRepository
-//                    .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-//
-//            if (analysis.isPresent()) {
-//                  AnalysisEntity analysisDuration = analysis.get();
-//                  duration = analysisDuration.getDuration();
-//                analysisFileLink = analysisService.generateAnalysisPdf(
-//                        linkId,
-//                        analysis.get().getAnalysis(),
-//                        interview.getCandidateName(),
-//                        interview.getEmail(),
-//                        interview.getPhoneNumber(),
-//                        pastLink.getInterviewLink(), // Pass the link where the interview actually happened
-//                        interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-//                        duration,
-//                        videoLink,
-//                        transcriptFileLink
-//                );
-//            }
-//        }
-//
-//        // Stop searching if we've found all three files
-//        if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
-//                terminationCause != null && userJustification != null) {
-//                break;
-//            }
-//    }
-//
-//    // 4️⃣ Return the combined Data Transfer Object
-//    return InterviewScheduleResponseDto.builder()
-//            .id(interview.getId())
-//            .candidateName(interview.getCandidateName())
-//            .candidateEmail(interview.getEmail())
-//            .candidatePhone(interview.getPhoneNumber())
-//            .resumeLink(interview.getResumeLink())
-//            .jobDescription(job.getJd())
-//            .jobName(job.getClient() != null ? job.getClient().getClientName() : null)
-//            .interviewDate(interview.getInterviewDate())
-//            .startTime(interview.getStartTime())
-//            .endTime(interview.getEndTime())
-//            .interviewLink(interviewUrl)         // The fresh, new active link
-//            .transcription(transcriptFileLink)   // The historical transcription
-//            .analysis(analysisFileLink)          // The historical analysis
-//            .videoLink(videoLink)
-//            .jobId(interview.getJobId())
-//            .users(UserMapper.toDto(interview.getUserAllName()))
-//            .terminationCause(terminationCause)     // Added
-//            .userJustification(userJustification)                // The historical video
-//            .is_complete(isComplete)
-//            .build();
-//
-//}).toList();
-//
-//
-//
-//
-//
-//
-//
-//
-//}
-
-@Transactional(readOnly = true)
-public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
-
-    // 1️⃣ Check job exists
-    JobEntity job = jobRepository.findById(jobPrimaryId)
-            .orElseThrow(() -> new RuntimeException("Job not found"));
-
-    String jobIdString = String.valueOf(jobPrimaryId);
-
-    // 2️⃣ Fetch interviews
-    List<InterviewEntity> interviews =
-            interviewRepository.findByJobId(jobIdString);
-
-    return interviews.stream().map(interview -> {
-
-        // 1️⃣ Fetch ALL links for this interview
-        List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
-
-        // Sort them so newest links (highest ID) are checked first
-        allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
-
-        // 2️⃣ Find the currently ACTIVE link for the Resend/Interview URL
-        InterviewLinkEntity activeLink = allLinks.stream()
-                .filter(InterviewLinkEntity::getIsActive)
-                .findFirst()
-                .orElse(null);
-
-        String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
-
-        // Check if ANY of the candidate's links (past or present) were completed
-        Integer isComplete = allLinks.stream()
-                .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
-
-        // Variables to hold our historical data
-        String videoLink = null;
-        String transcriptFileLink = null;
-        String analysisFileLink = null;
-        String terminationCause = null;
-        String userJustification = null;
-        String duration = null;
-
-        // 🌟 NEW: Added variables to hold time, termination flag, and coding DTO
-        Long interviewTime = 0L;
-        Long codingTime = 0L;
-        Integer terminated = 0;
-        resume.miles.codingquestion.dto.CodingDTO codingDto = null;
-
-        // 3️⃣ Loop through all past and present links to find the resources
-        for (InterviewLinkEntity pastLink : allLinks) {
-            Long linkId = pastLink.getId();
-
-            // 🔹 Find Termination Cause (if we haven't found one yet)
-            if (terminationCause == null && pastLink.getTerminationCause() != null) {
-                terminationCause = pastLink.getTerminationCause();
-            }
-            if (userJustification == null && pastLink.getUserJustification() != null) {
-                userJustification = pastLink.getUserJustification();
-            }
-
-            // 🌟 NEW: Find Timing and Termination Flags
-            if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
-                interviewTime = pastLink.getInterviewTime();
-            }
-            if (codingTime == 0L && pastLink.getCodingTime() != null) {
-                codingTime = pastLink.getCodingTime();
-            }
-            if (terminated == 0 && pastLink.getTerminated() != null) {
-                terminated = pastLink.getTerminated();
-            }
-
-            // 🌟 NEW: Find Coding Data using the OneToOne relationship and map it!
-            if (codingDto == null && pastLink.getCodingEntity() != null) {
-                codingDto = resume.miles.codingquestion.mapper.CodingMapper.toDto(pastLink.getCodingEntity());
-            }
-
-            // 🔹 Find Video (if we haven't found one yet)
-            if (videoLink == null) {
-                videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
-                        .map(VideoRecordingEntity::getVideoLink).orElse(null);
-            }
-
-            // 🔹 Find Transcription (if we haven't found one yet)
-            if (transcriptFileLink == null) {
-                Optional<TranscriptionEntity> transcription = transciptionRepository
-                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-                if (transcription.isPresent()) {
-                    transcriptFileLink = transcriptFileService.generateTranscriptFile(
-                            linkId, transcription.get().getTranscript()
-                    );
-                }
-            }
-
-            // 🔹 Find Analysis (if we haven't found one yet)
-            if (analysisFileLink == null) {
-                Optional<AnalysisEntity> analysis = analysisRepository
-                        .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
-
-                if (analysis.isPresent()) {
-                    AnalysisEntity analysisDuration = analysis.get();
-                    duration = analysisDuration.getDuration();
-                    analysisFileLink = analysisService.generateAnalysisPdf(
-                            linkId,
-                            analysis.get().getAnalysis(),
-                            interview.getCandidateName(),
-                            interview.getEmail(),
-                            interview.getPhoneNumber(),
-                            pastLink.getInterviewLink(), // Pass the link where the interview actually happened
-                            interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
-                            duration,
-                            videoLink,
-                            transcriptFileLink
-                    );
-                }
-            }
-
-            // Stop searching if we've found all files and data
-            if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
-                    terminationCause != null && userJustification != null && codingDto != null) {
-                break;
-            }
-        }
-
-        // 4️⃣ Return the combined Data Transfer Object
-        return InterviewScheduleResponseDto.builder()
-                .id(interview.getId())
-                .candidateName(interview.getCandidateName())
-                .candidateEmail(interview.getEmail())
-                .candidatePhone(interview.getPhoneNumber())
-                .resumeLink(interview.getResumeLink())
-                .jobDescription(job.getJd())
-                .jobName(job.getClient() != null ? job.getClient().getClientName() : null)
-                .interviewDate(interview.getInterviewDate())
-                .startTime(interview.getStartTime())
-                .endTime(interview.getEndTime())
-                .interviewLink(interviewUrl)         // The fresh, new active link
-                .transcription(transcriptFileLink)   // The historical transcription
-                .analysis(analysisFileLink)          // The historical analysis
-                .videoLink(videoLink)
-                .jobId(interview.getJobId())
-                .users(UserMapper.toDto(interview.getUserAllName()))
-                .terminationCause(terminationCause)
-                .userJustification(userJustification)
-                .is_complete(isComplete)
-                // 🌟 NEW: Attach the newly tracked data here!
-                .interviewTime(interviewTime)
-                .codingTime(codingTime)
-                .terminated(terminated)
-                .codingDTO(codingDto)
-                .build();
-
-    }).toList();
-}
-
-
-
-@Transactional(readOnly = true)
-public String getJobRoleByToken(String token) {
-    Optional<InterviewLinkEntity> entity = interviewLinkRepository.findByTokenAndIsActiveTrue(token);
-    if(entity.isEmpty()){
-        throw new RuntimeException("invalid token: " + token);
-    }
-    InterviewEntity interview = entity.get().getInterview();
-    if (interview.getJobId() != null) {
-        JobEntity job = jobRepository.findById(Long.parseLong(interview.getJobId()))
-                .orElseThrow(() -> new RuntimeException("Job not found"));
-        return job.getRole();
-    }
-    throw new RuntimeException("Job ID not associated with this interview");
-}
-
-// Resend link logic
-@Transactional
-public Map<String, String> resendInterviewLink(Long interviewId,Integer coding,Integer interviewData) {
-    // 1. Fetch the existing interview
-    InterviewEntity interview = interviewRepository.findById(interviewId)
-            .orElseThrow(() -> new RuntimeException("Interview not found with ID: " + interviewId));
-
-    // 2. Optional: Deactivate old links if any
-    List<InterviewLinkEntity> oldLinks = interviewLinkRepository.findAllByInterview(interview);
-    for (InterviewLinkEntity oldLink : oldLinks) {
-        oldLink.setIsActive(false);
-    }
-    interviewLinkRepository.saveAll(oldLinks);
-
-
-    // 3. Generate New Token and Link
-    String newToken = UUID.randomUUID().toString();
-    String newLink = "https://interviewfoldfrontend.interviewfold.com/" + newToken;
-
-    // 4. Calculate Expiry (using your existing logic: 1 hour after start if end not present)
-    LocalDateTime expiryDateTime;
-    if (interview.getEndTime() != null) {
-        expiryDateTime = LocalDateTime.of(interview.getInterviewDate(), interview.getEndTime());
-    } else {
-        expiryDateTime = LocalDateTime.of(interview.getInterviewDate(), interview.getStartTime().plusHours(1));
-    }
-
-    // 5. Save New Link Entity
-    InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
-            .interview(interview)
-            .token(newToken)
-            .interviewLink(newLink)
-            .expiryTime(expiryDateTime)
-            .is_complete(0)
-            .coding(coding)
-            .interviewChecking(interviewData)
-            .isActive(true)
-            .build();
-
-    interviewLinkRepository.save(linkEntity);
-
-    // 6. Send Email (Reusing your logic)
-    try {
-        JobEntity job = jobRepository.findById(Long.parseLong(interview.getJobId()))
-                .orElseThrow(() -> new RuntimeException("Job not found"));
-
-        Context context = new Context();
-        context.setVariable("candidateName", interview.getCandidateName());
-        context.setVariable("interviewLink", newLink);
-        context.setVariable("jobTitle", job.getRole());
-
-        String formattedTime = "TBD";
-        if (interview.getStartTime() != null) {
-            formattedTime = interview.getStartTime().toString();
-            if (interview.getEndTime() != null) {
-                formattedTime += " - " + interview.getEndTime().toString();
-            }
-        }
-        context.setVariable("interviewDate", interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : "TBD");
-        context.setVariable("interviewTime", formattedTime);
-
-        String emailContent = templateEngine.process("interviewLinkSend", context);
-
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-        helper.setFrom("iksen.testmail@gmail.com");
-        helper.setTo(interview.getEmail());
-        helper.setSubject("Resent Invitation: AI Interview");
-        helper.setText(emailContent, true);
-
-        mailSender.send(message);
-        
-        return Map.of(
-            "link", newLink,
-            "token", newToken
-        );
-    } catch (Exception e) {
-        throw new RuntimeException("Failed to resend interview invitation email", e);
-    }
-}
-
-
-        @Transactional(readOnly = true)
-        public ResponseInterviewDataDto dataDetails(String token){
-            Optional<InterviewLinkEntity> interviewLink = interviewLinkRepository.findByToken(token);
-            if(interviewLink.isEmpty()){
-                throw new RuntimeException("invalid token");
-            }
-            return ResponseInterviewDataDto.builder()
-                    .coding(interviewLink.get().getCoding())
-                    .interviewChecking(interviewLink.get().getInterviewChecking())
+            // 6️⃣ Return the DTO
+            return InterviewScheduleResponseDto.builder()
+                    .id(interview.getId())
+                    .jobId(interview.getJobId())
+                    .candidateName(interview.getCandidateName())
+                    .candidateEmail(interview.getEmail())
+                    .candidatePhone(interview.getPhoneNumber())
+                    .resumeLink(interview.getResumeLink())
+                    .jobDescription(jobDescription)
+                    .jobName(clientName)
+                    .interviewDate(interview.getInterviewDate())
+                    .startTime(interview.getStartTime())
+                    .endTime(interview.getEndTime())
+                    .interviewLink(interviewUrl)
+                    .transcription(transcriptFileLink)
+                    .analysis(analysisFileLink)
+                    .videoLink(videoLink)
+                    .terminationCause(terminationCause)
+                    .interviewTime(interviewTime)
+                    .codingTime(codingTime)
+                    .terminated(terminated)
+                    .userJustification(userJustification)
+                    .is_complete(isComplete)
+                    .users(UserMapper.toDto(interview.getUserAllName()))
+                    .codingDTO(codingDto) // 🌟 The mapped CodingDTO including Answers
                     .build();
+
+        }).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public InterviewLinkDto getAllList(String token) {
+
+        Optional<InterviewLinkEntity> entity = interviewLinkRepository.findByTokenAndIsActiveTrue(token);
+        if (entity.isEmpty()) {
+            throw new RuntimeException("invalid token" + token);
+        }
+        InterviewLinkDto interviewLinkDto = InterviewLinkDto.builder()
+                .id(entity.get().getId())
+                .interviewDto(InterviewMapper.toDTONew(entity.get().getInterview()))
+                .build();
+        return interviewLinkDto;
+
+    }
+
+    // @Transactional(readOnly = true)
+    // public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long
+    // jobPrimaryId) {
+    //
+    // // 1️⃣ Check job exists
+    // JobEntity job = jobRepository.findById(jobPrimaryId)
+    // .orElseThrow(() -> new RuntimeException("Job not found"));
+    //
+    // String jobIdString = String.valueOf(jobPrimaryId);
+    //
+    // // 2️⃣ Fetch interviews
+    // List<InterviewEntity> interviews =
+    // interviewRepository.findByJobId(jobIdString);
+    //
+    //
+    //
+    //
+    //
+    // return interviews.stream().map(interview -> {
+    //
+    // // 1️⃣ Fetch ALL links for this interview
+    // List<InterviewLinkEntity> allLinks =
+    // interviewLinkRepository.findAllByInterview(interview);
+    //
+    // // Sort them so newest links (highest ID) are checked first
+    // allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
+    //
+    // // 2️⃣ Find the currently ACTIVE link for the Resend/Interview URL
+    // InterviewLinkEntity activeLink = allLinks.stream()
+    // .filter(InterviewLinkEntity::getIsActive)
+    // .findFirst()
+    // .orElse(null);
+    //
+    // String interviewUrl = activeLink != null ? activeLink.getInterviewLink() :
+    // null;
+    //// Integer isComplete = activeLink != null ? activeLink.getIs_complete() : 0;
+    //// Check if ANY of the candidate's links (past or present) were completed
+    // Integer isComplete = allLinks.stream()
+    // .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 :
+    // 0;
+    //
+    // // Variables to hold our historical data
+    // String videoLink = null;
+    // String transcriptFileLink = null;
+    // String analysisFileLink = null;
+    // String terminationCause = null;
+    // String userJustification = null;
+    // String duration = null;
+    //
+    // // 3️⃣ Loop through all past and present links to find the resources
+    // for (InterviewLinkEntity pastLink : allLinks) {
+    // Long linkId = pastLink.getId();
+    //
+    // // 🔹 Find Termination Cause (if we haven't found one yet)
+    // if (terminationCause == null && pastLink.getTerminationCause() != null) {
+    // terminationCause = pastLink.getTerminationCause();
+    // }
+    // if (userJustification == null && pastLink.getUserJustification() != null) {
+    // userJustification = pastLink.getUserJustification();
+    // }
+    //
+    // // 🔹 Find Video (if we haven't found one yet)
+    // if (videoLink == null) {
+    // videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+    // .map(VideoRecordingEntity::getVideoLink).orElse(null);
+    // }
+    //
+    // // 🔹 Find Transcription (if we haven't found one yet)
+    // if (transcriptFileLink == null) {
+    // Optional<TranscriptionEntity> transcription = transciptionRepository
+    // .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+    // if (transcription.isPresent()) {
+    // transcriptFileLink = transcriptFileService.generateTranscriptFile(
+    // linkId, transcription.get().getTranscript()
+    // );
+    // }
+    // }
+    //
+    // // 🔹 Find Analysis (if we haven't found one yet)
+    // if (analysisFileLink == null) {
+    // Optional<AnalysisEntity> analysis = analysisRepository
+    // .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+    //
+    // if (analysis.isPresent()) {
+    // AnalysisEntity analysisDuration = analysis.get();
+    // duration = analysisDuration.getDuration();
+    // analysisFileLink = analysisService.generateAnalysisPdf(
+    // linkId,
+    // analysis.get().getAnalysis(),
+    // interview.getCandidateName(),
+    // interview.getEmail(),
+    // interview.getPhoneNumber(),
+    // pastLink.getInterviewLink(), // Pass the link where the interview actually
+    // happened
+    // interview.getInterviewDate() != null ?
+    // interview.getInterviewDate().toString() : null,
+    // duration,
+    // videoLink,
+    // transcriptFileLink
+    // );
+    // }
+    // }
+    //
+    // // Stop searching if we've found all three files
+    // if (videoLink != null && transcriptFileLink != null && analysisFileLink !=
+    // null &&
+    // terminationCause != null && userJustification != null) {
+    // break;
+    // }
+    // }
+    //
+    // // 4️⃣ Return the combined Data Transfer Object
+    // return InterviewScheduleResponseDto.builder()
+    // .id(interview.getId())
+    // .candidateName(interview.getCandidateName())
+    // .candidateEmail(interview.getEmail())
+    // .candidatePhone(interview.getPhoneNumber())
+    // .resumeLink(interview.getResumeLink())
+    // .jobDescription(job.getJd())
+    // .jobName(job.getClient() != null ? job.getClient().getClientName() : null)
+    // .interviewDate(interview.getInterviewDate())
+    // .startTime(interview.getStartTime())
+    // .endTime(interview.getEndTime())
+    // .interviewLink(interviewUrl) // The fresh, new active link
+    // .transcription(transcriptFileLink) // The historical transcription
+    // .analysis(analysisFileLink) // The historical analysis
+    // .videoLink(videoLink)
+    // .jobId(interview.getJobId())
+    // .users(UserMapper.toDto(interview.getUserAllName()))
+    // .terminationCause(terminationCause) // Added
+    // .userJustification(userJustification) // The historical video
+    // .is_complete(isComplete)
+    // .build();
+    //
+    // }).toList();
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    // }
+
+    @Transactional(readOnly = true)
+    public List<InterviewScheduleResponseDto> getCandidatesByJobPrimaryId(Long jobPrimaryId) {
+
+        // 1️⃣ Check job exists
+        JobEntity job = jobRepository.findById(jobPrimaryId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        String jobIdString = String.valueOf(jobPrimaryId);
+
+        // 2️⃣ Fetch interviews
+        List<InterviewEntity> interviews = interviewRepository.findByJobId(jobIdString);
+
+        return interviews.stream().map(interview -> {
+
+            // 1️⃣ Fetch ALL links for this interview
+            List<InterviewLinkEntity> allLinks = interviewLinkRepository.findAllByInterview(interview);
+
+            // Sort them so newest links (highest ID) are checked first
+            allLinks.sort((l1, l2) -> l2.getId().compareTo(l1.getId()));
+
+            // 2️⃣ Find the currently ACTIVE link for the Resend/Interview URL
+            InterviewLinkEntity activeLink = allLinks.stream()
+                    .filter(InterviewLinkEntity::getIsActive)
+                    .findFirst()
+                    .orElse(null);
+
+            String interviewUrl = activeLink != null ? activeLink.getInterviewLink() : null;
+
+            // Check if ANY of the candidate's links (past or present) were completed
+            Integer isComplete = allLinks.stream()
+                    .anyMatch(l -> l.getIs_complete() != null && l.getIs_complete() == 1) ? 1 : 0;
+
+            // Variables to hold our historical data
+            String videoLink = null;
+            String transcriptFileLink = null;
+            String analysisFileLink = null;
+            String terminationCause = null;
+            String userJustification = null;
+            String duration = null;
+
+            // 🌟 NEW: Added variables to hold time, termination flag, and coding DTO
+            Long interviewTime = 0L;
+            Long codingTime = 0L;
+            Integer terminated = 0;
+            resume.miles.codingquestion.dto.CodingDTO codingDto = null;
+
+            // 3️⃣ Loop through all past and present links to find the resources
+            for (InterviewLinkEntity pastLink : allLinks) {
+                Long linkId = pastLink.getId();
+
+                // 🔹 Find Termination Cause (if we haven't found one yet)
+                if (terminationCause == null && pastLink.getTerminationCause() != null) {
+                    terminationCause = pastLink.getTerminationCause();
+                }
+                if (userJustification == null && pastLink.getUserJustification() != null) {
+                    userJustification = pastLink.getUserJustification();
+                }
+
+                // 🌟 NEW: Find Timing and Termination Flags
+                if (interviewTime == 0L && pastLink.getInterviewTime() != null) {
+                    interviewTime = pastLink.getInterviewTime();
+                }
+                if (codingTime == 0L && pastLink.getCodingTime() != null) {
+                    codingTime = pastLink.getCodingTime();
+                }
+                if (terminated == 0 && pastLink.getTerminated() != null) {
+                    terminated = pastLink.getTerminated();
+                }
+
+                // 🌟 NEW: Find Coding Data using the OneToOne relationship and map it!
+                if (codingDto == null && pastLink.getCodingEntity() != null) {
+                    codingDto = resume.miles.codingquestion.mapper.CodingMapper.toDto(pastLink.getCodingEntity());
+                }
+
+                // 🔹 Find Video (if we haven't found one yet)
+                if (videoLink == null) {
+                    videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+                            .map(VideoRecordingEntity::getVideoLink).orElse(null);
+                }
+
+                // 🔹 Find Transcription (if we haven't found one yet)
+                if (transcriptFileLink == null) {
+                    Optional<TranscriptionEntity> transcription = transciptionRepository
+                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+                    if (transcription.isPresent()) {
+                        transcriptFileLink = transcriptFileService.generateTranscriptFile(
+                                linkId, transcription.get().getTranscript());
+                    }
+                }
+
+                // 🔹 Find Analysis (if we haven't found one yet)
+                if (analysisFileLink == null) {
+                    Optional<AnalysisEntity> analysis = analysisRepository
+                            .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+
+                    if (analysis.isPresent()) {
+                        AnalysisEntity analysisDuration = analysis.get();
+                        duration = analysisDuration.getDuration();
+                        analysisFileLink = analysisService.generateAnalysisPdf(
+                                linkId,
+                                analysis.get().getAnalysis(),
+                                interview.getCandidateName(),
+                                interview.getEmail(),
+                                interview.getPhoneNumber(),
+                                pastLink.getInterviewLink(), // Pass the link where the interview actually happened
+                                interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null,
+                                duration,
+                                videoLink,
+                                transcriptFileLink);
+                    }
+                }
+
+                // Stop searching if we've found all files and data
+                if (videoLink != null && transcriptFileLink != null && analysisFileLink != null &&
+                        terminationCause != null && userJustification != null && codingDto != null) {
+                    break;
+                }
+            }
+
+            // 4️⃣ Return the combined Data Transfer Object
+            return InterviewScheduleResponseDto.builder()
+                    .id(interview.getId())
+                    .candidateName(interview.getCandidateName())
+                    .candidateEmail(interview.getEmail())
+                    .candidatePhone(interview.getPhoneNumber())
+                    .resumeLink(interview.getResumeLink())
+                    .jobDescription(job.getJd())
+                    .jobName(job.getClient() != null ? job.getClient().getClientName() : null)
+                    .interviewDate(interview.getInterviewDate())
+                    .startTime(interview.getStartTime())
+                    .endTime(interview.getEndTime())
+                    .interviewLink(interviewUrl) // The fresh, new active link
+                    .transcription(transcriptFileLink) // The historical transcription
+                    .analysis(analysisFileLink) // The historical analysis
+                    .videoLink(videoLink)
+                    .jobId(interview.getJobId())
+                    .users(UserMapper.toDto(interview.getUserAllName()))
+                    .terminationCause(terminationCause)
+                    .userJustification(userJustification)
+                    .is_complete(isComplete)
+                    // 🌟 NEW: Attach the newly tracked data here!
+                    .interviewTime(interviewTime)
+                    .codingTime(codingTime)
+                    .terminated(terminated)
+                    .codingDTO(codingDto)
+                    .build();
+
+        }).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public String getJobRoleByToken(String token) {
+        Optional<InterviewLinkEntity> entity = interviewLinkRepository.findByTokenAndIsActiveTrue(token);
+        if (entity.isEmpty()) {
+            throw new RuntimeException("invalid token: " + token);
+        }
+        InterviewEntity interview = entity.get().getInterview();
+        if (interview.getJobId() != null) {
+            JobEntity job = jobRepository.findById(Long.parseLong(interview.getJobId()))
+                    .orElseThrow(() -> new RuntimeException("Job not found"));
+            return job.getRole();
+        }
+        throw new RuntimeException("Job ID not associated with this interview");
+    }
+
+    // Resend link logic
+    @Transactional
+    public Map<String, String> resendInterviewLink(Long interviewId, Integer coding, Integer interviewData) {
+        // 1. Fetch the existing interview
+        InterviewEntity interview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> new RuntimeException("Interview not found with ID: " + interviewId));
+
+        // 2. Optional: Deactivate old links if any
+        List<InterviewLinkEntity> oldLinks = interviewLinkRepository.findAllByInterview(interview);
+        for (InterviewLinkEntity oldLink : oldLinks) {
+            oldLink.setIsActive(false);
+        }
+        interviewLinkRepository.saveAll(oldLinks);
+
+        // 3. Generate New Token and Link
+        String newToken = UUID.randomUUID().toString();
+        String newLink = "https://interviewfoldfrontend.interviewfold.com/" + newToken;
+
+        // 4. Calculate Expiry (using your existing logic: 1 hour after start if end not
+        // present)
+        LocalDateTime expiryDateTime;
+        if (interview.getEndTime() != null) {
+            expiryDateTime = LocalDateTime.of(interview.getInterviewDate(), interview.getEndTime());
+        } else {
+            expiryDateTime = LocalDateTime.of(interview.getInterviewDate(), interview.getStartTime().plusHours(1));
         }
 
-        @Transactional
-        public String deleteCandidate(Long id) {
-            InterviewEntity entity = interviewRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Interview not found with ID: " + id));
+        // 5. Save New Link Entity
+        InterviewLinkEntity linkEntity = InterviewLinkEntity.builder()
+                .interview(interview)
+                .token(newToken)
+                .interviewLink(newLink)
+                .expiryTime(expiryDateTime)
+                .is_complete(0)
+                .coding(coding)
+                .interviewChecking(interviewData)
+                .isActive(true)
+                .build();
 
-            interviewRepository.delete(entity);
-            return "Deleted successfully";
+        interviewLinkRepository.save(linkEntity);
+
+        // 6. Send Email (Reusing your logic)
+        try {
+            JobEntity job = jobRepository.findById(Long.parseLong(interview.getJobId()))
+                    .orElseThrow(() -> new RuntimeException("Job not found"));
+
+            Context context = new Context();
+            context.setVariable("candidateName", interview.getCandidateName());
+            context.setVariable("interviewLink", newLink);
+            context.setVariable("jobTitle", job.getRole());
+
+            String formattedTime = "TBD";
+            if (interview.getStartTime() != null) {
+                formattedTime = interview.getStartTime().toString();
+                if (interview.getEndTime() != null) {
+                    formattedTime += " - " + interview.getEndTime().toString();
+                }
+            }
+            context.setVariable("interviewDate",
+                    interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : "TBD");
+            context.setVariable("interviewTime", formattedTime);
+
+            String emailContent = templateEngine.process("interviewLinkSend", context);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom("iksen.testmail@gmail.com");
+            helper.setTo(interview.getEmail());
+            helper.setSubject("Resent Invitation: AI Interview");
+            helper.setText(emailContent, true);
+
+            mailSender.send(message);
+
+            return Map.of(
+                    "link", newLink,
+                    "token", newToken);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to resend interview invitation email", e);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseInterviewDataDto dataDetails(String token) {
+        Optional<InterviewLinkEntity> interviewLink = interviewLinkRepository.findByToken(token);
+        if (interviewLink.isEmpty()) {
+            throw new RuntimeException("invalid token");
+        }
+        return ResponseInterviewDataDto.builder()
+                .coding(interviewLink.get().getCoding())
+                .interviewChecking(interviewLink.get().getInterviewChecking())
+                .build();
+    }
+
+    @Transactional
+    public String deleteCandidate(Long id) {
+        InterviewEntity entity = interviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Interview not found with ID: " + id));
+
+        interviewRepository.delete(entity);
+        return "Deleted successfully";
+    }
+
     @Transactional
     public String updateInterviewSchedule(Long id, InterviewDto dto) {
         // 1. Fetch the existing entity
@@ -1438,9 +1448,9 @@ public Map<String, String> resendInterviewLink(Long interviewId,Integer coding,I
                 .orElseThrow(() -> new RuntimeException("Interview schedule not found with ID: " + id));
 
         // 2. Update fields (checking for nulls allows partial updates via PATCH)
-//        if (dto.getJobId() != null) {
-//            existingInterview.setJobId(dto.getJobId());
-//        }
+        // if (dto.getJobId() != null) {
+        // existingInterview.setJobId(dto.getJobId());
+        // }
         if (dto.getCandidateName() != null) {
             existingInterview.setCandidateName(dto.getCandidateName());
         }
@@ -1472,6 +1482,3 @@ public Map<String, String> resendInterviewLink(Long interviewId,Integer coding,I
         return "Interview schedule updated successfully.";
     }
 }
-
-
-

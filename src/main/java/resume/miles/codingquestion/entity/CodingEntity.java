@@ -1,6 +1,5 @@
 package resume.miles.codingquestion.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -48,17 +47,14 @@ public class CodingEntity {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "token",                 // The column in this (coding_questions) table
+    @JoinColumn(name = "token", // The column in this (coding_questions) table
             referencedColumnName = "token", // The column in the target (interview_link) table
-            insertable = false,             // Keeps your existing newEntity.setToken() logic working
-            updatable = false
-    )
+            insertable = false, // Keeps your existing newEntity.setToken() logic working
+            updatable = false)
     private InterviewLinkEntity interviewLink;
 }
