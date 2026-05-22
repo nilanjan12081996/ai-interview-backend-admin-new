@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import jakarta.mail.internet.MimeMessage;
@@ -1481,4 +1482,49 @@ public class InterviewService {
 
         return "Interview schedule updated successfully.";
     }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getAnalysisDataByToken(String token) {
+        InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        InterviewEntity interview = interviewLink.getInterview();
+        Long linkId = interviewLink.getId();
+
+        // Find Analysis
+        AnalysisEntity analysis = analysisRepository
+                .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId)
+                .orElse(null);
+
+        String analysisJson = analysis != null ? analysis.getAnalysis() : null;
+        String duration = analysis != null ? analysis.getDuration() : null;
+
+        // Find Video
+        String videoLink = videoRecodingRepository.findByInterviewLinkId(linkId)
+                .map(VideoRecordingEntity::getVideoLink).orElse(null);
+
+        // Find Transcription
+        String transcriptFileLink = null;
+        Optional<TranscriptionEntity> transcription = transciptionRepository
+                .findTopByInterviewLinkIdOrderByCreatedAtDesc(linkId);
+        if (transcription.isPresent()) {
+            transcriptFileLink = transcriptFileService.generateTranscriptFile(
+                    linkId, transcription.get().getTranscript()
+            );
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("analysis", analysisJson);
+        response.put("duration", duration);
+        response.put("candidateName", interview.getCandidateName());
+        response.put("candidateEmail", interview.getEmail());
+        response.put("candidatePhone", interview.getPhoneNumber());
+        response.put("interviewDate", interview.getInterviewDate() != null ? interview.getInterviewDate().toString() : null);
+        response.put("interviewLink", interviewLink.getInterviewLink());
+        response.put("videoLink", videoLink);
+        response.put("transcriptionLink", transcriptFileLink);
+
+        return response;
+    }
+
 }

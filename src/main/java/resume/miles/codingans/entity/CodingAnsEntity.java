@@ -30,7 +30,7 @@ public class CodingAnsEntity {
 
     // Using String here for simplicity, but this can also be mapped
     // to a Jackson JsonNode or a Map<String, Object> depending on your needs.
-    @JdbcTypeCode(SqlTypes.JSON)
+   @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "ans", nullable = false, columnDefinition = "json")
     private String ans;
 
