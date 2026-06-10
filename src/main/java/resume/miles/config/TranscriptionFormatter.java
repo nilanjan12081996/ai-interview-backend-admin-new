@@ -32,11 +32,11 @@ public class TranscriptionFormatter {
         for (String line : uniqueLines) {
 
             if (line.contains("[Interviewer]")) {
-                formatted.append("\n🟢 INTERVIEWER:\n");
+                formatted.append("\n INTERVIEWER:\n");
                 formatted.append(line.replace("[Interviewer]:", "").trim());
                 formatted.append("\n");
             } else if (line.contains("[Candidate]")) {
-                formatted.append("\n🔵 CANDIDATE:\n");
+                formatted.append("\n CANDIDATE:\n");
                 formatted.append(line.replace("[Candidate]:", "").trim());
                 formatted.append("\n");
             } else if (!line.isBlank()) {
