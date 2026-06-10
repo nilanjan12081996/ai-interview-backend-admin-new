@@ -77,7 +77,7 @@ public class CodingController {
     }
 
     @GetMapping("/get-question-pdf/{token}")
-    public ResponseEntity<?> getQuestionByToken(@PathVariable String token) {
+    public ResponseEntity<?> getQuestionByTokenname(@PathVariable String token) {
         Map<String, Object> response = new HashMap<>();
         try {
             String data = codingService.getQuestion(token);

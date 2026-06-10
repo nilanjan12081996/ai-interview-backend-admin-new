@@ -110,7 +110,7 @@ public class CodingAnsController {
     }
 
     @GetMapping("/code-ans/{token}")
-    public ResponseEntity<?> getCodeWithToken(@PathVariable String token) {
+    public ResponseEntity<?> getCodeWithTokenNmae(@PathVariable String token) {
         Map<String,Object> response = new HashMap<>();
         try{
             CodingAnsDto codingAnsDtoResponse = codingAnsService.listWithToken(token);
