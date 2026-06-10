@@ -108,4 +108,30 @@ public class CodingAnsController {
             return ResponseEntity.status(400).body(response);
         }
     }
+
+    @GetMapping("/code-ans/{token}")
+    public ResponseEntity<?> getCodeWithToken(@PathVariable String token) {
+        Map<String,Object> response = new HashMap<>();
+        try{
+            CodingAnsDto codingAnsDtoResponse = codingAnsService.listWithToken(token);
+            response.put("statusCode", 200);
+            response.put("message", "ans found");
+            response.put("ans", codingAnsDtoResponse);
+            response.put("status", true);
+
+            return ResponseEntity.status(200).body(response);
+        }catch(RuntimeException e){
+            response.put("statusCode", 422);
+            response.put("message", e.getMessage());
+            response.put("status", false);
+
+            return ResponseEntity.status(422).body(response);
+        }catch(Exception e){
+            response.put("statusCode", 400);
+            response.put("message", e.getMessage());
+            response.put("status", false);
+
+            return ResponseEntity.status(400).body(response);
+        }
+    }
 }
