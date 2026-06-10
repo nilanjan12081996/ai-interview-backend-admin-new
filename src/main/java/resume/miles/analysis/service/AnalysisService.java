@@ -140,6 +140,29 @@ public class AnalysisService {
     // PUBLIC API (logic unchanged)
     // =========================================================================
 
+    // @Transactional
+    // public void saveAnalysis(AnalysisRequestDto request) {
+    //     InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
+    //             .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+    //     AnalysisEntity existingAnalysis = analysisRepository
+    //             .findTopByInterviewLinkIdOrderByCreatedAtDesc(interviewLink.getId())
+    //             .orElse(null);
+
+    //     if (existingAnalysis != null) {
+    //         existingAnalysis.setAnalysis(request.getAnalysis());
+    //         existingAnalysis.setStatus(1);
+    //         analysisRepository.save(existingAnalysis);
+    //     } else {
+    //         AnalysisEntity newAnalysis = AnalysisEntity.builder()
+    //                 .interviewLinkId(interviewLink.getId())
+    //                 .analysis(request.getAnalysis())
+    //                 .status(1)
+    //                 .build();
+    //         analysisRepository.save(newAnalysis);
+    //     }
+    // }
+
     @Transactional
     public void saveAnalysis(AnalysisRequestDto request) {
         InterviewLinkEntity interviewLink = interviewLinkRepository.findByToken(request.getToken())
@@ -150,10 +173,25 @@ public class AnalysisService {
                 .orElse(null);
 
         if (existingAnalysis != null) {
-            existingAnalysis.setAnalysis(request.getAnalysis());
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                tools.jackson.databind.node.ObjectNode existingNode = 
+                        (tools.jackson.databind.node.ObjectNode) mapper.readTree(existingAnalysis.getAnalysis());
+                
+                tools.jackson.databind.node.ObjectNode incomingNode = 
+                        (tools.jackson.databind.node.ObjectNode) mapper.readTree(request.getAnalysis());
+                
+                existingNode.setAll(incomingNode);
+                existingAnalysis.setAnalysis(mapper.writeValueAsString(existingNode));
+                
+            } catch (Exception e) {
+                existingAnalysis.setAnalysis(request.getAnalysis());
+            }
+            
             existingAnalysis.setStatus(1);
             analysisRepository.save(existingAnalysis);
-        } else {
+        } 
+        else { 
             AnalysisEntity newAnalysis = AnalysisEntity.builder()
                     .interviewLinkId(interviewLink.getId())
                     .analysis(request.getAnalysis())
@@ -162,6 +200,7 @@ public class AnalysisService {
             analysisRepository.save(newAnalysis);
         }
     }
+
 
     // @Transactional
     // public void saveAnalysis(AnalysisRequestDto request) {}
